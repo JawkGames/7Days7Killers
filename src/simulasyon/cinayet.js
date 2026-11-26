@@ -7,20 +7,20 @@ import {UretimHatasi} from './zar.js';
 
 const guc=(d,A,V)=>{const a=d.kisi(A), v=d.kisi(V); return a.yas>=65||(a.cinsiyet==='K'&&v.cinsiyet==='E')?.3:1;};
 
-function yontemSecenekleri(d,A,V,m){
+function yontemSecenekleri(d,A,V,Y,m){
   const o=d.ayar.oranlar, ka=d.kisi(A), l=[];
   for(const e of ka.esyalar||[]){
     const x=ESYA[e];
     if(x&&x.silah) l.push({yontem:x.silah,silah:{esya:e,sahip:A,calinti:false},w:(MIZAC_KENDI_SILAH[ka.mizac]??1)*(x.silah==='zehir'?1.5:1)});
   }
   for(const s of d.sirlariOf(A)) if(s.tur==='zehir'){
-    const kaynak=s.kimler.find(k=>(d.kisi(k).esyalar||[]).some(e=>ESYA[e]?.silah==='zehir'));
+    const kaynak=s.kimler.find(k=>k!==V&&k!==Y&&(d.kisi(k).esyalar||[]).some(e=>ESYA[e]?.silah==='zehir'));
     l.push({yontem:'zehir',silah:null,kaynak:kaynak?{kisi:kaynak,esya:d.kisi(kaynak).esyalar.find(e=>ESYA[e]?.silah==='zehir'),sir:s.id}:null,w:3});
   }
   // Başkasının aleti: kurnaz katil hasmının aletini çalıp suçu ona atmayı sever.
   const calinti=[];
   for(const O of d.ids){
-    if(O===A||O===V) continue;
+    if(O===A||O===V||O===Y) continue;
     for(const e of d.kisi(O).esyalar||[]){
       const x=ESYA[e];
       if(!x||!x.silah||x.silah==='zehir') continue;
@@ -30,8 +30,8 @@ function yontemSecenekleri(d,A,V,m){
   }
   const taban=ka.mizac==='kurnaz'?o.calintiSilahKurnaz:o.calintiSilah, top=calinti.reduce((s,c)=>s+c.f,0);
   for(const c of calinti) l.push({...c,w:taban*c.f/top});
-  l.push({yontem:'bogma',silah:null,w:guc(d,A,V)});
-  l.push({yontem:'darbe',silah:null,w:1}); // taş, odun
+  l.push({yontem:'bogma',silah:null,w:.8*guc(d,A,V)});
+  l.push({yontem:'darbe',silah:null,w:.7}); // taş, odun
   if(SU_MEKANLARI.includes(m)) l.push({yontem:'suda-bogma',silah:null,w:1.5*guc(d,A,V)});
   return l;
 }
@@ -59,10 +59,11 @@ export function cinayetleriYerlestir(d,z,cz,roller){
       const yakin=d.rel(A,V).length>0||d.sirlar.some(s=>(s.sahip===A&&s.kimler.includes(V))||(s.sahip===V&&s.kimler.includes(A)));
       const yerler=new Map([[vYer,false]]);
       for(const m of [...(d.harita[vYer]||[]),...d.mekanIds.filter(m=>['kir','ortak'].includes(d.mekanTuru(m)))]) if(!yerler.has(m)) yerler.set(m,true);
+      const cagriPayi=(yakin?1.2:.5)/Math.max(1,yerler.size-1); // kurbanı bir yere çağırmak: bütün seçenekler toplamı
       for(const [m,cagri] of yerler){
         const digerleri=cz.orada(m,t).filter(k=>k!==A&&k!==V&&k!==Y);
         let w=p.agirlik*(digerleri.length===0?1:digerleri.length===1?.1:.005);
-        w*=cagri?(yakin?.5:.2):1.5;
+        w*=cagri?cagriPayi:1.5;
         if(p.dilim==='ikindi'&&d.mekanTuru(m)!=='kir') w*=.1;
         if(Y&&yardimciVar) w*=3;
         if(digerleri.some(k=>cz.kilitli(k,t))) w*=.2;
@@ -79,12 +80,19 @@ export function cinayetleriYerlestir(d,z,cz,roller){
     if(Y) iddialar[Y]=d.masumYer(Y,dilim);
     if(kt.ortan){
       const B=kt.ortan, bYer=cz.yer[B][t];
-      if(B!==Y&&bYer&&bYer!==m&&!String(cz.neden[B][t]).startsWith('cinayet')){iddialar[A]=bYer; cz.kilitle(B,t);}
+      if(B!==Y&&bYer&&bYer!==m&&!String(cz.neden[B][t]).startsWith('cinayet')){
+        // Gece başkasının evinde olmak inandırıcı değil: o zaman B, A'yı evinde gördüğünü söyler.
+        // Gece başkasının evinde olmak inandırıcı değil: o gece örtme kurulmaz.
+        const evdeGece=dilim==='gece'&&d.mekanTuru(bYer)==='ev'&&d.kisi(A).ev!==bYer;
+        if(evdeGece){bagSil('ortme',b=>b.ortulen===A); kt.ortan=null;}
+        else {iddialar[A]=bYer; cz.kilitle(B,t);}
+      }
       else {bagSil('ortme',b=>b.ortulen===A); kt.ortan=null;}
     }
 
     // 3) Yerleştir.
     const digerleri=cz.orada(m,t).filter(k=>k!==A&&k!==V&&k!==Y);
+    cz.sahneEkle(m,t);
     cz.koy(A,t,m,'cinayet:'+id,true);
     if(Y) cz.koy(Y,t,m,'cinayet-yardim:'+id,true);
     cz.koy(V,t,m,s.cagri?'cagrildi:'+id:cz.neden[V][t],true);
@@ -108,14 +116,14 @@ export function cinayetleriYerlestir(d,z,cz,roller){
     }
 
     // 5) Yöntem ve gerektirdiği önceki olay.
-    let secenek=yontemSecenekleri(d,A,V,m), y=null, onOlay=null;
+    let secenek=yontemSecenekleri(d,A,V,Y,m), y=null, onOlay=null;
     while(!y){
       let c=z.agirlikli(secenek);
       if(!c) throw new UretimHatasi(`${A} için yöntem bulunamadı`);
       if(c.silah&&c.silah.calinti){
         const O=c.silah.sahip, x=ESYA[c.silah.esya], P=x.yer==='is'?(d.kisi(O).is||d.kisi(O).ev):d.kisi(O).ev;
         const anlar=[];
-        for(let u=Math.max(0,t-2*D);u<t;u++) if(cz.bos(A,u)&&cz.canli(O,u)) anlar.push({u,w:(zaman.dilim(u)==='gece'?.4:1)*(cz.yer[O][u]===P?.3:1)});
+        for(let u=Math.max(0,t-2*D);u<t;u++) if(cz.bos(A,u)&&cz.canli(O,u)&&!cz.sahne(P,u)) anlar.push({u,w:(zaman.dilim(u)==='gece'?.4:1)*(cz.yer[O][u]===P?.3:1)});
         const a=z.agirlikli(anlar);
         if(!a){secenek=secenek.filter(s=>s!==c); continue;}
         const oid=olayId();
@@ -123,7 +131,7 @@ export function cinayetleriYerlestir(d,z,cz,roller){
         onOlay={id:oid,tur:'hirsizlik',zaman:a.u,mekan:P,kisiler:[A],esya:c.silah.esya,sahip:O,cinayet:id};
       }else if(c.kaynak){
         const K=c.kaynak.kisi, P=d.kisi(K).ev, anlar=[];
-        for(let u=Math.max(0,t-2*D);u<t;u++) if(zaman.dilim(u)!=='gece'&&cz.bos(A,u)&&cz.bos(K,u)&&cz.yer[K][u]===P) anlar.push({u,w:1});
+        for(let u=Math.max(0,t-2*D);u<t;u++) if(zaman.dilim(u)!=='gece'&&cz.bos(A,u)&&cz.bos(K,u)&&cz.yer[K][u]===P&&!cz.sahne(P,u)) anlar.push({u,w:1});
         const a=z.agirlikli(anlar);
         if(a){
           const oid=olayId();
@@ -148,7 +156,7 @@ export function cinayetleriYerlestir(d,z,cz,roller){
       if(l.length){const b=l.find(k=>d.rel(k,V).length)||l[0]; cz.kilitle(b,u); bulunma={zaman:u,bulan:b,neden:'rastlanti'};}
     }
     if(!bulunma){
-      const l=d.ids.filter(k=>k!==A&&k!==Y&&k!==V&&cz.bos(k,son));
+      const l=cz.sahne(m,son)?[]:d.ids.filter(k=>k!==A&&k!==Y&&k!==V&&cz.bos(k,son));
       const F=z.agirlikli(l,k=>d.rel(k,V).length?3:(d.harita[m]||[]).includes(cz.yer[k][son])?1:.15);
       if(!F) throw new UretimHatasi(`${id} cesedini bulacak kimse yok`);
       const arama=d.rel(F,V).length>0;

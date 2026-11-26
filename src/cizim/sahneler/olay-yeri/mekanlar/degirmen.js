@@ -11,7 +11,7 @@ const TAS=[112,106,92], TOPRAK=[98,90,74], AHSAP=[90,76,58], UN=[196,192,176], C
 const ARKA=520, SOL=-300, SAG=300;
 const KAPI={x0:108, x1:194, ust:182};
 const isik={konum:[151,115,488], guc:1.2, menzil:260, ortam:.2};
-const SEKI={x:[-250,-40],y:[0,50],z:[370,510]}, TAS_={x:-146,z:440,r:54}, TEKNE={x:[-232,-136],y:[0,36],z:[296,352]};
+const SEKI={x:[-250,-40],y:[0,50],z:[370,510]}, TAS_={x:-146,z:440,r:54}, TEKNE={x:[-184,-92],y:[0,34],z:[282,336]};
 
 function cuval(P,X,Z,boy,en,egim,r,t){
   const s=P.n(X,0,Z), o=P.olcek(X,0,Z), L=P.n(...isik.konum), yan=Math.sign(L[0]-s[0])||1;
@@ -45,12 +45,12 @@ export default {
   isik,
   yuvalar:{
     'zemin-on':  {duzlem:'zemin', konum:[-40,0,218], yuzey:'toprak', alan:22},
-    'zemin-orta':{duzlem:'zemin', konum:[-178,0,262], yuzey:'un', alan:10},
+    'zemin-orta':{duzlem:'zemin', konum:[-128,0,246], yuzey:'un', alan:8},
     'zemin-kose':{duzlem:'zemin', konum:[172,0,286], yuzey:'toprak', alan:10},
     'esik':      {duzlem:'zemin', konum:[151,6,532], yuzey:'tas', alan:6},
     'duvar':     {duzlem:'arka', konum:[34,138,ARKA], yuzey:'tas', alan:8},
     'masa-ustu': {duzlem:'ust', konum:[-66,SEKI.y[1],394], yuzey:'tas', alan:5},
-    'beden':     {duzlem:'zemin', konum:[10,0,330], aci:.25, ortu:'kilim'}
+    'beden':     {duzlem:'zemin', konum:[20,0,325], aci:.25, ortu:'kilim'}
   },
   ciz(P,r){
     const R=rng(4411), K=KAPI, S=SEKI, T=TAS_, tk=TEKNE;
@@ -85,7 +85,7 @@ export default {
       c.strokeStyle='rgba(0,0,0,.55)'; c.lineWidth=7; c.beginPath(); c.moveTo(s0[0],s0[1]); c.lineTo(s1[0],s1[1]); c.stroke();
     }
     // un tozu: teknenin önü ve sekinin çevresi bembeyaz değil ama belirgin unlu
-    duzlemde(P,[-180,0,300],DUZLEM.zemin,()=>{
+    duzlemde(P,[-140,0,280],DUZLEM.zemin,()=>{
       leke(0,10,110,70,UN,.34); leke(10,40,60,36,UN,.28); leke(40,-60,90,40,UN,.2);
       for(let i=0;i<40;i++) leke((R()-.5)*220,(R()-.5)*150,6+R()*22,3+R()*9,UN,.05+R()*.1,R()*3);
       tara(-120,-90,120,90,.3,3,UN,.1,77,.7);
@@ -131,7 +131,7 @@ export default {
     kutu(P,{...isik,ortam:.28},tk.x,tk.y,tk.z,AHSAP,130);
     for(let i=1;i<3;i++){const y=i*12; hat3(P,[[tk.x[0],y,tk.z[0]],[tk.x[1],y,tk.z[0]],[tk.x[1],y,tk.z[1]]],MUREKKEP,.5,1,132+i,2,1);}
     duzlemde(P,[0,0,tk.z[0]],DUZLEM.arka,()=>{tara(tk.x[0],-36,tk.x[1],0,.02,2.4,MUREKKEP,.25,135,.7); leke(tk.x[0]+20,-30,40,10,UN,.2);});
-    const ic=[[tk.x[0]+5,33,tk.z[0]+5],[tk.x[1]-5,33,tk.z[0]+5],[tk.x[1]-5,33,tk.z[1]-5],[tk.x[0]+5,33,tk.z[1]-5]];
+    const ic=[[tk.x[0]+5,31,tk.z[0]+5],[tk.x[1]-5,31,tk.z[0]+5],[tk.x[1]-5,31,tk.z[1]-5],[tk.x[0]+5,31,tk.z[1]-5]];
     cokgen3(P,ic,golgele(UN,.55));
     c.save(); c.beginPath(); yol3(P,ic); c.clip(); const tm=P.n((tk.x[0]+tk.x[1])/2,34,tk.z[1]-12); leke(tm[0],tm[1],60,18,UN,.45); leke(tm[0],tm[1]+8,70,14,[0,0,0],.2); c.restore();
     hat3(P,ic,MUREKKEP,.5,1,131,2,1,true);

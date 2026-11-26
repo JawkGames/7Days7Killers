@@ -53,6 +53,12 @@ export function kas(yon,fx){
   const Y=G.yuz, kk=Y.kasKalin, eg=Y.kasEgim;
   const ic=poz.kasCat*7-poz.kasKaldir*3, k=poz.kaynama, r=rng(yon>0?21:22);
   c.save(); c.translate(yon*Y.gozAralik+fx*.8,-43+Y.kasY-poz.kasKaldir*6); c.scale(yon,1);
+  if(kk!==1){ // gür kaş: tellerin altında koyu, dışa doğru incelen bir leke
+    const ust=x=>lerp(8+ic,-1,Math.sin((x+36)/80*Math.PI*.6))-6.5*Math.sin((x+36)/80*Math.PI)+eg*(x-4);
+    c.beginPath(); for(let x=-38;x<=46;x+=6) c.lineTo(x,ust(x)-3.5*kk*(1-(x+38)/84*.5));
+    for(let x=46;x>=-38;x-=6) c.lineTo(x,ust(x)+3*kk*(1-(x+38)/84*.6));
+    c.closePath(); c.fillStyle=rgba(G.renk.kas,clamp(.25+(kk-1)*.4,0,.7)); c.fill();
+  }
   c.strokeStyle=rgba(G.renk.kas,.8); c.lineCap='round';
   const n=kk===1?54:Math.round(54*kk);
   for(let i=0;i<n;i++){const t=r(), x=lerp(-36,44,t), y=lerp(8+ic*(1-t),-1,Math.sin(t*Math.PI*.6))-6.5*Math.sin(t*Math.PI)+eg*(x-4); c.lineWidth=(.7+r()*1.1)*kk; c.beginPath();

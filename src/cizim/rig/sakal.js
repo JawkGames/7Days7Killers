@@ -20,9 +20,9 @@ export function sakal(mx,dy){
     c.save(); c.beginPath(); yuzYolu(); c.clip();
     const bolge=()=>{c.moveTo(-150*e,30); c.bezierCurveTo(-120*e,90*b,-70+mx,150+dy,mx,190+dy); c.bezierCurveTo(70+mx,150+dy,120*e,90*b,150*e,30); c.lineTo(160*e,260*b); c.lineTo(-160*e,260*b); c.closePath();};
     c.beginPath(); bolge(); c.clip();
-    leke(-40,190*b,150*e,80,R.sacKoyu,.38); leke(80*e,150*b,90*e,110,R.sacKoyu,.36); leke(mx,150+dy,70,26,R.sacKoyu,.3);
+    leke(-40,190*b,150*e,80,R.sacKoyu,.42); leke(80*e,150*b,90*e,110,R.sacKoyu,.4); leke(mx,150+dy,70,26,R.sacKoyu,.32);
     const r=rng(91);
-    for(let i=0;i<1100;i++){const x=(r()*2-1)*150*e, y=30+r()*200*b; c.fillStyle=rgba(R.sacKoyu,.35+r()*.4); c.fillRect(x,y,1.2+r(),1.2+r());}
+    for(let i=0;i<1600;i++){const x=(r()*2-1)*150*e, y=30+r()*200*b; c.fillStyle=rgba(R.sacKoyu,.18+r()*.3); c.fillRect(x,y,.8+r()*.6,.8+r()*.6);}
     c.restore(); return;
   }
   const L=SARKMA[S.bicim]*S.boy, dg=S.bicim==='dagnik';

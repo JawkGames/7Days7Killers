@@ -42,8 +42,10 @@ export function ifadeMotoru(vaka){
     const g=vaka.cizelge[Y][t]; if(g==null) return false;
     const n=vaka.neden[Y][t]||'';
     if(GIZLI_NEDEN_ONEKLERI.some(p=>n.startsWith(p))) return true;
-    return vaka.cinayetler.some(c=>c.zaman===t&&c.mekan===g);
+    return vaka.cinayetler.some(c=>c.zaman===t&&c.mekan===g&&c.kurban!==Y);
   };
+  // Gece olay yerinde yalnızca silüet görüldüyse yan yana olmak kimliği bildirmez.
+  const siluet=(k,Y,t)=>tanikIzleri.some(i=>i.tanik===k&&i.gorulen===Y&&i.zaman===t&&i.kesinlik==='siluet');
 
   function bilgi(k,o){
     switch(o.tur){
@@ -52,7 +54,9 @@ export function ifadeMotoru(vaka){
         if(g===undefined) return null;
         if(k===o.kisi) return g==null?null:{deger:g};
         if(ky==null) return null;
-        if(g!=null&&ky===g) return {deger:g};
+        // Örten ve zorlayan, cinayet anında katilin nerede olduğunu bilir (suça ortaktır).
+        if(vaka.cinayetler.some(c=>c.katil===o.kisi&&c.zaman===o.zaman&&(c.ortan===k||c.zorlayan===k))) return {deger:g};
+        if(g!=null&&ky===g&&!siluet(k,o.kisi,o.zaman)) return {deger:g};
         const s=tanikIzleri.find(i=>i.tanik===k&&i.gorulen===o.kisi&&i.zaman===o.zaman&&i.kesinlik==='yuz');
         if(s) return {deger:s.mekan};
         const y=yoklukIzleri.find(i=>i.fark_eden===k&&i.kisi===o.kisi&&i.zaman===o.zaman);
@@ -64,7 +68,7 @@ export function ifadeMotoru(vaka){
         const t=o.zaman, ky=vaka.cizelge[k]?.[t];
         if(ky==null) return null;
         const l=[];
-        for(const id of ids) if(id!==k&&vaka.cizelge[id][t]===ky) l.push({kisi:id,mekan:ky,kesinlik:'yuz'});
+        for(const id of ids) if(id!==k&&vaka.cizelge[id][t]===ky&&!siluet(k,id,t)) l.push({kisi:id,mekan:ky,kesinlik:'yuz'});
         for(const i of tanikIzleri){
           if(i.tanik!==k||i.zaman!==t) continue;
           if(i.gorulen&&!l.some(x=>x.kisi===i.gorulen)) l.push({kisi:i.gorulen,mekan:i.mekan,kesinlik:i.kesinlik,ortu:i.ortu});
@@ -131,7 +135,7 @@ export function ifadeMotoru(vaka){
   function kendiTavri(k,o){
     const rol=sucunaDokunur(k,o);
     if(rol) return {tavir:'yalan',kural:rol==='katil'?'katil':'suc-ortagi'};
-    if(katilMi(k)) return {tavir:'yalan',kural:'katil'}; // katil, şüphe çeken her şeyi inkâr eder
+    if(katilMi(k)) return {tavir:'yalan',kural:'katil-inkar'}; // katil, kendi cinayeti dışında da şüphe çeken her şeyi inkâr eder
     const mz=K[k].mizac;
     const n=o.tur==='konum'||o.tur==='gorulen'?(vaka.neden[k][o.zaman]||''):'';
     if(o.tur==='sir'||n.startsWith('sir:')||n.startsWith('ortaklik:')){
@@ -150,8 +154,8 @@ export function ifadeMotoru(vaka){
 
   function baskaTavri(k,Y,o){
     const ilgiliCinayet=c=>o.tur==='fail'?o.cinayet===c.id:(o.tur==='konum'||o.tur==='gorulen')?o.zaman===c.zaman:o.tur==='esya'?izById[o.iz]?.cinayet===c.id:false;
+    if(vaka.baglar.some(b=>b.tur==='ortme'&&b.ortan===k&&b.ortulen===Y&&vaka.cinayetler.some(c=>c.katil===Y&&ilgiliCinayet(c)))) return {tavir:'yalan',kural:'ortme'};
     for(const b of vaka.baglar){
-      if(b.tur==='ortme'&&b.ortan===k&&b.ortulen===Y&&vaka.cinayetler.some(c=>c.katil===Y&&ilgiliCinayet(c))) return {tavir:'yalan',kural:'ortme'};
       if(b.tur==='santaj'&&b.zorlayan===k&&b.zorlanan===Y) return {tavir:'susar',kural:'santaj'};
       if(b.tur==='santaj'&&b.zorlanan===k&&b.zorlayan===Y) return {tavir:'susar',kural:'santaj-korkusu'};
     }
@@ -181,7 +185,8 @@ export function ifadeMotoru(vaka){
     const l=ids.filter(x=>x!==k&&K[x].ortu===ortu&&vaka.cizelge[x][t]!=null);
     return l.find(x=>rel(k,x).includes('hasim'))||l[0]||null;
   };
-  const hasimi=(k,t)=>ids.find(x=>x!==k&&rel(k,x).includes('hasim')&&vaka.cizelge[x][t]!=null)||null;
+  // Katilin suçu atacağı kişi: o cinayetten sonra hâlâ yaşayan bir hasmı.
+  const hasimi=(k,c)=>ids.find(x=>x!==k&&x!==c.kurban&&rel(k,x).includes('hasim')&&vaka.cizelge[x][c.zaman]!=null)||null;
 
   function ifade(k,o,secenek={}){
     const cevap=(tavir,kural,b,soylenen,g)=>({konusan:k,olgu:o,tavir,kural:kural??null,gercek:g,bilgi:b??null,soylenen:soylenen??null,gerginlik:gerginlik(k,o,tavir,kural)});
@@ -205,7 +210,7 @@ export function ifadeMotoru(vaka){
     // yalan
     let s;
     if(o.tur==='konum') s={deger:iddia(o.kisi,o.zaman)};
-    else if(o.tur==='fail') s={deger:k===g?hasimi(k,cinById[o.cinayet].zaman):null};
+    else if(o.tur==='fail') s={deger:k===g?hasimi(k,cinById[o.cinayet]):null};
     else if(o.tur==='esya') s={deger:(b.adaylar||izById[o.iz].adaylar||[]).find(x=>x!==izById[o.iz].sahip)??null};
     else s={deger:false};
     if(o.tur==='konum'&&s.deger===b.deger) return cevap('dogru',kural,b,b,g); // söylediği doğru, yalnızca eksik

@@ -69,10 +69,10 @@ function dagnikOn(){
     lifDoldur(yol,y<0?[-212*e,-252*u,-140*e,260]:[140*e,-252*u,212*e,260],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:420,boy:44,yon:()=>Math.PI/2,dag:.5,kivrim:1.1,seed:48+y,acik:.26,parlak:y<0?1:.25});
   }
   // tepe ve alna düşen düzensiz saç çizgisi
-  const cizgi=[[110,-150],[76,-126],[40,-160],[6,-130],[-30,-156],[-64,-122],[-100,-148],[-132,-132]];
+  const cizgi=[[120,-140],[96,-128],[70,-142],[44,-126],[16,-144],[-12,-124],[-40,-142],[-68,-122],[-96,-140],[-124,-126]];
   const tepe=()=>{c.moveTo(-150*e,-120*u); c.bezierCurveTo(-160*e,-232*u,-60*e,-264*u,0,-264*u); c.bezierCurveTo(60*e,-264*u,160*e,-232*u,150*e,-120*u);
     for(const [x,yy] of cizgi) c.lineTo(x*e,yy*u); c.closePath();};
-  lifDoldur(tepe,[-160*e,-264*u,160*e,-120*u],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:420,boy:30,yon:x=>Math.PI/2+x*.006,dag:.8,kivrim:1,seed:49,acik:.26});
+  lifDoldur(tepe,[-160*e,-264*u,160*e,-120*u],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:420,boy:30,yon:x=>Math.PI/2+x*.006,dag:.8,kivrim:1,seed:49,acik:.26,yumusak:[0,-10,96*e,150*e]});
   // alna düşen tek tük teller ve silüetten taşanlar
   teller(cizgi.map(([x,yy])=>[x*e,yy*u,Math.PI/2+(x>0?-.3:.3)]),R.sacKoyu,50,26);
   const dis=[];
@@ -85,12 +85,12 @@ function dagnikOn(){
 function kisaSac(){
   const Y=G.yuz, R=G.renk, e=Y.en, u=Y.alin, h=G.sac.cizgi*u;
   const yol=()=>{
-    c.moveTo(-157*e,6); c.bezierCurveTo(-174*e,-80*u,-170*e,-196*u,-92*e,-224*u); c.bezierCurveTo(-40*e,-238*u,40*e,-238*u,92*e,-224*u);
-    c.bezierCurveTo(170*e,-196*u,174*e,-80*u,157*e,6);
-    c.lineTo(146*e,4); c.bezierCurveTo(148*e,-40*u,146*e,h-4,116*e,h+14); c.quadraticCurveTo(62*e,h-10,0,h);
-    c.quadraticCurveTo(-62*e,h-10,-116*e,h+14); c.bezierCurveTo(-146*e,h-4,-148*e,-40*u,-146*e,4); c.closePath();
+    c.moveTo(-157*e,-22); c.bezierCurveTo(-174*e,-90*u,-170*e,-196*u,-92*e,-224*u); c.bezierCurveTo(-40*e,-238*u,40*e,-238*u,92*e,-224*u);
+    c.bezierCurveTo(170*e,-196*u,174*e,-90*u,157*e,-22);
+    c.lineTo(146*e,-26); c.bezierCurveTo(148*e,-60*u,146*e,h-4,116*e,h+14); c.quadraticCurveTo(62*e,h-10,0,h);
+    c.quadraticCurveTo(-62*e,h-10,-116*e,h+14); c.bezierCurveTo(-146*e,h-4,-148*e,-60*u,-146*e,-26); c.closePath();
   };
-  lifDoldur(yol,[-176*e,-240*u,176*e,10],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:700,boy:13,yon:(x,y)=>Math.atan2(y+60,x)+Math.PI,dag:.7,kivrim:.4,seed:31,acik:.22});
+  lifDoldur(yol,[-176*e,-240*u,176*e,-20],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:700,boy:13,yon:(x,y)=>Math.atan2(y+60,x)+Math.PI,dag:.7,kivrim:.4,seed:31,acik:.22});
   teller([[-120*e,-214*u,-2.2],[-60*e,-234*u,-1.9],[10,-238*u,-1.5],[80*e,-230*u,-1.2],[150*e,-180*u,-.6],[-160*e,-150*u,-2.6]],R.sacKoyu,33,10);
   // alın çizgisinin altında hafif gölge: saç alına oturur
   c.save(); c.beginPath(); yuzKirp(); c.clip(); leke(0,h+14,120*e,16,R.tenDerin,.35); c.restore();

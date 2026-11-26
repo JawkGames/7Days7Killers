@@ -31,7 +31,7 @@ export default {
       dolgu(yolN(g.ana),[14,10,9],.72);
       c.save(); c.beginPath(); yolN(g.ana)(); c.clip(); leke(0,0,g.R*.9,g.R*.7,[0,0,0],.6); c.restore();
     }else{
-      dolgu(yolN(g.ana),[16,10,9],.9);
+      dolgu(yolN(g.ana),[10,7,6],.95);
       dolgu(yolN(g.ic),[4,3,3],.8);
       c.save(); c.beginPath(); yolN(g.ana)(); c.clip();
       leke(-k.golgeYon[0]*g.R*.4,-k.golgeYon[1]*g.R*.4,g.R*.5,g.R*.16,[170,160,150],.14,.4);
@@ -42,5 +42,5 @@ export default {
       dolgu(()=>{c.ellipse(0,0,d[2]*1.6,d[2],0,0,TAU);},[10,7,6],.8); c.restore();
     }
   },
-  renk(k,g){k.duzlem(); dolgu(yolN(g.ana),RENK.kan,.22); for(const d of g.damla) dolgu(()=>{c.moveTo(d[0]+d[2],d[1]); c.arc(d[0],d[1],d[2],0,TAU);},RENK.kan,.18);}
+  renk(k,g){k.duzlem(); dolgu(yolN(g.ana),RENK.kan,.12); for(const d of g.damla) dolgu(()=>{c.moveTo(d[0]+d[2],d[1]); c.arc(d[0],d[1],d[2],0,TAU);},RENK.kan,.18);}
 };

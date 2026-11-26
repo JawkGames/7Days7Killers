@@ -21,6 +21,7 @@ export const SIM_AYAR=Object.freeze({
     Object.freeze({onceki:false,dilim:'gece',agirlik:.55}),
   ]),
   cekirdekSayisi:2, // her vakaya karışan olay çekirdeği sayısı (varsa)
+  enAzSebep:.6, // bundan zayıf sebep (katil|kurban ağırlığı) cinayete yetmez
   enAzBag:2, // katiller arasında en az bu kadar bağ kurulmaya çalışılır
   azamiDeneme:40, // kurulamayan vaka bu kadar kez türetilmiş tohumla yeniden denenir
   oranlar:Object.freeze({

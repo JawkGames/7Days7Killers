@@ -18,6 +18,7 @@ import {onemliIfadeler} from './yalan.js';
 export {ifade,ifadeMotoru} from './yalan.js';
 export {sebepAdaylari} from './roller.js';
 export {cekirdekDogrula} from './cekirdek.js';
+export {vakaDenetle} from './denetim.js';
 export {SIM_AYAR,ayarKur} from './ayar.js';
 
 export function vakaUret(tohum,koy,ayarEk={}){

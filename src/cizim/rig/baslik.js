@@ -33,8 +33,9 @@ function ortuOlcu(){
 function ortuDis(O){ // başın ve yanlara düşen kumaşın dış silüeti
   const s=poz.sallanti*.4, w=O.w;
   c.moveTo(0,O.ust); c.bezierCurveTo(w*.74,O.ust,w*1.02,O.ust*.66,w,-70*O.u);
-  c.bezierCurveTo(w*.99,40,w*.92+s,130,w*.7+s,210); c.bezierCurveTo(w*.56+s,250,w*.56+s,O.alt-20,w*.5+s,O.alt); c.quadraticCurveTo(s,O.alt+14,-w*.5+s,O.alt);
-  c.bezierCurveTo(-w*.56+s,O.alt-20,-w*.56+s,250,-w*.7+s,210); c.bezierCurveTo(-w*.92+s,130,-w*.99,40,-w,-70*O.u);
+  c.bezierCurveTo(w*.99,40,w*.92+s,130,w*.7+s,210); c.bezierCurveTo(w*.56+s,250,w*.6+s,O.alt-40,w*.68+s,O.alt);
+  c.quadraticCurveTo(w*.3+s,O.alt+20,s*1.5,O.alt+64); c.quadraticCurveTo(-w*.3+s,O.alt+20,-w*.68+s,O.alt); // ucu göğse düşen üçgen
+  c.bezierCurveTo(-w*.6+s,O.alt-40,-w*.56+s,250,-w*.7+s,210); c.bezierCurveTo(-w*.92+s,130,-w*.99,40,-w,-70*O.u);
   c.bezierCurveTo(-w*1.02,O.ust*.66,-w*.74,O.ust,0,O.ust); c.closePath();
 }
 function ortuPencere(O){ // yüzün açıkta kalan kısmı: yüz silüetinin biraz içinde kalır, kumaş yüzün kenarını örter
@@ -54,7 +55,7 @@ function ortuOn(){
   c.beginPath(); yol(); c.save(); c.clip('evenodd');
   const g=c.createLinearGradient(-O.w,O.ust,O.w,O.alt);
   g.addColorStop(0,rgba(karistir(R,'#cfc8a8',.18),1)); g.addColorStop(.4,rgba(R,1)); g.addColorStop(1,rgba(karistir(R,[0,0,0],.8),1));
-  c.fillStyle=g; c.fillRect(-O.w-20,O.ust-10,O.w*2+40,O.alt-O.ust+30);
+  c.fillStyle=g; c.fillRect(-O.w-20,O.ust-10,O.w*2+40,O.alt-O.ust+90);
   if(!O.sal&&G.baslik.desen!=='duz') benek(-O.w,O.ust,O.w,O.alt,63);
   if(O.sal){ // kaba yün: kısa lifler
     const r=rng(66); for(let i=0;i<700;i++){const x=-O.w+r()*O.w*2, y=O.ust+r()*(O.alt-O.ust), a=r()*TAU, L=3+r()*6; c.strokeStyle=rgba(r()<.5?karistir(R,'#d0c6a6',.3):karistir(R,[0,0,0],.5),.22+r()*.2); c.lineWidth=1+r(); c.beginPath(); c.moveTo(x,y); c.lineTo(x+Math.cos(a)*L,y+Math.sin(a)*L); c.stroke();}
@@ -63,8 +64,8 @@ function ortuOn(){
   leke(O.w*.8,60,O.w*.5,300,PAL.siyah,.75);
   leke(0,O.alt-10,O.w*.9,110,PAL.siyah,.55);
   leke(0,250*O.b,120,50,PAL.siyah,.5); // çenenin altındaki gölge
-  tara(O.w*.15,O.ust,O.w+10,O.alt,1.05,7,PAL.murekkep,.42,640+k,1.1);
-  tara(-O.w,150,O.w,O.alt,.4,9,PAL.murekkep,.22,641+k,1);
+  tara(O.w*.15,O.ust,O.w+10,O.alt+70,1.05,7,PAL.murekkep,.42,640+k,1.1);
+  tara(-O.w,150,O.w,O.alt+70,.4,9,PAL.murekkep,.22,641+k,1);
   // kıvrımlar: yanlarda düşen ve çenenin altında toplanan
   c.strokeStyle=rgba(PAL.murekkep,.45); c.lineWidth=1.4;
   for(const s of[-1,1]){ c.beginPath(); c.moveTo(s*O.w*.84,-40); c.quadraticCurveTo(s*O.w*.86,120,s*O.w*.58,O.alt-50); c.stroke();
@@ -152,13 +153,14 @@ export function baslikOn(){
   else if(t==='takke') takke();
   else if(t==='sarik') sarik();
 }
-export function baslikGovde(X){ // X: omuz eşlemesi (govde.js)
+export function baslikGovde(X,erit){ // X: omuz eşlemesi, erit(yol): alt kenarı etek rengine eritir (govde.js)
   if(G.baslik.tur!=='sal') return;
   const R=renkAl();
   for(const s of[-1,1]){
     const yol=()=>{c.moveTo(s*70,748); c.bezierCurveTo(s*170,756,X(s*300),800,X(s*350),880); c.bezierCurveTo(X(s*390),960,X(s*396),1100,X(s*400),1300);
       c.lineTo(s*150,1300); c.bezierCurveTo(s*170,1100,s*150,940,s*96,850); c.quadraticCurveTo(s*70,800,s*70,748); c.closePath();};
     kumas(yol,[s<0?X(-400):40,740,s<0?-40:X(400),1300],{renk:s>0?karistir(R,[0,0,0],.15):R,seed:720+s,tara:1,golge:s>0?1:.6});
+    if(erit) erit(yol);
     c.strokeStyle=rgba(PAL.murekkep,.4); c.lineWidth=1.3;
     for(let i=0;i<3;i++){c.beginPath(); c.moveTo(s*(110+i*50),800+i*14); c.quadraticCurveTo(X(s*(200+i*50)),950,X(s*(180+i*60)),1200); c.stroke();}
   }

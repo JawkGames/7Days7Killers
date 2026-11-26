@@ -4,10 +4,21 @@
 // dilimler kilitlenir ve kilitli dilimin üstüne yazmak hata verir (kod hatasıdır, tohum sorunu değil).
 
 export function cizelgeKur(d){
-  const T=d.zaman.T, yer={}, neden={}, kilit={};
-  for(const k of d.ids){yer[k]=Array(T).fill(null); neden[k]=Array(T).fill(null); kilit[k]=Array(T).fill(false);}
+  const T=d.zaman.T, yer={}, neden={}, kilit={}, bagli={};
+  for(const k of d.ids){yer[k]=Array(T).fill(null); neden[k]=Array(T).fill(null); kilit[k]=Array(T).fill(false); bagli[k]=Array(T).fill(null);}
+  const sahneler=new Set(); // 'mekan|t': cinayet anı ve yeri; oraya sonradan kimse sokulmaz
   return {
     yer,neden,T,
+    sahneEkle(m,t){sahneler.add(m+'|'+t);},
+    sahne:(m,t)=>sahneler.has(m+'|'+t),
+    // bagli[k][t]: k o dilimde birine bağlı bir iş için orada (ziyaret, buluşma). O kişi ölürse k evine döner.
+    bagla(k,t,kime){bagli[k][t]=kime;},
+    olununIsleri(olu,t){
+      for(const k of d.ids) for(let u=t+1;u<T;u++){
+        if(bagli[k][u]!==olu||kilit[k][u]||yer[k][u]===null||sahneler.has(d.kisi(k).ev+'|'+u)) continue;
+        yer[k][u]=d.kisi(k).ev; neden[k][u]='ev'; bagli[k][u]=null;
+      }
+    },
     koy(k,t,m,n,kilitle=false){
       if(kilit[k][t]) throw new Error(`çizelge: ${k} için ${t} dilimi kilitli`);
       yer[k][t]=m; neden[k][t]=n; if(kilitle) kilit[k][t]=true;
@@ -22,6 +33,7 @@ export function cizelgeKur(d){
         if(kilit[k][u]) throw new Error(`çizelge: ölen ${k} için ${u} dilimi kilitli`);
         yer[k][u]=null; neden[k][u]='olu'; kilit[k][u]=true;
       }
+      this.olununIsleri(k,t);
     },
   };
 }
@@ -44,25 +56,25 @@ function etkinlikler(d){
       if(karsi){
         const anahtar=[A,B].sort().join('|'); if(goruldu.has(anahtar)) continue; goruldu.add(anahtar);
         const ev=tekBasina(B)&&d.kisi(A).cinsiyet==='E'?d.kisi(B).ev:tekBasina(A)&&d.kisi(B).cinsiyet==='E'?d.kisi(A).ev:null;
-        const neden={[A]:'sir:'+s.id,[B]:'sir:'+karsi.id};
-        if(ev) l.push({kimler:[A,B],dilimler:['gece'],olasilik:.35,yer:()=>ev,neden});
-        else if(issiz.length) l.push({kimler:[A,B],dilimler:['aksam'],olasilik:.25,yer:z=>z.sec(issiz),neden});
+        const neden={[A]:'sir:'+s.id,[B]:'sir:'+karsi.id}, bagli={[A]:B,[B]:A};
+        if(ev) l.push({kimler:[A,B],dilimler:['gece'],olasilik:.35,yer:()=>ev,neden,bagli});
+        else if(issiz.length) l.push({kimler:[A,B],dilimler:['aksam'],olasilik:.25,yer:z=>z.sec(issiz),neden,bagli});
       }else{
         // Karşılıksız sevda: akşamları sevdiğinin evine bakan bir yerde.
         const yakin=(d.harita[d.kisi(B).ev]||[]).filter(m=>d.mekanTuru(m)!=='ev');
-        if(yakin.length) l.push({kimler:[A],dilimler:['aksam'],olasilik:.2,yer:z=>z.sec(yakin),neden:{[A]:'sir:'+s.id}});
+        if(yakin.length) l.push({kimler:[A],dilimler:['aksam'],olasilik:.2,yer:z=>z.sec(yakin),neden:{[A]:'sir:'+s.id},bagli:{[A]:B}});
       }
     }
     // Köy dışından mal getiren: bazı geceler iş yerinde (sınırda). Pay alan da o gece oradadır.
     if(s.tur==='kacakcilik'&&d.kisi(A).is&&d.mekanTuru(d.kisi(A).is)==='kir'){
       const yer=d.kisi(A).is, eslik=d.sirlar.filter(x=>x.tur==='rusvet'&&x.kimler.includes(A));
-      const neden={[A]:'sir:'+s.id}, katilim={};
-      for(const x of eslik){neden[x.sahip]='sir:'+x.id; katilim[x.sahip]=.7;}
-      l.push({kimler:[A,...eslik.map(x=>x.sahip)],dilimler:['gece'],olasilik:.4,yer:()=>yer,neden,katilim});
+      const neden={[A]:'sir:'+s.id}, katilim={}, bagli={};
+      for(const x of eslik){neden[x.sahip]='sir:'+x.id; katilim[x.sahip]=.7; bagli[x.sahip]=A;}
+      l.push({kimler:[A,...eslik.map(x=>x.sahip)],dilimler:['gece'],olasilik:.4,yer:()=>yer,neden,katilim,bagli});
     }
     // Köy dışında saklanan bir kaçağa yemek taşıyan (sırrın içinde mağarada yaşayan bir kaçak var).
     const kacak=s.kimler.find(k=>k!==A&&kirdaYasayan(k)&&sirSahibi(k,'firar'));
-    if(kacak) l.push({kimler:[A],dilimler:['aksam','gece'],olasilik:.25,yer:()=>d.kisi(kacak).ev,neden:{[A]:'sir:'+s.id}});
+    if(kacak) l.push({kimler:[A],dilimler:['aksam','gece'],olasilik:.25,yer:()=>d.kisi(kacak).ev,neden:{[A]:'sir:'+s.id},bagli:{[A]:kacak}});
     // Kimseye bağlı olmayan "bilgi" sırrı (gece dolaşan meczup): geceleri köyü dolaşır.
     if(s.tur==='bilgi'&&!s.kimler.length&&!d.kisi(A).is){
       const yerler=d.mekanIds.filter(m=>d.mekanTuru(m)==='ortak'||d.mekanTuru(m)==='ev');
@@ -76,7 +88,7 @@ function etkinlikler(d){
     if(i.tur!=='ortak'||i.kime<A) continue;
     const B=i.kime, koyIci=id=>[d.kisi(id).is,d.kisi(id).ev].find(m=>m&&d.mekanTuru(m)!=='kir');
     const yer=koyIci(A)||koyIci(B);
-    if(yer) l.push({kimler:[A,B],dilimler:['aksam'],olasilik:.12,yer:()=>yer,neden:{[A]:'ortaklik:'+B,[B]:'ortaklik:'+A}});
+    if(yer) l.push({kimler:[A,B],dilimler:['aksam'],olasilik:.12,yer:()=>yer,neden:{[A]:'ortaklik:'+B,[B]:'ortaklik:'+A},bagli:{[A]:B,[B]:A}});
   }
   return l;
 }
@@ -123,7 +135,7 @@ export function rutinKur(d,z){
     for(const id of d.ids) for(const i of d.iliskiler[id]){
       if(i.tur!=='dost'||!z.olasilik(.18)) continue;
       const t=d.zaman.t(g,'ikindi'); const m=cz.yer[i.kime][t];
-      if(m&&d.mekanTuru(m)!=='kir'&&d.mekanTuru(cz.yer[id][t])!=='kir') cz.koy(id,t,m,'ziyaret:'+i.kime);
+      if(m&&d.mekanTuru(m)!=='kir'&&d.mekanTuru(cz.yer[id][t])!=='kir'){cz.koy(id,t,m,'ziyaret:'+i.kime); cz.bagla(id,t,i.kime);}
     }
     // 3) Gizli ve düzenli etkinlikler (sıradan yerin üstüne yazar).
     for(const e of liste){
@@ -133,6 +145,7 @@ export function rutinKur(d,z){
       for(const k of e.kimler){
         if(e.katilim&&e.katilim[k]!=null&&!z.olasilik(e.katilim[k])) continue;
         cz.koy(k,t,m,e.neden[k]);
+        const kime=e.bagli?.[k]; cz.bagla(k,t,kime??null);
       }
     }
   }

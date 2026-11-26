@@ -24,6 +24,8 @@ const dz=k=>typeof k==='string'?hex(k):k;
 /* yüz ölçüleri: hepsi çarpan (1 = varsayılan kadın), gozAralik birim cinsinden */
 const YUZ_TEMEL={en:1, boy:1, alin:1, elmacik:1, cene:1, ceneUc:1, gozAralik:66, gozEn:1, gozBoy:1, gozKapak:0,
   kasKalin:1, kasEgim:0, kasY:0, burunBoy:1, burunEn:1, dudakEn:1, dudakKalin:1, agizY:0, boyun:1};
+// erkekte verilmeyen ölçüler için başlangıç: daha geniş çene, gür kaş, kalın boyun, ince dudak
+const YUZ_ERKEK={...YUZ_TEMEL, en:1.04, cene:1.1, ceneUc:1.12, gozBoy:.88, kasKalin:1.35, kasY:3, burunEn:1.1, dudakKalin:.78, boyun:1.2};
 
 // solgun ten (varsayılan kadın): PAL'deki değerler ve gövdedeki sabit tonlar
 const TEN_SOLGUN={isik:PAL.tenIsik, ana:PAL.ten, orta:PAL.tenOrta, golge:PAL.tenGolge, derin:PAL.tenDerin,
@@ -48,7 +50,7 @@ function yasIziTuret(yas){
 export function gorunusKur(v){
   v=v||{};
   const erkek=v.cinsiyet==='E';
-  const yuz={...YUZ_TEMEL,...(v.yuz||{})};
+  const yuz={...(erkek?YUZ_ERKEK:YUZ_TEMEL),...(v.yuz||{})};
   const r=v.renk||{};
   let ten;
   if(r.ten==null) ten=TEN_SOLGUN;
@@ -62,9 +64,11 @@ export function gorunusKur(v){
   const renk={
     tenIsik:ten.isik, ten:ten.ana, tenOrta:ten.orta, tenGolge:ten.golge, tenDerin:ten.derin, alinIsik:ten.alin,
     boyun:ten.boyun, el:ten.el,
-    dudak:r.dudak?dz(r.dudak):(erkek?karistir(ten.orta,'#4c2a31',.2):PAL.dudak),
-    dudakGolge:r.dudakGolge?dz(r.dudakGolge):(erkek?karistir(ten.golge,'#2a141a',.25):PAL.dudakGolge),
-    iris:r.iris?dz(r.iris):PAL.iris, irisOrta:r.irisOrta?dz(r.irisOrta):(r.iris?karistir(r.iris,'#1d211e',.45):hex('#6f786b')),
+    // ten verilmiş köylüde dudak ve göz varsayılan kadının boyalı dudağı ve soluk yeşil gözü olmaz
+    dudak:r.dudak?dz(r.dudak):(erkek?karistir(ten.orta,'#4c2a31',.2):r.ten==null?PAL.dudak:karistir(ten.orta,'#5a2c32',.4)),
+    dudakGolge:r.dudakGolge?dz(r.dudakGolge):(erkek?karistir(ten.golge,'#2a141a',.25):r.ten==null?PAL.dudakGolge:karistir(ten.golge,'#2a141a',.4)),
+    iris:r.iris?dz(r.iris):r.ten==null?PAL.iris:hex('#4a3c2c'),
+    irisOrta:r.irisOrta?dz(r.irisOrta):(r.iris||r.ten!=null?karistir(r.iris||'#4a3c2c','#1d211e',.45):hex('#6f786b')),
     irisKenar:r.irisKenar?dz(r.irisKenar):PAL.irisKenar,
     // kır saç yoksa ve renk verilmemişse varsayılan dizgiler aynen kalır (eski kare birebir aynı çıksın)
     sac:(!r.sac&&!kir)?'#0d0c0e':hexYaz(karistir(sacAna,kirRenk,kir*.8)),

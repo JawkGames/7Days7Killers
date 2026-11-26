@@ -90,7 +90,7 @@ export const SIR_SAHIP={
   'gasp':{sebep:'susturma',agirlik:1.5,intikamOlur:true},
   'tefecilik':{sebep:'susturma',agirlik:1},
   'para':{sebep:'susturma',agirlik:1},
-  'firar':{sebep:'susturma',agirlik:1},
+  'firar':{sebep:'susturma',agirlik:.3}, // sırrın içindekiler çoğu zaman kaçağın yardımcılarıdır
   'zehir':{sebep:'susturma',agirlik:1.5},
   'soy':{sebep:'susturma',agirlik:.5},
   'intikam':{sebep:'intikam',agirlik:5},
@@ -101,6 +101,13 @@ export const SIR_SAHIP={
   'santaj':{sebep:'santaj',agirlik:.8},
   'ihbar':{sebep:'susturma',agirlik:.3},
 };
+// Sırrın sahibine göre anlamı. Veri dosyası sırra `rol` yazarsa o kullanılır; yazmazsa bu tablo, o da yoksa 'fail'.
+//   fail: sahibi işin içinde, kimler onu açabilir (susturma)
+//   tanik: sahibi yalnızca gördü/duydu (kimleri susturmak için öldürmez; hasmı ya da korktuğuysa intikam)
+//   magdur: sahibi işten zarar gördü (kimlerden yakını olmayanlara karşı intikam)
+// GEÇİCİ: bu bilgi kişi verisine (sir.rol) taşınmalı; burada yalnızca bugünkü köy için duruyor.
+export const SIR_ROLU={'degirmen-gecesi':'tanik','yangin-tanigi':'tanik','eski-kimlik':'magdur'};
+
 // B) Kurban sırrın SAHİBİ, katil adayı sırrın kimlerinde: kurbanın bildiği ya da yaptığı şey adayı tehdit eder.
 //    tehdit:true ise aday ancak kendi tehlikeli bir sırrı o bilgiyle kesişiyorsa tehdit altındadır.
 export const SIR_ILGILI={

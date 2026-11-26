@@ -2,7 +2,7 @@
 // Sebepler uydurulmaz; kişilerin sırlarından ve ilişkilerinden okunur (tablolar.js).
 // Olay çekirdekleri yalnızca var olan sebebin ağırlığını artırır, yeni sebep yaratmaz.
 
-import {SIR_SAHIP,SIR_ILGILI,ILISKI_SEBEP,MIZAC_KATIL,YAKINLIK,TEHLIKELI} from './tablolar.js';
+import {SIR_SAHIP,SIR_ILGILI,SIR_ROLU,ILISKI_SEBEP,MIZAC_KATIL,YAKINLIK,TEHLIKELI} from './tablolar.js';
 import {UretimHatasi} from './zar.js';
 
 const yuvarla=x=>Math.round(x*100)/100;
@@ -19,9 +19,9 @@ function tehditAltinda(d,P,T,s){
 // kaynak: {tur:'sir', sahip, sir} | {tur:'iliski', iliski} | {tur:'rekabet', uzerine} | {tur:'koruma', korunan, iliski?|sir?}
 export function sebepAdaylari(d){
   const m=new Map();
-  const ekle=(P,T,tur,w,kaynak)=>{
+  const ekle=(P,T,tur,w,kaynak,yakinlikSay=true)=>{
     if(P===T||!(w>0)||!d.kisi(P)||!d.kisi(T)) return;
-    w*=d.yakinlik(P,T,YAKINLIK);
+    if(yakinlikSay) w*=d.yakinlik(P,T,YAKINLIK);
     if(w<.05) return;
     const k=P+'|'+T;
     let c=m.get(k);
@@ -31,21 +31,26 @@ export function sebepAdaylari(d){
   };
   for(const s of d.sirlar){
     const kaynak={tur:'sir',sahip:s.sahip,sir:s.id};
-    const A=SIR_SAHIP[s.tur];
+    const A=SIR_SAHIP[s.tur], rol=s.rol||SIR_ROLU[s.id]||'fail';
     if(A) for(const T of s.kimler){
       const olumsuz=d.rel(s.sahip,T).some(t=>t==='hasim'||t==='korkar');
-      if(A.intikamOlur&&olumsuz) ekle(s.sahip,T,'intikam',A.agirlik+1,kaynak);
+      const olumlu=d.rel(s.sahip,T).length>0&&!olumsuz;
+      if(rol==='tanik'){if(olumsuz) ekle(s.sahip,T,'intikam',A.agirlik+1,kaynak);}
+      else if(rol==='magdur'){if(!olumlu) ekle(s.sahip,T,'intikam',A.agirlik+1,kaynak);}
+      else if(A.intikamOlur&&olumsuz) ekle(s.sahip,T,'intikam',A.agirlik+1,kaynak);
       else ekle(s.sahip,T,A.sebep,A.agirlik,kaynak);
     }
     const B=SIR_ILGILI[s.tur];
     if(B) for(const P of s.kimler){
       if(B.tehdit&&!tehditAltinda(d,P,s.sahip,s)) continue;
+      // Cezalandırma ve ihanet ancak arada dostluk yoksa: kaçağın koyununu kesen çoban, kaçağın düşmanı değildir.
+      if((B.sebep==='ceza'||B.sebep==='ihanet')&&d.rel(P,s.sahip).some(t=>!['hasim','korkar','isveren','calisan'].includes(t))) continue;
       ekle(P,s.sahip,B.sebep,B.agirlik,kaynak);
     }
   }
   for(const P of d.ids) for(const i of d.iliskiler[P]){
     const C=ILISKI_SEBEP[i.tur];
-    if(C) ekle(P,i.kime,C.sebep,C.agirlik,{tur:'iliski',iliski:i.tur});
+    if(C) ekle(P,i.kime,C.sebep,C.agirlik,{tur:'iliski',iliski:i.tur},C.sebep!=='korku'); // korkan eş, yakınlıkla yumuşamaz
   }
   // Rekabet: P'nin sevdiği ya da sözlüsü X; X'in sevgilisi/sözlüsü/ona sevdalı olan T.
   for(const P of d.ids) for(const i of d.iliskiler[P]){
@@ -56,6 +61,8 @@ export function sebepAdaylari(d){
       if(j.tur==='sevgili') w=3;
       else if(j.tur==='sozlu') w=i.tur==='sozlu'?0:2;
       else if(j.tur==='sevilen') w=i.tur==='sozlu'?.4:.6;
+      // Gönlü başkasında olan sözlü, namus için pek öldürmez.
+      if(i.tur==='sozlu'&&d.iliskiler[P].some(r=>(r.tur==='sevgili'||r.tur==='sever')&&r.kime!==i.kime)) w*=.2;
       if(w) ekle(P,j.kime,i.tur==='sozlu'?'namus':'kiskanclik',w,{tur:'rekabet',uzerine:i.kime});
     }
   }
@@ -83,10 +90,14 @@ function sebepOzet(c){
   return {tur:l[0].tur,agirlik:c.agirlik,kaynak:l[0].kaynak,ek:l.slice(1).map(s=>({tur:s.tur,kaynak:s.kaynak}))};
 }
 
-// İki kişi arasında suç birliğine yetecek bir yakınlık ya da ortak sır var mı?
+// İki kişi arasında suç birliğine yetecek bir yakınlık ya da birlikte taşıdıkları bir sır var mı?
+// (İhbar, intikam, tanıklık gibi karşı karşıya oldukları sırlar birlik kurmaz.)
+const ORTAK_SIR=['kacakcilik','rusvet','yolsuzluk','tefecilik','para','firar','gasp','eski-yangin','soy','hirsizlik','yasak-ask','miras','husumet'];
 function bagKurulur(d,A,B){
-  if(d.rel(A,B).some(t=>['ortak','es','dost','ebeveyn','cocuk','sevgili','korur','korunan','sever','sevilen'].includes(t))) return true;
-  return d.sirlar.some(s=>(s.sahip===A&&s.kimler.includes(B))||(s.sahip===B&&s.kimler.includes(A)));
+  const r=[...d.rel(A,B),...d.rel(B,A)];
+  if(r.some(t=>t==='hasim'||t==='korkar')) return false;
+  if(r.some(t=>['ortak','es','dost','ebeveyn','cocuk','sevgili','korur','korunan','sever','sevilen'].includes(t))) return true;
+  return d.sirlar.some(s=>ORTAK_SIR.includes(s.tur)&&((s.sahip===A&&s.kimler.includes(B))||(s.sahip===B&&s.kimler.includes(A))));
 }
 
 // Döner: {katiller:[{kisi, kurban, sebep, zorlayan, yardimci, ortan, cekirdek}], baglar:[...]}
@@ -99,7 +110,8 @@ export function rolleriSec(d,z,ciftler,cekirdekler){
     carpan.set(k,(carpan.get(k)||1)*(p.carpan||1));
     if(!cekirdekCifti.has(k)) cekirdekCifti.set(k,c.id);
   }
-  const w=k=>ciftler.has(k)?ciftler.get(k).agirlik*(carpan.get(k)||1):0;
+  // Zayıf sebep (yakınlıkla erimiş, dolaylı) cinayete yetmez.
+  const w=k=>{if(!ciftler.has(k)) return 0; const v=ciftler.get(k).agirlik*(carpan.get(k)||1); return v>=d.ayar.enAzSebep?v:0;};
   const katilOlan=new Set(), kurbanOlan=new Set(), katiller=[], baglar=[];
   const musait=x=>!katilOlan.has(x)&&!kurbanOlan.has(x);
   const hedefler=P=>d.ids.filter(T=>T!==P&&musait(T)&&w(P+'|'+T)>0);
@@ -108,7 +120,7 @@ export function rolleriSec(d,z,ciftler,cekirdekler){
     const adaylar=d.ids.filter(P=>musait(P)&&hedefler(P).length>0);
     const P=z.agirlikli(adaylar,P=>{
       const k=d.kisi(P), top=hedefler(P).reduce((s,T)=>s+w(P+'|'+T),0);
-      return (MIZAC_KATIL[k.mizac]??1)*(k.yas>=70?.6:1)*Math.pow(top,.4);
+      return Math.pow(MIZAC_KATIL[k.mizac]??1,.6)*(k.yas>=70?.7:1)*Math.pow(top,.2);
     });
     if(!P) throw new UretimHatasi(`yalnızca ${n} katil seçilebildi`);
     katilOlan.add(P);
@@ -129,7 +141,7 @@ export function rolleriSec(d,z,ciftler,cekirdekler){
       T=secim.T;
       const asil=sebepOzet(ciftler.get(secim.B+'|'+T));
       const kendi=ciftler.get(P+'|'+T);
-      sebep={tur:'santaj',agirlik:asil.agirlik,kaynak:{tur:'santaj',zorlayan:secim.B,sahip:P,sir:secim.koz.id},
+      sebep={tur:'zorlama',agirlik:asil.agirlik,kaynak:{tur:'santaj',zorlayan:secim.B,sahip:P,sir:secim.koz.id},
         asil:{tur:asil.tur,kaynak:asil.kaynak},ek:kendi?kendi.sebepler.map(s=>({tur:s.tur,kaynak:s.kaynak})):[]};
       baglar.push({tur:'santaj',zorlayan:secim.B,zorlanan:P,sir:{sahip:P,sir:secim.koz.id}});
     }else{
@@ -169,11 +181,11 @@ export function rolleriSec(d,z,ciftler,cekirdekler){
       if(B) ortmeKur(B,a.kisi);
     }
   }
-  // En az bağ sayısına ulaşılmadıysa örtme ile tamamla.
+  // En az bağ sayısına ulaşılmadıysa örtme ve ortaklıkla tamamla.
   for(const a of z.karistir(katiller)){
     if(baglar.length>=d.ayar.enAzBag) break;
     const B=z.agirlikli(ikiliSec(a.kisi),()=>1);
-    if(B) ortmeKur(B,a.kisi);
+    if(B&&!ortmeKur(B,a.kisi)) ortaklikKur(a.kisi,B);
   }
   return {katiller,baglar};
 }

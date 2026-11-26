@@ -15,33 +15,69 @@ export function duzlemde(P,O,D,fn){
 export const dunya=(O,D,x,y)=>[O[0]+D.u[0]*x+D.v[0]*y,O[1]+D.u[1]*x+D.v[1]*y,O[2]+D.u[2]*x+D.v[2]*y];
 const normal=D=>{const u=D.u, v=D.v; const n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]]; return n;};
 
-// Moloz taş örgü: düzensiz sıralar, aralarda harç. Her taş ışığı kendi yerinde alır.
+// Düzlemdeki yerel noktaların tam izdüşümüyle yol (büyük yüzeylerde afin yaklaşım yetmez: eğik makinede dikeyler daralır)
+export const duzlemNoktasi=(P,O,D,x,y)=>P.n(...dunya(O,D,x,y));
+export function duzlemYol(P,O,D,noktalar,kapali=true){
+  noktalar.forEach((q,i)=>{const s=duzlemNoktasi(P,O,D,q[0],q[1]); if(i) c.lineTo(s[0],s[1]); else c.moveTo(s[0],s[1]);});
+  if(kapali) c.closePath();
+}
+
+// Moloz ya da kesme taş örgü: düzensiz sıralar, aralarda harç. Her taş ışığı kendi yerinde alır ve kendi yerinde
+// (afin, küçük) dönüşümle çizilir; böylece yüksek duvarda da perspektif kaymaz.
 // alan: [x0,x1,y0,y1] yerel cm (y aşağı: duvar için y=-yükseklik). renk: taşın ana rengi
-export function tasOrgu(P,isik,O,D,[x0,x1,y0,y1],renk,r,{sira=22,harc=[14,14,12],is=0}={}){
+export function tasOrgu(P,isik,O,D,[x0,x1,y0,y1],renk,r,{sira=22,harc=[14,14,12],is=0,duzensiz=0}={}){
   const n0=normal(D); // görünen yüz: makineye bakan yön
   const nn=(-O[0])*n0[0]+(P.yukseklik-O[1])*n0[1]+(-O[2])*n0[2]>0?n0:[-n0[0],-n0[1],-n0[2]];
-  duzlemde(P,O,D,()=>{
-    c.fillStyle=rgba(harc,1); c.fillRect(x0,y0,x1-x0,y1-y0);
-    for(let y=y1;y>y0;){
-      const h=sira*(.7+r()*.6);
-      for(let x=x0-r()*20;x<x1;){
-        const w=h*(1+r()*1.6), cx=x+w/2, cy=y-h/2, a=aydinlik(isik,dunya(O,D,cx,cy),nn)*(.75+r()*.4)*(1-is*clamp(1+cy/260,0,1)*.5);
-        const kv=golgele(renk,a);
-        // düzensiz çokgen taş: köşeleri kırık, kenarı titrek mürekkep
-        const j=()=>(r()-.5)*3, kk=()=>1+r()*h*.32, x2=x+w, y2=y-h;
-        const p=[[x+kk(),y+j()],[x2-kk(),y+j()],[x2+j(),y-kk()],[x2+j(),y2+kk()],[x2-kk(),y2+j()],[x+kk(),y2+j()],[x+j(),y2+kk()],[x+j(),y-kk()]];
-        c.beginPath(); p.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])); c.closePath();
-        c.fillStyle=rgba(kv,1); c.fill(); c.strokeStyle=rgba(harc,.9); c.lineWidth=1.1; c.stroke();
-        c.save(); c.clip();
-        leke(cx+w*.1,cy+h*.3,w*.5,h*.35,[0,0,0],.35);          // alt yanı gölgede
-        if(a>.25) leke(cx-w*.2+r()*w*.3,cy-h*.1,w*.3,h*.25,golgele(renk,Math.min(1.5,a*1.6)),.18);
-        c.restore();
-        x+=w+1.5+r()*2.5;
-      }
-      y-=h+1.2+r()*1.5;
+  const kose=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
+  c.save(); tabana();
+  c.beginPath(); duzlemYol(P,O,D,kose); c.clip();
+  c.fillStyle=rgba(harc,1); c.fill();
+  for(let y=y1;y>y0;){
+    const h=sira*(.7+r()*.6);
+    for(let x=x0-r()*20;x<x1;){
+      const w=h*(1+r()*1.6), cx=x+w/2, cy=y-h/2, a=aydinlik(isik,dunya(O,D,cx,cy),nn)*(.75+r()*.4)*(1-is*clamp(1+cy/260,0,1)*.5);
+      const kv=golgele(renk,a), M=P.matris(dunya(O,D,cx,cy),D.u,D.v);
+      tabana(); c.transform(M[0],M[1],M[2],M[3],M[4],M[5]);
+      // kırık köşeli taş (taş merkezine göre yerel)
+      const j=()=>(r()-.5)*(3+duzensiz*h*.5), kk=()=>1+r()*h*(.32+duzensiz*.3), X0=-w/2, X1=w/2, Y0=h/2, Y1=-h/2;
+      const p=[[X0+kk(),Y0+j()],[X1-kk(),Y0+j()],[X1+j(),Y0-kk()],[X1+j(),Y1+kk()],[X1-kk(),Y1+j()],[X0+kk(),Y1+j()],[X0+j(),Y1+kk()],[X0+j(),Y0-kk()]];
+      c.beginPath(); p.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])); c.closePath();
+      c.fillStyle=rgba(kv,1); c.fill(); c.strokeStyle=rgba(harc,.9); c.lineWidth=1.1; c.stroke();
+      c.save(); c.clip();
+      leke(w*.1,h*.2,w*.5,h*.35,[0,0,0],.35);          // alt yanı gölgede
+      if(a>.25) leke(-w*.2+r()*w*.3,-h*.1+h*.5-h*.5,w*.3,h*.25,golgele(renk,Math.min(1.5,a*1.6)),.18);
+      c.restore();
+      x+=w+1.5+r()*2.5;
     }
-    tara(x0,y0,x1,y1,.5,6,MUREKKEP,.2,(r()*1e5)|0,1); // mürekkep tarama, taşları sahneye bağlar
+    y-=h+1.2+r()*1.5;
+  }
+  tabana();
+  const sk=kose.map(q=>duzlemNoktasi(P,O,D,q[0],q[1])), xs=sk.map(q=>q[0]), ys=sk.map(q=>q[1]);
+  tara(Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys),.5,6,MUREKKEP,.2,(r()*1e5)|0,1); // mürekkep tarama
+  c.restore();
+}
+
+// Sıvalı duvar: düz yüzey, ışık lekesi, çatlaklar, sıvası dökülmüş yerlerde taş görünür
+export function sivaDuvar(P,isik,O,D,[x0,x1,y0,y1],renk,r,{is=0}={}){
+  const n0=normal(D), nn=(-O[0])*n0[0]+(P.yukseklik-O[1])*n0[1]+(-O[2])*n0[2]>0?n0:[-n0[0],-n0[1],-n0[2]];
+  const kose=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]], sk=kose.map(q=>duzlemNoktasi(P,O,D,q[0],q[1]));
+  c.save(); tabana(); c.beginPath(); duzlemYol(P,O,D,kose); c.clip();
+  c.fillStyle=rgba(golgele(renk,isik.ortam*1.6),1); c.fill();
+  // ışık: duvarın her parçası kendi aydınlığını alır (ızgara)
+  const adim=40;
+  for(let x=x0;x<x1;x+=adim) for(let y=y0;y<y1;y+=adim){
+    const w=dunya(O,D,x+adim/2,y+adim/2), a=aydinlik(isik,w,nn)*(1-is*clamp(1+(y+adim/2)/260,0,1)*.6), s=P.n(...w), o=P.olcek(...w);
+    leke(s[0],s[1],adim*o*1.1,adim*o*1.1,golgele(renk,a*1.25),.55);
+  }
+  duzlemde(P,O,D,()=>{
+    for(let i=0;i<10;i++){const x=x0+r()*(x1-x0), y=y0+r()*(y1-y0); leke(x,y,20+r()*60,20+r()*50,r()<.6?[0,0,0]:golgele(renk,1.2),.08+r()*.12);}
+    for(let i=0;i<7;i++){let x=x0+r()*(x1-x0), y=y0+r()*(y1-y0); titrek(()=>{c.moveTo(x,y); for(let k=0;k<6;k++){x+=(r()-.5)*18; y+=4+r()*10; c.lineTo(x,y);}},MUREKKEP,.45,1.1,(r()*1e5)|0,1,.6);}
   });
+  tara(Math.min(...sk.map(q=>q[0])),Math.min(...sk.map(q=>q[1])),Math.max(...sk.map(q=>q[0])),Math.max(...sk.map(q=>q[1])),.6,7,MUREKKEP,.18,(r()*1e5)|0,1);
+  c.restore();
+  // sıvası dökülmüş yamalar
+  for(let i=0;i<3;i++){const cx=x0+40+r()*(x1-x0-80), cy=y0+40+r()*(y1-y0-120), w=30+r()*40, h=20+r()*30;
+    tasOrgu(P,isik,O,D,[cx-w,cx+w,cy-h,cy+h],golgele(renk,.9),r,{sira:12,harc:[16,14,12]});}
 }
 
 // Zemin dörtgeni [x0,x1] × [z0,z1]: taban rengi, ışığın düştüğü yer, toprak dokusu
@@ -59,7 +95,7 @@ export function zemin(P,isik,[x0,x1],[z0,z1],renk,r,{doku=1,tohum=1}={}){
   for(let i=0;i<500*doku;i++){const x=r()*1000, y=ust+r()*(alt-ust), s=(y-ust)/(alt-ust); c.fillStyle=r()<.5?'rgba(0,0,0,.35)':rgba(golgele(renk,1.6),.25); c.fillRect(x,y,.6+s*1.8*r(),.5+s*r());}
   for(let i=0;i<70*doku;i++){ // çakıl: altında gölge, üstünde ışık
     const X=x0+r()*(x1-x0), Z=z0+r()*(z1-z0), s=P.n(X,0,Z), o=P.olcek(X,0,Z), rr=(.6+r()*1.8)*o;
-    leke(s[0]+rr*.3,s[1]+rr*.25,rr*1.3,rr*.6,[0,0,0],.5); c.fillStyle=rgba(golgele(renk,.7+r()*.5),1); c.beginPath(); c.ellipse(s[0],s[1],rr,rr*.55,0,0,Math.PI*2); c.fill();
+    leke(s[0]+rr*.3,s[1]+rr*.25,rr*1.3,rr*.6,[0,0,0],.4); c.fillStyle=rgba(golgele(renk,.45+r()*.35),1); c.beginPath(); c.ellipse(s[0],s[1],rr,rr*.55,0,0,Math.PI*2); c.fill();
   }
   for(let i=0;i<40*doku;i++){const X=x0+r()*(x1-x0), Z=z0+r()*(z1-z0), s=P.n(X,0,Z), o=P.olcek(X,0,Z), a=r()*Math.PI, u=(3+r()*6)*o; c.strokeStyle=rgba(golgele(renk,1.4),.25); c.lineWidth=.6; c.beginPath(); c.moveTo(s[0],s[1]); c.lineTo(s[0]+Math.cos(a)*u,s[1]+Math.sin(a)*u*.35); c.stroke();}
   tara(0,ust,1000,alt,.06,7,MUREKKEP,.22,tohum,1);

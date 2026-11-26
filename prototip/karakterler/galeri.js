@@ -19,7 +19,21 @@ const CUMLE={
   sultan:'Yetmiş dört yıldır bu köydeyim, oğul.',
   riza:'Karakolda nöbetteydim. Defterde yazar.'
 };
-const liste=[...gorunusListesi].sort((a,b)=>a.id==='varsayilan'?-1:b.id==='varsayilan'?1:a.id.localeCompare(b.id,'tr'));
+// ?secenek: veri dosyası olmayan seçenekleri (başlık, saç, örtü) denemek için sentetik karakterler
+const SECENEK=[
+  {id:'s-kel-cubbe', cinsiyet:'E', yas:60, sac:{bicim:'kel'}, sakal:{bicim:'uzun'}, biyik:{bicim:'kalin'}, ortu:'cubbe', giysi:{ic:'gomlek'}, renk:{ten:'#86745e'}},
+  {id:'s-sarik', cinsiyet:'E', yas:58, sakal:{bicim:'kisa'}, biyik:{bicim:'kalin'}, baslik:{tur:'sarik'}, ortu:'cubbe', giysi:{ic:'entari', icRenk:'#4a4536'}, renk:{ten:'#8a785f'}},
+  {id:'s-takke-onluk', cinsiyet:'E', yas:52, biyik:{bicim:'pala'}, sakal:{bicim:'kirli'}, baslik:{tur:'takke'}, ortu:'onluk', giysi:{ic:'yelek'}, renk:{ten:'#8c7860'}, omuz:1.08},
+  {id:'s-kepenek', cinsiyet:'E', yas:24, biyik:{bicim:'ince'}, baslik:{tur:'kasket'}, ortu:'kepenek', renk:{ten:'#8e7a5e'}, omuz:1.05},
+  {id:'s-palto-kasket', cinsiyet:'E', yas:50, biyik:{bicim:'kalin'}, baslik:{tur:'kasket', renk:'#3a3934'}, ortu:'palto', giysi:{renk:'#2a2c28', ic:'gomlek'}, renk:{ten:'#8a7860'}, omuz:1.1},
+  {id:'s-kaput-kisa', cinsiyet:'E', yas:22, sakal:{bicim:'kirli'}, ortu:'kaput', renk:{ten:'#8a7a62'}},
+  {id:'s-yazma-entari', cinsiyet:'K', yas:34, baslik:{tur:'yazma', renk:'#4a4438', desen:'duz'}, ortu:'entari', giysi:{renk:'#3c362b'}, renk:{ten:'#8f846e'}},
+  {id:'s-onluk-k', cinsiyet:'K', yas:45, baslik:{tur:'yemeni', renk:'#6a5f48'}, ortu:'onluk', giysi:{renk:'#5a5444', icRenk:'#4a4234'}, renk:{ten:'#8c806a'}},
+  {id:'s-toplu', cinsiyet:'K', yas:28, sac:{bicim:'toplu'}, ortu:'entari', giysi:{hirka:'#3f3a30'}, renk:{ten:'#958a74'}},
+  {id:'s-aba-uzun', cinsiyet:'E', yas:70, sakal:{bicim:'uzun', boy:1.2}, biyik:{bicim:'pala'}, baslik:{tur:'kasket'}, ortu:'aba', giysi:{ic:'gomlek'}, renk:{ten:'#82705a'}, omuz:1.05}
+];
+const kaynak=new URLSearchParams(location.search).has('secenek')?SECENEK:gorunusListesi;
+const liste=[...kaynak].sort((a,b)=>a.id==='varsayilan'?-1:b.id==='varsayilan'?1:a.id.localeCompare(b.id,'tr'));
 
 function sahneCiz(kc,W,H){
   hedefAyarla(kc);

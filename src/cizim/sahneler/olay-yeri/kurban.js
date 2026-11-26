@@ -8,32 +8,32 @@ import {hat,aydinlik,golgele} from './kalem.js';
 
 // gövde yumruları: [u merkez, w merkez, u yarıçap, w yarıçap, yükseklik] (cm; u boyuna, w enine)
 const GOVDE=[
-  [-74,2,13,11,19],   // baş
-  [-50,0,14,23,24],   // omuzlar
-  [-24,1,24,21,23],   // gövde
-  [6,0,15,20,20],     // kalça
-  [36,-7,24,8,13], [36,8,24,8,13], // bacaklar
-  [72,-6,9,7,16], [72,7,9,7,15]    // ayak uçları örtüyü kaldırır
+  [-72,2,12,10,15],   // baş
+  [-48,0,16,22,20],   // omuzlar
+  [-22,1,26,20,19],   // gövde
+  [6,0,16,19,17],     // kalça
+  [38,-6,26,8,10], [38,7,26,8,10], // bacaklar
+  [70,-6,8,6,11], [70,7,8,6,10]    // ayak uçları örtüyü biraz kaldırır
 ];
-const ORTU={kilim:{boy:208,en:132,renk:hex('#5a4c3c'),desen:true}, cul:{boy:196,en:120,renk:hex('#4a4536'),desen:false}};
+const ORTU={kilim:{boy:184,en:112,renk:hex('#5a4c3c'),desen:true}, cul:{boy:180,en:108,renk:hex('#4a4536'),desen:false}};
 
 export function kurbanCiz(P,isik,yuva,{ortu='kilim',aci=0},r){
   const T=ORTU[ortu]||ORTU.kilim, O=yuva.konum, Y0=O[1];
   const au=[Math.cos(aci),0,Math.sin(aci)], aw=[-Math.sin(aci),0,Math.cos(aci)];
   const du=4, dw=4, nu=Math.round(T.boy/du), nw=Math.round(T.en/dw);
   // gövde yüksekliği
-  const govde=(u,w)=>{let h=0; for(const g of GOVDE){const d=((u-g[0])/g[2])**2+((w-g[1])/g[3])**2; if(d<1) h=Math.max(h,g[4]*Math.sqrt(1-d));} return h;};
+  const govde=(u,w)=>{let h=0; for(const g of GOVDE){const d=((u-g[0])/g[2])**2+((w-g[1])/g[3])**2; if(d<1) h=Math.max(h,g[4]*1.3*Math.sqrt(1-d));} return h;};
   const ham=[]; for(let i=0;i<=nu;i++){ham[i]=[]; for(let j=0;j<=nw;j++) ham[i][j]=govde(-T.boy/2+i*du,-T.en/2+j*dw);}
   // örtü: her noktada en yakın tepeden 1.1 eğimle iner; düz yerde buruşuk
   const hO=[], kat=rng(Math.floor(r()*1e6));
   const kir=[]; for(let q=0;q<9;q++) kir.push([kat()*T.boy-T.boy/2,kat()*T.en-T.en/2,.6+kat()*1.6,10+kat()*20,kat()*Math.PI]);
   for(let i=0;i<=nu;i++){hO[i]=[]; for(let j=0;j<=nw;j++){
     let h=0; const u=-T.boy/2+i*du, w=-T.en/2+j*dw;
-    for(let a=0;a<=nu;a+=1) for(let b=0;b<=nw;b+=1){const hb=ham[a][b]; if(hb<=h) continue; const d=Math.hypot((a-i)*du,(b-j)*dw); h=Math.max(h,hb-d*1.1);}
+    for(let a=0;a<=nu;a+=1) for(let b=0;b<=nw;b+=1){const hb=ham[a][b]; if(hb<=h) continue; const d=Math.hypot((a-i)*du,(b-j)*dw); h=Math.max(h,hb-d*1.35);}
     let kirisik=0; for(const q of kir){const dd=Math.hypot(u-q[0],w-q[1]); if(dd<q[3]) kirisik+=q[2]*Math.cos(dd*.55+q[4])*(1-dd/q[3]);}
-    hO[i][j]=Math.max(.4,h+kirisik*(h<6?1:.35));
+    hO[i][j]=Math.max(.4,h+kirisik*(h<6?1:.12));
   }}
-  for(let gec=0;gec<3;gec++){ // örtü sivri tepe yapmaz: yumuşat
+  for(let gec=0;gec<6;gec++){ // örtü sivri tepe yapmaz: yumuşat
     const e=hO.map(s=>s.slice());
     for(let i=1;i<nu;i++) for(let j=1;j<nw;j++) hO[i][j]=Math.max(.4,(e[i-1][j]+e[i+1][j]+e[i][j-1]+e[i][j+1]+e[i][j]*2)/6);
   }
@@ -62,7 +62,7 @@ export function kurbanCiz(P,isik,yuva,{ortu='kilim',aci=0},r){
       const s=((u+T.boy/2)%26+26)%26, bant=Math.floor((u+T.boy/2)/26);
       if(s<3||s>23) a*=.62; else if(bant%2&&Math.abs(((u%26)+26)%26-13)+Math.abs(((w%26)+39)%26-13)<7) a*=.7;
       if(Math.abs(w)>T.en/2-10) a*=.78; // kenar şeridi
-    }else{ a*=.9+((d.i*7+d.j*13)%5)*.03; }
+    }else{ a*=.88+kat()*.1; }
     a*=.55+.45*clamp(hO[d.i][d.j]/8,0,1)*.5+.22; // örtünün yere değdiği yer kararır
     c.beginPath(); d.q.forEach((p,k)=>{const s=P.n(...p); if(k)c.lineTo(s[0],s[1]); else c.moveTo(s[0],s[1]);}); c.closePath();
     const renk=golgele(T.renk,a); c.fillStyle=rgba(renk,1); c.fill(); c.strokeStyle=rgba(renk,1); c.lineWidth=.6; c.stroke();

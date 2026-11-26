@@ -118,6 +118,13 @@ function disBoya(yol,T,k,X,desen){
   c.restore();
 }
 
+// alt kenarı etek rengine erit: ayaktayken gövde ile altGovde arasında çizgi görünmesin
+export function erime(yol,T){
+  c.save(); c.beginPath(); yol(); c.clip();
+  const g=c.createLinearGradient(0,1130,0,1300); g.addColorStop(0,T.sis[0]); g.addColorStop(1,T.sis[1]); c.fillStyle=g; c.fillRect(-500,1130,1000,180);
+  c.restore();
+}
+
 /* ───────── iç giysiler (dış örtünün önünden görünen) ───────── */
 function bluz(k){
   c.beginPath(); c.moveTo(-150,790); c.lineTo(150,790); c.lineTo(10,1110); c.lineTo(-10,1110); c.closePath();
@@ -196,7 +203,8 @@ function acikOrtu(k,X,T,cubbe){
   for(const s of[-1,1]){
     const yol=()=>{c.moveTo(s*o.boyun,o.y); c.bezierCurveTo(s*120,880,s*140,1000,s*150,1300); c.lineTo(s*(cubbe?196:186),1300); c.bezierCurveTo(s*176,1000,s*150,880,s*(o.boyun+30),o.y+4); c.closePath();};
     const kr=karistir(R,s>0?[0,0,0]:'#c8c0a0',s>0?.45:.08);
-    kumas(yol,[s<0?-196:o.boyun-10,o.y,s<0?-o.boyun+10:196,1300],{renk:kr,seed:420+s,tara:s>0?1:.5});
+    kumas(yol,[s<0?-196:o.boyun-10,o.y,s<0?-o.boyun+10:196,1300],{renk:kr,seed:420+s,tara:s>0?1:.5,hat:false});
+    titrek(()=>{c.moveTo(s*o.boyun,o.y); c.bezierCurveTo(s*120,880,s*140,1000,s*150,1300);},PAL.murekkep,.85,1.8,423+s+k,2,2);
     if(kenar){ // işlemeli kenar: kumaşa gömülü, soluk sırma çizgisi
       c.save(); c.setLineDash([5,4]);
       titrek(()=>{c.moveTo(s*(o.boyun+12),o.y+6); c.bezierCurveTo(s*134,880,s*154,1000,s*164,1300);},s>0?karistir(kenar,[0,0,0],.55):kenar,.6,2.2,425+s+k,2,1.2);
@@ -291,18 +299,23 @@ export function govde(){
   else if(o==='onluk') onluk(k,X,T);
   else if(o==='kepenek') kepenek(k,X,T);
   else palto(k,X,T);
-  baslikGovde(X);
+  const ET=etekTon();
+  if(!(o==='palto'&&G.giysi.ic==='bluz')) erime(()=>silYol(X,ORTU[o]||ORTU.palto),ET);
+  baslikGovde(X,yol=>erime(yol,ET));
   c.restore();
 }
 
+const etekTon=()=>G.ortu==='entari'&&G.giysi.hirka?tonlar(G.giysi.icRenk||IC_RENK.entari):ortuTon();
 export function altGovde(){ // yere kadar inen örtü ve yanlarda sarkan eller: yalnızca ayaktayken görünür, bacak çizilmez
-  const k=poz.kaynama, X=omuzEsle(), T=G.ortu==='entari'&&G.giysi.hirka?tonlar(G.giysi.icRenk||IC_RENK.entari):ortuTon(), R=G.renk;
+  const k=poz.kaynama, X=omuzEsle(), T=etekTon(), R=G.renk;
   c.save(); c.translate(0,-38);
-  const etek=()=>{c.moveTo(X(-372),1280); c.lineTo(X(-420),2780); c.lineTo(X(420),2780); c.lineTo(X(372),1280); c.closePath();};
+  // etek, örtünün alt kenarıyla aynı genişlikte başlar (palto: 372)
+  const u0=Math.max(-(ORTU[G.ortu]||ORTU.palto).sil[1][4],G.baslik.tur==='sal'?400:0), u1=u0+48;
+  const etek=()=>{c.moveTo(X(-u0),1280); c.lineTo(X(-u1),2780); c.lineTo(X(u1),2780); c.lineTo(X(u0),1280); c.closePath();};
   c.beginPath(); etek();
   const g=c.createLinearGradient(X(-300),1280,X(300),2780); g.addColorStop(0,T.etek[0]); g.addColorStop(1,T.etek[1]); c.fillStyle=g; c.fill();
-  c.save(); c.clip(); tara(X(-420),1280,X(420),2780,.75,10,PAL.murekkep,.5,760+k,1.3); leke(X(280),2050,220,760,PAL.siyah,.7); c.restore();
-  titrek(()=>{c.moveTo(X(-372),1280); c.lineTo(X(-420),2780); c.moveTo(X(420),2780); c.lineTo(X(372),1280);},PAL.murekkep,.9,2.2,761+k,2,3);
+  c.save(); c.clip(); tara(X(-u1),1280,X(u1),2780,.75,10,PAL.murekkep,.5,760+k,1.3); leke(X(280),2050,220,760,PAL.siyah,.7); c.restore();
+  titrek(()=>{c.moveTo(X(-u0),1280); c.lineTo(X(-u1),2780); c.moveTo(X(u1),2780); c.lineTo(X(u0),1280);},PAL.murekkep,.9,2.2,761+k,2,3);
   titrek(()=>{c.moveTo(-2,1150); c.lineTo(5,2780);},PAL.murekkep,.8,2,762+k,2,3);
   for(const s of[-1,1]){
     c.fillStyle=s<0?R.el[0]:R.el[1]; c.beginPath(); c.ellipse(X(s*388),2010,36,74,s*.08,0,TAU); c.fill();

@@ -63,7 +63,7 @@ export function izleriKur(d,z,cz,sonuc){
     if(c.silah&&!c.silah.calinti&&c.yontem==='tufek') kanit.push(yara.id);
     let calintiY=null;
     if(c.silah&&c.silah.calinti&&(silahIzi||c.yontem==='tufek')){
-      calintiY=yaniltici({izler:[silahIzi?silahIzi.id:yara.id],isaret:[c.silah.sahip],aciklama:'calinti-silah',olay:c.silah.olay,
+      calintiY=yaniltici({izler:[...(silahIzi?[silahIzi.id]:[]),...(c.yontem==='tufek'?[yara.id]:[])],isaret:[c.silah.sahip],aciklama:'calinti-silah',olay:c.silah.olay,
         curutme:[{tur:'konum',kisi:c.silah.sahip,zaman:t},{tur:'konum',kisi:A,zaman:olaylar.find(x=>x.id===c.silah.olay).zaman}]});
       if(c.yontem==='tufek') yara.yaniltici=true;
     }
@@ -73,9 +73,7 @@ export function izleriKur(d,z,cz,sonuc){
       const s=z.agirlikli(izSecenekleri(id,zorla,c.silah?[c.silah.esya]:[]));
       if(!s) return null;
       const iz=ekle({tur:'fiziksel',alt:'esya',anahtar:s.anahtar,iztur:s.iztur,esya:s.esya??null,ortu:s.ortu??null,sahip:id,adaylar:adaylar(s.anahtar),mekan:m,zaman:t,olay:c.id,gercek:{neden}});
-      const digerAday=iz.adaylar.filter(k=>k!==id);
-      if(digerAday.length) yaniltici({izler:[iz.id],isaret:digerAday,aciklama:'benzer-esya',olay:c.id,curutme:digerAday.map(k=>({tur:'konum',kisi:k,zaman:t}))});
-      return iz;
+      return iz; // aynı izi bırakabilen başkaları iz.adaylar'da; bu bir belirsizliktir, yanıltıcı sayılmaz
     };
     const ki=katilIzi(A,'katil-birakti');
     if(ki) kanit.push(ki.id);
@@ -108,7 +106,7 @@ export function izleriKur(d,z,cz,sonuc){
     // Kurbanın kendi eşyası (gümüş saat durmuşsa ölüm dilimini doğru gösterir).
     if(z.olasilik(o.kurbanEsyasi)&&(d.kisi(V).esyalar||[]).length){
       const e=z.sec(d.kisi(V).esyalar), x=esyaIzi(e);
-      ekle({tur:'fiziksel',alt:'kurban-esyasi',anahtar:e==='gumus-saat'?'durmus-saat':x.iz,iztur:x.tur,esya:e,sahip:V,adaylar:[V],mekan:m,zaman:t,olay:c.id,
+      ekle({tur:'fiziksel',alt:'kurban-esyasi',anahtar:e==='gumus-saat'?'durmus-saat':e,iztur:x.tur,esya:e,sahip:V,adaylar:[V],mekan:m,zaman:t,olay:c.id,
         gercek:{neden:'kurbanin',...(e==='gumus-saat'?{gosterdigiDilim:dilim}:{})}});
     }
     // Zehrin geldiği ot torbası: otu veren masumdur.
@@ -136,19 +134,24 @@ export function izleriKur(d,z,cz,sonuc){
       if(Y) tanikIzi(W,'olay-tanigi',Y,m);
     }
     const gezgin=W=>d.sirlar.some(s=>s.sahip===W&&s.tur==='bilgi'&&!s.kimler.length);
+    const gorenler=[], duyanlar=[];
     for(const W of d.ids){
       if(ilgili.includes(W)||c.gozTaniklari.includes(W)||!cz.canli(W,t)) continue;
       const wy=cz.yer[W][t];
       if(!(d.harita[m]||[]).includes(wy)) continue;
       const uyur=dilim==='gece'&&cz.neden[W][t]==='ev';
       const p=(o.gorme[dilim]??.4)*(gezgin(W)?2:1)*(uyur?.3:1);
-      if(z.olasilik(Math.min(.95,p))) tanikIzi(W,'gordu',A,wy);
-      else if(c.yontem==='tufek'||z.olasilik(.15)) tanikIzi(W,'ses',null,wy);
+      if(z.olasilik(Math.min(.95,p))) gorenler.push({W,wy});
+      else if(c.yontem==='tufek'||z.olasilik(.15)) duyanlar.push({W,wy});
     }
+    // Kalabalık komşu mekân vakayı tek tanıkla çözmesin: en çok iki gören, üç duyan.
+    for(const g of z.karistir(gorenler).slice(0,2).sort((a,b)=>a.W<b.W?-1:1)) tanikIzi(g.W,'gordu',A,g.wy);
+    for(const g of z.karistir(duyanlar).slice(0,3).sort((a,b)=>a.W<b.W?-1:1)) tanikIzi(g.W,'ses',null,g.wy);
 
     // --- Dolaylı ---
     const dolayli=iz=>ekle({tur:'dolayli',cinayet:c.id,...iz});
-    const evdekiler=(k,u)=>(d.evHalki[d.kisi(k).ev]||[]).filter(h=>h!==k&&cz.yer[h][u]===d.kisi(k).ev);
+    // k evinde değilken o dilimde evde olan ev halkı (yokluğu fark edebilecekler)
+    const evdekiler=(k,u)=>cz.yer[k][u]===d.kisi(k).ev?[]:(d.evHalki[d.kisi(k).ev]||[]).filter(h=>h!==k&&cz.yer[h][u]===d.kisi(k).ev);
     if(dilim==='gece'){
       const h=evdekiler(A,t).filter(h=>h!==V);
       if(h.length&&z.olasilik(o.geceYoklugu)){
