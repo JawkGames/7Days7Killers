@@ -7,15 +7,15 @@ export const OLCU={yukseklik:1200, enAzGenislik:700, pay:0, kaynamaHizi:7};
    ve PC yatay (yarım genişlik 1066). Aradaki ekranlar ikisinin arasından okunur.
    Dünya koordinatı: ekran x = kn.x + X*s, ekran y = kn.y + Y*s; s yakınlık (1 = kameraya yakın, küçüldükçe uzak). */
 export const YERLESIM={
-  dar:  {G:350,  kn:[150,520], arka:[30,330,760],  sArka:.3, pencere:{sUzak:.45, sYakin:1.21, ust:-511, alt:200},
+  dar:  {G:350,  kn:[150,520], arka:[30,330,760],  sArka:.3, pencere:{sUzak:.45, sYakin:1.3, ust:-420, alt:170},
          masa:{x0:-110, arka:784, on:880}, muf:{xBas:250, xSon:118, omuzSon:476}, kapi:[196,300,450]},
-  genis:{G:1066, kn:[160,540], arka:[-330,300,800], sArka:.3, pencere:{sUzak:.36, sYakin:.70, ust:-580, alt:280},
-         masa:{x0:-560, arka:792, on:900}, muf:{xBas:470, xSon:-300, omuzSon:470}, kapi:[392,560,440]}
+  genis:{G:1066, kn:[160,540], arka:[-330,300,800], sArka:.3, pencere:{sUzak:.36, sYakin:.74, ust:-640, alt:330},
+         masa:{x0:-560, arka:792, on:900}, muf:{xBas:470, xSon:-330, omuzSon:470}, kapi:[392,560,440]}
 };
 
 /* Müfettiş: yerel birim omuz ortasından; s=1 iken bu ölçülerdedir. Bacak yok: palto ayak bileğine iner,
    alt gövdeyi önce masa, sonra kadraj alt kenarı gizler. */
-export const MUFETTIS={omuzAyak:1000, etek:940, omuzEn:162, sapkaUst:-178, yuruAdim:7, salinim:.022, ziplama:9};
+export const MUFETTIS={omuzAyak:1000, etek:940, omuzEn:162, yuruAdim:7, salinim:.022, ziplama:9};
 
 /* Zaman çizelgesi (saniye). Taşlar `tas.bas` sonrasında atılır; sahne son taştan `bitisBekle` sonra biter. */
 export const ZAMAN={
@@ -31,13 +31,13 @@ export const ZAMAN={
 /* Kalabalık. Dış resim kendi birimindedir (600 x 700), pencere boşluğuna yerleştirilir.
    Derinlik z: 1 en ön sıra (pencere alt kenarı keser), zUzak meydanın arka ucu. */
 export const KALABALIK={
-  resim:[600,700], ufuk:212, onY:742, zUzak:3.4, boy:150, yayilim:760,
+  resim:[600,700], ufuk:212, onY:790, zUzak:3.4, boy:150, yayilim:760,
   sira:[11,13], siraKisi:[7,10],    // tohumla seçilir: kişi sayısı her oyunda başka
   bosluk:.12,                       // iki grup arasındaki boş şerit (u biriminde)
   oranOynama:.05                    // grup oranına eklenen tohumlu sapma: kişi sayısından doğru sayısı okunmasın
 };
 /* Öfkeli grubun elindekiler ve olasılıkları; coşkulu grubun kol duruşları. */
-export const OFKE_ESYA=[['mesale',.30],['tirpan',.16],['dirgen',.16],['orak',.10],['sopa',.10],['yumruk',.18]];
+export const OFKE_ESYA=[['mesale',.2],['tirpan',.18],['dirgen',.17],['orak',.11],['sopa',.12],['yumruk',.22]];
 export const COSKU_DURUS=[['ikiKol',.42],['fenerYukari',.22],['fenerAlt',.18],['tekKol',.18]];
 
 /* Giysi ve baş örtüsü türleri: hepsi uzun, alt gövdeyi örter. */

@@ -4,7 +4,7 @@ import {c} from '../../teknik/tuval.js';
 import {leke,titrek} from '../../teknik/firca.js';
 import {TAU,lerp,clamp,rgba} from '../../../cekirdek/matematik.js';
 import {rng} from '../../../cekirdek/rastgele.js';
-import {ZAMAN,KALABALIK} from './ayar.js';
+import {ZAMAN,KALABALIK,RENK} from './ayar.js';
 import {zemin} from './kalabalik.js';
 import {Y,camNokta} from './yerlesim.js';
 import {camYolu,penYolu} from './oda.js';
@@ -85,13 +85,17 @@ export function ucanlar(plan,t){
     const [ux,uy]=zemin(A.atan.u,A.atan.z), hb=KALABALIK.boy/A.atan.z;
     const bx=Y.dis.x+ux*Y.dis.o, by=Y.dis.y+(uy-hb*1.05)*Y.dis.o;
     const [ex,ey,s]=camNokta(A.a,A.b), B=boyut(s);
-    const e=k*k;
-    const x=lerp(bx,ex,e), y=lerp(by,ey,e)-Math.sin(k*Math.PI)*B*1.2, rr=lerp(.012,.075,e*e)*B;
+    const yer=k=>{const e=k*k; return [lerp(bx,ex,e),lerp(by,ey,e)-Math.sin(k*Math.PI)*B*1.2];};
+    const [x,y]=yer(k), rr=lerp(.045,.2,k*k)*B;
+    // iz: arkasında kısa, soluk bir çizgi
+    const [px,py]=yer(Math.max(0,k-.09));
+    c.strokeStyle=rgba(RENK.ofkeIsik,.35); c.lineWidth=rr*.8; c.lineCap='round'; c.beginPath(); c.moveTo(px,py); c.lineTo(x,y); c.stroke();
     c.save(); c.translate(x,y); c.rotate(A.don+k*6);
-    c.fillStyle=A.tur==='tas'?'#1a1813':'#2a1f13';
+    c.fillStyle=A.tur==='tas'?'#16140f':'#2a1f13';
     c.beginPath(); for(let i=0;i<7;i++){const a=i/7*TAU, d=rr*(.75+((A.tohum>>i)&3)*.1); if(i) c.lineTo(Math.cos(a)*d,Math.sin(a)*d*.85); else c.moveTo(d,0);} c.closePath(); c.fill();
-    c.strokeStyle=rgba([150,120,80],.4); c.lineWidth=Math.max(.8,rr*.15); c.beginPath(); c.arc(0,0,rr*.8,-2.4,-1); c.stroke();
     c.restore();
+    // aşağıdaki meşalelerin vurduğu sıcak kenar
+    c.strokeStyle=rgba(RENK.ofkeAlev,.75); c.lineWidth=Math.max(1,rr*.22); c.beginPath(); c.arc(x,y,rr*.78,.3,2.4); c.stroke();
   }
 }
 

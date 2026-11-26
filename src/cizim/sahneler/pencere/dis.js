@@ -22,7 +22,8 @@ export function disArka(tohum){
   let x=-80;
   while(x<W+80){
     const w=70+r()*90, h=50+r()*48, ust=K.ufuk-h;
-    c.fillStyle=rgba([14+r()*6|0,13+r()*5|0,10],1); c.fillRect(x,ust,w+1,h+4);
+    c.fillStyle=rgba([30+r()*10|0,27+r()*8|0,20],1); c.fillRect(x,ust,w+1,h+4);
+    c.save(); c.beginPath(); c.rect(x,ust,w+1,h+4); c.clip(); tara(x,ust,x+w,K.ufuk+4,.3,5,[6,5,4],.4,600+x|0,1); leke(x+w/2,ust,w*.6,h*.5,[0,0,0],.5); c.restore();
     c.fillStyle='#0a0908'; c.fillRect(x-3,ust-6,w+6,8); // dam kenarı
     for(let k=x+6;k<x+w-4;k+=9+r()*5){c.fillStyle='rgba(4,4,3,.9)'; c.fillRect(k,ust+3,3,3);}
     if(r()<.7){const px=x+10+r()*(w-30); c.fillStyle='#050505'; c.fillRect(px,ust+18+r()*8,10,13);}
@@ -63,7 +64,7 @@ export function disIsik(ortalama,t,f,ofkePay){
   const [W]=K.resim;
   c.save(); disDonusum();
   c.globalCompositeOperation='lighter';
-  leke(W/2,K.ufuk-10,W*.75,70,ortalama,.10*f);
+  leke(W/2,K.ufuk-20,W*.75,80,ortalama,.2*f);
   leke(W/2,K.ufuk-150,W*.8,150,ortalama,(.05+.06*ofkePay)*f);
   c.globalCompositeOperation='source-over';
   // öfkede gökte dumanlar yükselir

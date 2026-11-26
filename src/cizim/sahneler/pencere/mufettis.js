@@ -9,8 +9,8 @@ import {MUFETTIS} from './ayar.js';
 const M=MUFETTIS;
 // palto: omuz ortası (0,0). Sol kenar pencereye bakar.
 function paltoYolu(){
-  c.moveTo(-58,-52); c.quadraticCurveTo(-30,-40,-8,-36); c.quadraticCurveTo(24,-40,58,-58); // kalkık yaka
-  c.quadraticCurveTo(70,-20,M.omuzEn,16);           // sağ omuz
+  c.moveTo(-60,-70); c.quadraticCurveTo(-30,-52,-8,-50); c.quadraticCurveTo(24,-54,56,-74); // kalkık yaka
+  c.quadraticCurveTo(72,-20,M.omuzEn,16);           // sağ omuz
   c.quadraticCurveTo(194,150,196,320);              // sağ kol (eli cepte, dirsek dışa)
   c.quadraticCurveTo(194,420,176,474);
   c.quadraticCurveTo(186,700,194,M.etek);           // etek
@@ -18,18 +18,18 @@ function paltoYolu(){
   c.quadraticCurveTo(-180,700,-170,476);
   c.quadraticCurveTo(-186,420,-182,330);            // sol kol
   c.quadraticCurveTo(-178,160,-150,8);
-  c.quadraticCurveTo(-90,-20,-58,-52);
+  c.quadraticCurveTo(-92,-24,-60,-70);
   c.closePath();
 }
-function solKenar(){c.moveTo(-58,-52); c.quadraticCurveTo(-90,-20,-150,8); c.quadraticCurveTo(-178,160,-182,330); c.quadraticCurveTo(-186,420,-170,476); c.quadraticCurveTo(-180,700,-188,M.etek);}
-function basYolu(){ // ense ve kulak; çoğu şapkanın altında
-  c.moveTo(-50,-40); c.quadraticCurveTo(-78,-90,-60,-140); c.lineTo(48,-142); c.quadraticCurveTo(54,-118,50,-100);
-  c.quadraticCurveTo(62,-104,62,-88); c.quadraticCurveTo(60,-70,46,-70); c.quadraticCurveTo(40,-50,30,-40); c.closePath();
+function solKenar(){c.moveTo(-60,-70); c.quadraticCurveTo(-92,-24,-150,8); c.quadraticCurveTo(-178,160,-182,330); c.quadraticCurveTo(-186,420,-170,476); c.quadraticCurveTo(-180,700,-188,M.etek);}
+function basYolu(){ // ense: şapkanın altında kalan küçük bir parça; kulak yalnızca bir çıkıntı
+  c.moveTo(-44,-48); c.quadraticCurveTo(-60,-84,-50,-118); c.lineTo(40,-120); c.quadraticCurveTo(46,-104,44,-92);
+  c.quadraticCurveTo(52,-92,51,-80); c.quadraticCurveTo(49,-68,40,-68); c.quadraticCurveTo(34,-54,26,-46); c.closePath();
 }
-function kenarYolu(){ c.ellipse(-22,-150,128,22,0,0,Math.PI*2); }
+function kenarYolu(){ c.ellipse(-26,-122,140,21,0,0,Math.PI*2); }
 function tepeYolu(){
-  c.moveTo(-78,-152); c.quadraticCurveTo(-82,-200,-66,-222); c.quadraticCurveTo(-30,-240,-6,-226);
-  c.quadraticCurveTo(22,-242,52,-226); c.quadraticCurveTo(70,-200,66,-152); c.closePath();
+  c.moveTo(-84,-124); c.quadraticCurveTo(-90,-176,-72,-200); c.quadraticCurveTo(-34,-218,-8,-204);
+  c.quadraticCurveTo(22,-220,54,-204); c.quadraticCurveTo(74,-178,70,-124); c.closePath();
 }
 
 /* d: {x, y (omuz), s, don (salınım açısı), egil (0..1), irk (taş çarpınca irkilme), isik (0..1), renk} */
@@ -56,15 +56,15 @@ export function mufettis(d,kaynama){
   // baş ve şapka: boyundan öne eğilir
   c.save(); c.translate(-6,-40); c.rotate(-.05-d.egil*.2); c.translate(6,40);
   c.beginPath(); basYolu(); c.fillStyle=rgba([10,9,9],1); c.fill();
-  if(L>.01){c.save(); c.beginPath(); basYolu(); c.clip(); leke(-70,-100,30,50,d.renk,.35*L); c.restore();}
+  if(L>.01){c.save(); c.beginPath(); basYolu(); c.clip(); leke(-58,-86,22,36,d.renk,.3*L); c.restore();}
   titrek(basYolu,[2,2,2],.8,1.8,8806+kaynama,2,2);
-  c.save(); c.translate(-22,-150); c.rotate(-.1); c.translate(22,150);
+  c.save(); c.translate(-26,-122); c.rotate(-.08); c.translate(26,122);
   c.beginPath(); tepeYolu(); c.fillStyle=rgba([8,8,9],1); c.fill();
-  c.fillStyle='rgba(2,2,2,1)'; c.fillRect(-80,-170,150,16); // şapka bandı
+  c.fillStyle='rgba(2,2,2,1)'; c.fillRect(-88,-146,160,18); // şapka bandı
   c.beginPath(); kenarYolu(); c.fillStyle=rgba([5,5,6],1); c.fill();
-  if(L>.01){c.save(); c.beginPath(); kenarYolu(); tepeYolu(); c.clip(); leke(-140,-160,60,40,d.renk,.5*L); leke(-76,-200,24,40,d.renk,.25*L); c.restore();}
+  if(L>.01){c.save(); c.beginPath(); kenarYolu(); tepeYolu(); c.clip(); leke(-160,-126,60,30,d.renk,.5*L); leke(-84,-170,22,40,d.renk,.25*L); c.restore();}
   titrek(()=>{tepeYolu(); kenarYolu();},[2,2,2],.85,1.8,8807+kaynama,2,2);
-  if(L>.01) titrek(()=>{c.moveTo(-150,-146); c.quadraticCurveTo(-120,-132,-60,-129);},d.renk,.5*L,1.6,8808+kaynama,1,1.5);
+  if(L>.01) titrek(()=>{c.moveTo(-164,-118); c.quadraticCurveTo(-130,-104,-60,-101);},d.renk,.5*L,1.6,8808+kaynama,1,1.5);
   c.restore();
   c.restore();
   c.restore();

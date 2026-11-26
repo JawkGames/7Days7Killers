@@ -15,7 +15,7 @@ function camDortgen(a0,a1,b0,b1){return [camNokta(a0,b0),camNokta(a1,b0),camNokt
 
 /* ───────────── arka katman (ön bellek) ───────────── */
 export function odaArka(){
-  const G=Y.G+4, r=rng(3100), [kx,ky]=Y.kn, [ax,ay0,ay1]=Y.arka;
+  const G=Y.G+4, r=rng(3100), [ax,ay0,ay1]=Y.arka;
   c.fillStyle='#050505'; c.fillRect(-G,Y.ust,G*2,H-Y.ust);
   const sUc=4; // sol duvarın kameraya en yakın görünen ucu
   const solUstUc=Y.ekran(Y.Xd,Y.Ytavan,sUc), solAltUc=Y.ekran(Y.Xd,Y.Ytaban,sUc);
@@ -132,14 +132,17 @@ export function odaIsigi(renk,I){
   c.save();
   c.beginPath(); const [ax,ay0]=Y.arka; yol([[-Y.G-10,Y.ust-10],[Y.G+10,Y.ust-10],[Y.G+10,ay0],[ax,ay0],Y.ekran(Y.Xd,Y.Ytavan,4)]); c.clip();
   c.globalCompositeOperation='lighter';
-  const s0=P.sUzak*.92, s1=Math.min(P.sYakin*1.25,3), X0=Y.Xd, X1=Y.Xd+Math.abs(Y.Xd)*.75;
+  const s0=P.sUzak*.95, s1=Math.min(P.sYakin*1.15,3), X0=Y.Xd, X1=Y.Xd+Math.abs(Y.Xd)*.5;
   const dort=(xa,xb,sa,sb)=>[Y.ekran(xa,Y.Ytavan,sa),Y.ekran(xb,Y.Ytavan,sa),Y.ekran(xb,Y.Ytavan,sb),Y.ekran(xa,Y.Ytavan,sb)];
-  const ortaS=(s0+s1)/2, mrk=Y.ekran(X0+(X1-X0)*.35,Y.Ytavan,ortaS);
-  // dört cam gözünün izi: kayıtların gölgesiyle bölünmüş
-  for(const [xa,xb] of[[0,.36],[.42,1]]) for(const [sa,sb] of[[0,.47],[.53,1]]){
+  const ortaS=(s0+s1)/2, mrk=Y.ekran(X0+(X1-X0)*.3,Y.Ytavan,ortaS);
+  const genX=Math.abs(Y.ekran(X1,0,ortaS)[0]-Y.ekran(X0,0,ortaS)[0]), genY=Math.abs(Y.ekran(0,Y.Ytavan,s1)[1]-Y.ekran(0,Y.Ytavan,s0)[1]);
+  leke(mrk[0],mrk[1],genX*.9+80,genY*.8+60,renk,.12*I); // yumuşak genel parıltı
+  // cam gözlerinin izi: kayıtların gölgesiyle bölünmüş, kenarları yumuşak
+  for(const [xa,xb] of[[0,.46],[.54,1]]) for(const [sa,sb] of[[0,.47],[.53,1]]){
     const p=dort(lerp(X0,X1,xa),lerp(X0,X1,xb),lerp(s0,s1,sa),lerp(s0,s1,sb));
+    const cx=(p[0][0]+p[1][0]+p[2][0]+p[3][0])/4, cy=(p[0][1]+p[1][1]+p[2][1]+p[3][1])/4;
     c.save(); c.beginPath(); yol(p); c.clip();
-    leke(mrk[0],mrk[1],Math.abs(p[1][0]-p[0][0])*1.6+200,Math.abs(p[2][1]-p[0][1])*1.4+120,renk,.17*I);
+    leke(cx,cy,Math.abs(p[1][0]-p[0][0])*.8+40,Math.abs(p[2][1]-p[0][1])*.8+30,renk,.16*I);
     c.restore();
   }
   c.restore();

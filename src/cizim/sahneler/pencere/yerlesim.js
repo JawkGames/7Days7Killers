@@ -35,10 +35,12 @@ export function yerlesimKur(){
   // pencere boşluğunu saran kutu: dış resim buna yerleşir
   const xs=[Y.pen.uzUst[0],Y.pen.yaUst[0],Y.cam.yaUst[0]], ys=[Y.pen.yaUst[1],Y.pen.yaAlt[1]];
   Y.kutu={x0:Math.min(...xs),x1:Math.max(...xs),y0:Math.min(...ys),y1:Math.max(...ys)};
-  // dış resim: yükseklik ve genişlik ölçeğinin ortası (telefonda yanlar biraz kırpılır, figürler küçülmez)
-  const [rw,rh]=KALABALIK.resim, bw=Y.kutu.x1-Y.kutu.x0, bh=Y.kutu.y1-Y.kutu.y0;
-  const o=Math.sqrt(Math.max(bw/rw,bh/rh)*Math.min(bw/rw,bh/rh)*1.15);
-  Y.dis={o, x:(Y.kutu.x0+Y.kutu.x1)/2-rw/2*o, y:Y.kutu.y1-rh*o+18*o, gorunurU:[clamp(.5-bw/(rw*o)/2,0,.5),clamp(.5+bw/(rw*o)/2,.5,1)]};
+  // dış resim: genişlikte kalabalığın tamamı (u .2-.8) görünecek, yükseklikte meydan boşluğun ~%80'ini dolduracak kadar büyütülür.
+  // ufuk pencerenin üstten ~%20'sine oturur; resmin altından taşan yer binanın dibindeki boş zemindir.
+  const [rw]=KALABALIK.resim, gorunurG=Y.pen.uzUst[0]-Y.pen.yaUst[0], bh=Y.kutu.y1-Y.kutu.y0;
+  const o=Math.min(gorunurG/(rw*.62),bh*.82/(KALABALIK.onY-KALABALIK.ufuk));
+  const ortaX=(Y.pen.uzUst[0]+Y.pen.yaUst[0])/2;
+  Y.dis={o, x:ortaX-rw/2*o, y:Y.kutu.y0+bh*.2-KALABALIK.ufuk*o};
   // müfettiş yolu: s kapıda küçük, pencerede 1
   const M=L.muf;
   Y.muf={
