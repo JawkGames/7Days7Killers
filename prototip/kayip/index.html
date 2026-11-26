@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kayıp Sahneleri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* tek tam ekran canvas; alt yazı sahnenin altındaki karanlık zemine oturur, deneme düğmeleri tepede */
+  --zemin:#030404;
+  --yazi:#d9d2ba;
+  --soluk:#8f8a74;
+  --lamba:#e2c27a;
+  color-scheme:dark;
+}
+html,body{height:100%;margin:0;background:var(--zemin);overflow:hidden}
+.kutu{position:relative;width:100%;height:100%}
+canvas{display:block;width:100%;height:100%}
+.alt{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:0 16px max(22px,4vh);pointer-events:none}
+.altyazi{max-width:34em;min-height:2.6em;margin:0;font:400 clamp(17px,3.6vw,26px)/1.3 "Courier Prime","Courier New",ui-monospace,monospace;
+  color:var(--yazi);letter-spacing:.02em;text-align:center;text-wrap:balance;text-shadow:0 2px 12px #000}
+.deneme{position:absolute;top:10px;left:10px;right:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  font:400 13px/1 "Courier Prime","Courier New",ui-monospace,monospace;color:var(--soluk);transition:opacity .6s}
+.deneme.gizli{opacity:.12}
+.deneme:hover,.deneme:focus-within{opacity:1}
+select,button{font:inherit;color:var(--soluk);background:rgba(3,4,4,.7);border:1px solid rgba(143,138,116,.4);border-radius:2px;padding:7px 9px;cursor:pointer}
+select:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--lamba);outline-offset:2px}
+button:hover,select:hover{color:var(--yazi);border-color:var(--yazi)}
+label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.bilgi{opacity:.7}
+@media (prefers-reduced-motion:reduce){.deneme{transition:none}}
+</style>
+</head>
+<body>
+<div class="kutu">
+  <canvas id="sahne" aria-label="Kayıp sahnesi"></canvas>
+  <div class="alt"><p class="altyazi" id="altyazi" aria-live="polite"></p></div>
+  <div class="deneme" id="deneme">
+    <select id="kisi" aria-label="Kişi"></select>
+    <label><input type="checkbox" id="katil"> katil mi</label>
+    <button type="button" id="tekrar">tekrar oynat</button>
+    <span class="bilgi" id="bilgi"></span>
+  </div>
+</div>
+<script type="module">
+// Deneme sayfası: 24 kişinin kayıp sahnesi. Adresle sürülebilir: ?kisi=mahmut&katil=1&t=6&tohum=3
+// (t verilirse sahne o saniyede durağan çizilir; ekran görüntüsü için)
+import {kisiListesi} from '/src/icerik/index.js';
+import trKisiler from '/src/dil/tr/kisiler.js';
+import {kayipSahnesi} from '/src/cizim/sahneler/kayip/sahne.js';
+
+const el=id=>document.getElementById(id);
+const cv=el('sahne'), sec=el('kisi'), katil=el('katil'), altyazi=el('altyazi'), bilgi=el('bilgi'), deneme=el('deneme');
+const q=new URLSearchParams(location.search);
+const kisiler=[...kisiListesi].sort((a,b)=>trKisiler[a.id].lakap.localeCompare(trKisiler[b.id].lakap,'tr'));
+const kimlikle=Object.fromEntries(kisiListesi.map(k=>[k.id,k]));
+for(const k of kisiler){const s=document.createElement('option'); s.value=k.id; s.textContent=`${trKisiler[k.id].lakap} (${k.kayip.tur})`; sec.appendChild(s);}
+sec.value=q.get('kisi')||'mahmut'; katil.checked=q.get('katil')==='1';
+
+let sahne=null;
+function kur(){
+  if(sahne) sahne.durdur();
+  const kisi=kimlikle[sec.value];
+  sahne=kayipSahnesi({
+    kisi, katilMi:katil.checked, tohum:+(q.get('tohum')||1), tuval:cv,
+    metin:trKisiler[kisi.id].kayip,
+    bekleyenler:(kisi.kayip.bekleyenler||[]).map(id=>kimlikle[id]).filter(Boolean),
+    yaz:m=>{altyazi.textContent=m;},
+    bitti:()=>{deneme.classList.remove('gizli'); bilgi.textContent='bitti';}
+  });
+  bilgi.textContent=`${sahne.sablon} / ${sahne.yer} · ${sahne.sure.toFixed(1)} sn`;
+  if(q.has('t')) sahne.kare(+q.get('t'));
+  else {deneme.classList.add('gizli'); sahne.oynat();}
+}
+sec.addEventListener('change',kur); katil.addEventListener('change',kur); el('tekrar').addEventListener('click',kur);
+window.kayip={kur,get sahne(){return sahne;}};
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(kur); else kur();
+</script>
+</body>
+</html>

@@ -10,10 +10,10 @@ export const DERINLIK={arka:14, orta:34, on:64};
 export const ZAMAN={
   acilis:[0,1.8],        // siyahtan açılış
   yaziBas:2.1,           // alt yazının ilk harfi
-  harf:.052,             // harf başına saniye
-  yaziSonrasi:2.4,       // cümle bittikten sonra bekleme
+  harf:.045,             // harf başına saniye
+  yaziSonrasi:2.0,       // cümle bittikten sonra bekleme
   enErkenKararma:7.6,    // kararma bundan önce başlamaz
-  enGecKararma:9.4,      // uzun cümlede bile sahne 11 saniyeyi geçmez
+  enGecKararma:8.6,      // uzun cümlede bile sahne 10.5 saniyeyi geçmez
   kararma:1.5,           // kararma süresi
   bitisBekle:.35         // tam karanlıkta bekleyip bitti çağrılır
 };

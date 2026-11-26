@@ -3,7 +3,7 @@
 import {c} from '../teknik/tuval.js';
 import {leke,tara,titrek} from '../teknik/firca.js';
 import {PAL} from '../teknik/palet.js';
-import {rgba,lerp} from '../../cekirdek/matematik.js';
+import {hex,rgba,lerp,clamp} from '../../cekirdek/matematik.js';
 import {rng} from '../../cekirdek/rastgele.js';
 import {poz} from './poz.js';
 import {karistir} from './gorunus.js';
@@ -12,15 +12,19 @@ import {karistir} from './gorunus.js';
    kutu = [x0,y0,x1,y1] (tellerin başlayabileceği alan), o = {renk:'#..', koyu:[r,g,b], isik:[r,g,b], n, boy,
    yon:(x,y)=>açı, dag (açı dağılımı), kivrim, kalin, seed, acik (açık tel oranı), parlak (ışık lekesi gücü)} */
 export function lifDoldur(yol,kutu,o){
-  const [x0,y0,x1,y1]=kutu;
-  c.beginPath(); yol(); c.fillStyle=o.renk; c.fill();
+  const [x0,y0,x1,y1]=kutu, Y=o.yumusak; // yumusak = [cx,cy,r0,r1]: merkeze yakın kenarlar tene karışarak erir
+  const sert=Y?(x,y)=>clamp((Math.hypot(x-Y[0],y-Y[1])-Y[2])/(Y[3]-Y[2]),0,1):()=>1;
+  c.beginPath(); yol();
+  if(Y){const k=hex(o.renk), g=c.createRadialGradient(Y[0],Y[1],Y[2],Y[0],Y[1],Y[3]); g.addColorStop(0,rgba(k,0)); g.addColorStop(1,rgba(k,1)); c.fillStyle=g;}
+  else c.fillStyle=o.renk;
+  c.fill();
   c.save(); c.clip();
   const r=rng(o.seed); c.lineCap='round';
   const dag=o.dag==null?.3:o.dag, kiv=o.kivrim==null?.3:o.kivrim, acik=o.acik==null?.2:o.acik, kal=o.kalin||1;
   for(let i=0;i<o.n;i++){
     const x=lerp(x0,x1,r()), y=lerp(y0,y1,r()), a=o.yon(x,y)+(r()-.5)*dag, L=o.boy*(.5+r()*.9), b=(r()-.5)*L*kiv;
-    const ac=r()<acik;
-    c.strokeStyle=ac?rgba(o.isik,.12+r()*.3):rgba(o.koyu,.35+r()*.5); c.lineWidth=kal*(.6+r()*1.5);
+    const ac=r()<acik, h=sert(x,y);
+    c.strokeStyle=ac?rgba(o.isik,(.12+r()*.3)*h):rgba(o.koyu,(.35+r()*.5)*h); c.lineWidth=kal*(.6+r()*1.5);
     const dx=Math.cos(a)*L, dy=Math.sin(a)*L;
     c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+dx/2-dy/L*b,y+dy/2+dx/L*b,x+dx,y+dy); c.stroke();
   }

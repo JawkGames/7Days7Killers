@@ -3,7 +3,7 @@
 import {c} from '../../teknik/tuval.js';
 import {TAU,rgba} from '../../../cekirdek/matematik.js';
 import {rng} from '../../../cekirdek/rastgele.js';
-import {R,DURUM,hat,leke,yerel,isikYonu} from './cizer.js';
+import {R,DURUM,hat,leke,tara,yerel,isikYonu} from './cizer.js';
 
 const KARA='#070808';
 
@@ -19,17 +19,18 @@ function silBas(yol,o){
 /* yerde bağdaş kurup oturan insan. tip: 'erkek' | 'kadin' | 'cocuk'. Taban (0,0); yükseklik ≈ 250 birim */
 export function oturan(x,y,s,o){
   o=o||{}; const tip=o.tip||'erkek', r=rng(o.seed||3), egik=o.egik||0; // egik: başı öne düşmüş
+  const ortulu=tip==='kadin'||(tip==='cocuk'&&o.kiz);
   yerel(x,y,s*(tip==='cocuk'?.62:1),()=>{
-    const bas=tip==='cocuk'?1.18:1, b=(r()-.5)*8;
+    const bas=tip==='cocuk'?1.25:1, b=(r()-.5)*8;
     const govde=()=>{
       c.moveTo(-108,0); c.bezierCurveTo(-112,-48,-86,-70,-70,-96);
       c.bezierCurveTo(-62,-140,-64,-168,-46,-182); c.quadraticCurveTo(-24,-194+egik*6,-14,-196+egik*10);
       c.lineTo(14,-196+egik*10); c.quadraticCurveTo(24,-194+egik*6,46+b,-182);
       c.bezierCurveTo(64,-168,62,-140,70,-96); c.bezierCurveTo(86,-70,112,-48,108,0); c.closePath();
     };
-    const hy=-224+egik*18, hx=egik*4;
+    const hy=-224+egik*18-(bas-1)*20, hx=egik*4;
     const kafa=()=>{
-      if(tip==='kadin'){ // yemeni başı ve omuzları örter: tek parça kütle
+      if(ortulu){ // yemeni başı ve omuzları örter: tek parça kütle
         c.moveTo(hx-30*bas,hy+6); c.bezierCurveTo(hx-34*bas,hy-40*bas,hx+34*bas,hy-40*bas,hx+30*bas,hy+6);
         c.bezierCurveTo(hx+40,hy+40,56,-176,66,-150); c.lineTo(-66,-150); c.bezierCurveTo(-56,-176,hx-40,hy+40,hx-30*bas,hy+6); c.closePath();
       } else {
@@ -45,17 +46,19 @@ export function oturan(x,y,s,o){
 /* ayakta, uzun giysili, kıpırtısız insan. Etek yere kadar iner; ayak görünmez. Yükseklik ≈ 470 birim */
 export function ayakta(x,y,s,o){
   o=o||{}; const tip=o.tip||'erkek', r=rng(o.seed||4);
-  yerel(x,y,s*(tip==='cocuk'?.6:1),()=>{
-    const bas=tip==='cocuk'?1.2:1, b=(r()-.5)*6, egik=o.egik||0;
+  const cocuk=tip==='cocuk', ortulu=tip==='kadin'||(cocuk&&o.kiz);
+  yerel(x,y,s*(cocuk?.5:1),()=>{
+    if(cocuk) c.scale(1.22,.9);
+    const bas=cocuk?1.4:1, b=(r()-.5)*6, egik=o.egik||0;
     const govde=()=>{
       c.moveTo(-74,0); c.bezierCurveTo(-70,-120,-50,-230,-48,-300); c.bezierCurveTo(-50,-350,-60,-380,-50,-398);
       c.quadraticCurveTo(-30,-412,-14,-414); c.lineTo(14,-414); c.quadraticCurveTo(30,-412,50+b,-398);
       c.bezierCurveTo(60,-380,50,-350,48,-300); c.bezierCurveTo(50,-230,70,-120,74,0);
       c.quadraticCurveTo(0,8,-74,0); c.closePath();
     };
-    const hy=-444+egik*14, hx=egik*5;
+    const hy=-444+egik*14-(bas-1)*24, hx=egik*5;
     const kafa=()=>{
-      if(tip==='kadin'){
+      if(ortulu){
         c.moveTo(hx-28*bas,hy+8); c.bezierCurveTo(hx-34*bas,hy-42*bas,hx+34*bas,hy-42*bas,hx+28*bas,hy+8);
         c.bezierCurveTo(hx+40,hy+46,58,-380,60,-330); c.lineTo(-60,-330); c.bezierCurveTo(-58,-380,hx-40,hy+46,hx-28*bas,hy+8); c.closePath();
       } else {
@@ -126,38 +129,46 @@ export function kopek(x,y,s,o){
   });
 }
 
-/* katır ya da eşek: gövdenin yalnız üstü (alt kısmı bölme tahtası ya da yalak gizler).
-   yuk: semer ve iki yanda çuval. y = sırt hizasının 170 birim altı */
+/* katır ya da eşek, yandan: gövdenin altı bölme tahtası, yalak ya da gölge arkasında kalır.
+   Baş ensede (tepe noktası) döner; basEgik 0..1 başı öne düşürür. Uzun kulaklar geriye yatık. */
 export function binek(x,y,s,o){
-  o=o||{}; const yon=o.yon||1, esek=o.tur==='esek', bas=o.basEgik||0;
-  yerel(x,y,s*(esek?.78:1),()=>{
+  o=o||{}; const yon=o.yon||1, esek=o.tur==='esek', egik=(o.basEgik||0)*.9;
+  yerel(x,y,s*(esek?.8:1),()=>{
     c.save(); c.scale(yon,1);
-    const kul=esek?1.35:1.1;
-    const yol=()=>{
-      c.moveTo(-200,10); c.bezierCurveTo(-214,-60,-196,-150,-160,-168); // sağrı
-      c.bezierCurveTo(-90,-178,40,-172,96,-160);                         // sırt
-      c.bezierCurveTo(118,-176,140,-214+bas*40,160,-232+bas*70);         // boyun
-      c.lineTo(166,-250*kul+bas*70); c.lineTo(178,-232+bas*70);           // kulak
-      c.lineTo(190,-256*kul+bas*70); c.lineTo(196,-226+bas*70);           // öbür kulak
-      c.bezierCurveTo(222,-200+bas*80,250,-150+bas*90,256,-120+bas*90);   // alın, uzun yüz
-      c.bezierCurveTo(262,-104+bas*90,250,-92+bas*90,234,-98+bas*90);     // burun
-      c.bezierCurveTo(212,-110+bas*80,196,-130+bas*60,170,-110+bas*30);   // çene altı
-      c.bezierCurveTo(150,-90,140,-40,130,10); c.closePath();
+    const kul=esek?1.3:1;
+    const govde=()=>{
+      c.moveTo(-210,20); c.bezierCurveTo(-226,-60,-214,-150,-178,-172);           // sağrı
+      c.bezierCurveTo(-120,-186,10,-176,76,-178);                                 // sırt
+      c.bezierCurveTo(110,-180,150,-200,178,-214);                                // boyun üstü (yele)
+      c.lineTo(196,-196); c.bezierCurveTo(176,-150,156,-110,140,-70);              // boyun altı
+      c.bezierCurveTo(132,-30,128,0,124,20); c.closePath();
     };
-    silBas(yol,{kenar:o.kenar==null?.22:o.kenar,kenarRenk:o.kenarRenk,seed:o.seed||7,kay:3});
-    if(o.yuk){ // semer ve çuvallar: kumaş, biraz ışık alır
-      const semer=()=>{c.moveTo(-130,-170); c.bezierCurveTo(-110,-214,30,-214,60,-166); c.lineTo(50,-110); c.lineTo(-120,-110); c.closePath();};
-      c.fillStyle='#1d1912'; c.beginPath(); semer(); c.fill(); hat(semer,R.murekkep,.8,1.6,701,2,2);
-      c.save(); c.beginPath(); semer(); c.clip(); leke(-40,-190,90,30,R.kirliSari,.14); c.restore();
-      const cuval=(cx)=>()=>{c.moveTo(cx-56,-150); c.bezierCurveTo(cx-70,-90,cx-66,-20,cx-40,-6); c.lineTo(cx+40,-6); c.bezierCurveTo(cx+66,-20,cx+70,-90,cx+56,-150); c.closePath();};
-      for(const cx of[-60]){c.fillStyle='#2b261b'; c.beginPath(); cuval(cx)(); c.fill(); c.save(); c.beginPath(); cuval(cx)(); c.clip(); leke(cx+30,-110,60,70,R.kirliSari,.12); leke(cx-30,-40,70,60,R.siyah,.6); c.restore(); hat(cuval(cx),R.murekkep,.8,1.5,702+cx,2,2);
-        hat(()=>{c.moveTo(cx-50,-120); c.quadraticCurveTo(cx,-128,cx+50,-120);},R.murekkep,.5,1.2,705,1,1);}
-      hat(()=>{c.moveTo(-150,-130); c.bezierCurveTo(-180,-80,-190,-20,-196,10);},R.tahta,.5,2,706,1,1); // kolan
+    const bas=()=>{ // ense noktasına göre: alın öne ve aşağı, uzun yüz, kulaklar geriye
+      c.moveTo(-12,-6); c.bezierCurveTo(14,-14,40,-6,70,30); c.bezierCurveTo(92,54,104,80,104,94);
+      c.bezierCurveTo(104,108,90,114,78,108); c.bezierCurveTo(56,96,30,70,10,50); c.bezierCurveTo(-4,36,-14,20,-16,4); c.closePath();
+      c.moveTo(-6,-4); c.bezierCurveTo(-30,-40*kul,-52,-66*kul,-60,-78*kul); c.bezierCurveTo(-44,-70*kul,-22,-40*kul,4,-12); c.closePath(); // kulak
+      c.moveTo(4,-8); c.bezierCurveTo(-10,-46*kul,-24,-74*kul,-28,-88*kul); c.bezierCurveTo(-12,-76*kul,4,-44*kul,14,-12); c.closePath(); // öbür kulak
+    };
+    const hepsi=()=>{govde(); c.save(); c.translate(186,-206); c.rotate(.35+egik*.75); bas(); c.restore();};
+    // yol dönüşüm içeriyor: silBas yerine elle bas
+    const yonI=isikYonu(0)*yon, a=.22;
+    c.save(); c.translate(yonI*3,-1.5); c.fillStyle=rgba(o.kenarRenk||DURUM.isikRenk,a); c.beginPath(); hepsi(); c.fill(); c.restore();
+    c.fillStyle=KARA; c.beginPath(); hepsi(); c.fill();
+    hat(govde,R.murekkep,.7,1.6,o.seed||7,2,2.2);
+    c.save(); c.translate(186,-206); c.rotate(.35+egik*.75); hat(bas,R.murekkep,.7,1.4,(o.seed||7)+1,2,1.6); c.restore();
+    if(o.yuk){ // koyu semer ve iki yanda sarkan kıl çuvallar
+      const semer=()=>{c.moveTo(-120,-176); c.bezierCurveTo(-110,-214,10,-218,40,-178); c.lineTo(34,-150); c.lineTo(-114,-150); c.closePath();};
+      c.fillStyle='#16130e'; c.beginPath(); semer(); c.fill(); hat(semer,R.murekkep,.8,1.6,701,2,2);
+      c.save(); c.beginPath(); semer(); c.clip(); leke(-40,-206,80,18,DURUM.isikRenk,.12); c.restore();
+      const cuval=()=>{c.moveTo(-104,-190); c.bezierCurveTo(-130,-150,-128,-70,-100,-44); c.lineTo(10,-44); c.bezierCurveTo(36,-70,40,-150,20,-190); c.closePath();};
+      c.fillStyle='#1d1a13'; c.beginPath(); cuval(); c.fill();
+      c.save(); c.beginPath(); cuval(); c.clip(); leke(-20,-150,60,50,DURUM.isikRenk,.1); leke(-60,-60,90,50,R.siyah,.6); tara(-130,-190,40,-44,.5,6,R.murekkep,.4,703); c.restore();
+      hat(cuval,R.murekkep,.85,1.5,702,2,2);
+      for(const yy of[-150,-100]) hat(()=>{c.moveTo(-118,yy); c.quadraticCurveTo(-44,yy-8,30,yy);},R.murekkep,.5,1.2,704+yy,1,1); // ip
     }
     if(o.can){ // boynunda pirinç çan
-      c.fillStyle='#3d2e14'; c.beginPath(); c.moveTo(150,-120); c.lineTo(160,-92); c.lineTo(138,-92); c.closePath(); c.fill();
-      hat(()=>{c.moveTo(150,-120); c.lineTo(160,-92); c.lineTo(138,-92); c.closePath();},R.murekkep,.8,1.2,710,2,1);
-      leke(152,-104,16,14,R.lamba,.15);
+      const cn=()=>{c.moveTo(150,-100); c.lineTo(162,-70); c.lineTo(138,-70); c.closePath();};
+      c.fillStyle='#3d2e14'; c.beginPath(); cn(); c.fill(); hat(cn,R.murekkep,.8,1.2,710,2,1); leke(150,-84,16,14,DURUM.isikRenk,.18);
     }
     c.restore();
   });

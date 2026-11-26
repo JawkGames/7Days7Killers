@@ -8,7 +8,7 @@ import {TAU,hex,rgba} from '../../cekirdek/matematik.js';
 import {rng} from '../../cekirdek/rastgele.js';
 import {poz} from './poz.js';
 import {G,karistir} from './gorunus.js';
-import {kumas,lifDoldur} from './doku.js';
+import {kumas} from './doku.js';
 import {yuzYolu} from './yuz.js';
 
 const RENK={kasket:'#2e2b25', kep:'#4a4a35', yemeni:'#7d7458', takke:'#8c8672', sarik:'#9a947e', sal:'#585145'};
@@ -28,66 +28,55 @@ function benek(x0,y0,x1,y1,seed){
 function ortuOlcu(){
   const sal=G.baslik.tur==='sal', Y=G.yuz, e=Y.en, u=Y.alin, b=Y.boy;
   return {sal, e, u, b, m:e*Y.elmacik, j:e*Y.cene, ju:e*Y.ceneUc,
-    w:(sal?208:186)*e, ust:(sal?-268:-254)*u, alin:(sal?-128:-146)*u, alt:sal?380:330};
+    w:(sal?196:178)*e, ust:(sal?-240:-236)*u, alin:(sal?-120:-134)*u, alt:sal?330:300};
 }
 function ortuDis(O){ // başın ve yanlara düşen kumaşın dış silüeti
-  const s=poz.sallanti*.4;
-  c.moveTo(0,O.ust); c.bezierCurveTo(O.w*.62,O.ust,O.w*1.02,O.ust*.72,O.w,-90*O.u);
-  c.bezierCurveTo(O.w*1.02,40,O.w*.92+s,170,O.w*.7+s,O.alt-60); c.quadraticCurveTo(O.w*.4+s,O.alt,s,O.alt+6);
-  c.quadraticCurveTo(-O.w*.4+s,O.alt,-O.w*.7+s,O.alt-60); c.bezierCurveTo(-O.w*.92+s,170,-O.w*1.02,40,-O.w,-90*O.u);
-  c.bezierCurveTo(-O.w*1.02,O.ust*.72,-O.w*.62,O.ust,0,O.ust); c.closePath();
+  const s=poz.sallanti*.4, w=O.w;
+  c.moveTo(0,O.ust); c.bezierCurveTo(w*.74,O.ust,w*1.02,O.ust*.66,w,-70*O.u);
+  c.bezierCurveTo(w*.99,40,w*.92+s,130,w*.7+s,210); c.bezierCurveTo(w*.56+s,250,w*.56+s,O.alt-20,w*.5+s,O.alt); c.quadraticCurveTo(s,O.alt+14,-w*.5+s,O.alt);
+  c.bezierCurveTo(-w*.56+s,O.alt-20,-w*.56+s,250,-w*.7+s,210); c.bezierCurveTo(-w*.92+s,130,-w*.99,40,-w,-70*O.u);
+  c.bezierCurveTo(-w*1.02,O.ust*.66,-w*.74,O.ust,0,O.ust); c.closePath();
 }
-function ortuPencere(O){ // yüzün açıkta kalan kısmı (ters yönde çizilir: evenodd ile delik olur)
-  const {e,b,m,j,ju}=O, a=O.alin, yan=O.sal?136:146;
-  c.moveTo(0,a); c.bezierCurveTo(-70*e,a-2,-122*e,a+14,-yan*e,a+70);
-  c.bezierCurveTo(-(yan+4)*m,10,-142*m,80*b,-114*j,140*b); c.bezierCurveTo(-96*j,176*b,-62*ju,204*b,-30*ju,212*b);
-  c.quadraticCurveTo(0,218*b,30*ju,212*b); c.bezierCurveTo(62*ju,204*b,96*j,176*b,114*j,140*b);
-  c.bezierCurveTo(142*m,80*b,(yan+4)*m,10,yan*e,a+70); c.bezierCurveTo(122*e,a+14,70*e,a-2,0,a); c.closePath();
+function ortuPencere(O){ // yüzün açıkta kalan kısmı: yüz silüetinin biraz içinde kalır, kumaş yüzün kenarını örter
+  const {e,b,m,j,ju}=O, a=O.alin, k=O.sal?.93:.92;
+  c.moveTo(0,a); c.bezierCurveTo(-74*e,a-2,-128*e*k,a+18,-150*e*k,a+76);
+  c.bezierCurveTo(-158*m*k,10,-146*m*k,84*b,-118*j*k,140*b); c.bezierCurveTo(-100*j*k,178*b,-64*ju,206*b,-32*ju,215*b);
+  c.bezierCurveTo(-13*ju,220*b,13*ju,220*b,32*ju,215*b); c.bezierCurveTo(64*ju,206*b,100*j*k,178*b,118*j*k,140*b);
+  c.bezierCurveTo(146*m*k,84*b,158*m*k,10,150*e*k,a+76); c.bezierCurveTo(128*e*k,a+18,74*e,a-2,0,a); c.closePath();
 }
 function ortuOn(){
   const O=ortuOlcu(), R=renkAl(), k=poz.kaynama;
-  // yemeninin altından görünen saç: alında ince bir bant
-  if(!O.sal){
-    const a=O.alin;
-    const bant=()=>{c.moveTo(-120*O.e,a+18); c.quadraticCurveTo(0,a-10,120*O.e,a+18); c.quadraticCurveTo(0,a+8,-120*O.e,a+18); c.closePath();};
-    c.save(); c.beginPath(); yuzYolu(); c.clip();
-    lifDoldur(bant,[-120*O.e,a-6,120*O.e,a+20],{renk:G.renk.sac,koyu:G.renk.sacKoyu,isik:G.renk.sacIsik,n:80,boy:30,yon:x=>x<0?Math.PI+.15:-.15,dag:.2,seed:61,parlak:.5});
-    c.restore();
-  }
+  // kumaşın yüze düşen gölgesi: alında ve iki yanda
+  c.save(); c.beginPath(); yuzYolu(); c.clip();
+  leke(0,O.alin+8,160*O.e,30,PAL.siyah,.6); leke(140*O.e,40,50,220,PAL.siyah,.55); leke(-140*O.e,40,34,200,PAL.siyah,.4);
+  c.restore();
   const yol=()=>{ortuDis(O); ortuPencere(O);};
-  c.save();
-  // kumaşın yüze düşen gölgesi
-  c.save(); c.beginPath(); yuzYolu(); c.clip(); leke(0,O.alin+6,150*O.e,22,PAL.siyah,.55); leke(150*O.e,40,40,200,PAL.siyah,.5); leke(-150*O.e,40,30,180,PAL.siyah,.35); c.restore();
   c.beginPath(); yol(); c.save(); c.clip('evenodd');
   const g=c.createLinearGradient(-O.w,O.ust,O.w,O.alt);
   g.addColorStop(0,rgba(karistir(R,'#cfc8a8',.18),1)); g.addColorStop(.4,rgba(R,1)); g.addColorStop(1,rgba(karistir(R,[0,0,0],.8),1));
   c.fillStyle=g; c.fillRect(-O.w-20,O.ust-10,O.w*2+40,O.alt-O.ust+30);
   if(!O.sal&&G.baslik.desen!=='duz') benek(-O.w,O.ust,O.w,O.alt,63);
-  leke(-O.w*.55,O.ust+70,O.w*.45,70,karistir(R,'#ddd4b4',.3),.3*poz.isik,-.4);
+  if(O.sal){ // kaba yün: kısa lifler
+    const r=rng(66); for(let i=0;i<700;i++){const x=-O.w+r()*O.w*2, y=O.ust+r()*(O.alt-O.ust), a=r()*TAU, L=3+r()*6; c.strokeStyle=rgba(r()<.5?karistir(R,'#d0c6a6',.3):karistir(R,[0,0,0],.5),.22+r()*.2); c.lineWidth=1+r(); c.beginPath(); c.moveTo(x,y); c.lineTo(x+Math.cos(a)*L,y+Math.sin(a)*L); c.stroke();}
+  }
+  leke(-O.w*.5,O.ust+80,O.w*.42,80,karistir(R,'#ddd4b4',.3),.3*poz.isik,-.4);
   leke(O.w*.8,60,O.w*.5,300,PAL.siyah,.75);
-  leke(0,O.alt-20,O.w*.8,80,PAL.siyah,.45);
+  leke(0,O.alt-10,O.w*.9,110,PAL.siyah,.55);
+  leke(0,250*O.b,120,50,PAL.siyah,.5); // çenenin altındaki gölge
   tara(O.w*.15,O.ust,O.w+10,O.alt,1.05,7,PAL.murekkep,.42,640+k,1.1);
-  tara(-O.w,140,O.w,O.alt,.4,9,PAL.murekkep,.22,641+k,1);
-  // kıvrımlar
+  tara(-O.w,150,O.w,O.alt,.4,9,PAL.murekkep,.22,641+k,1);
+  // kıvrımlar: yanlarda düşen ve çenenin altında toplanan
   c.strokeStyle=rgba(PAL.murekkep,.45); c.lineWidth=1.4;
-  for(const s of[-1,1]){ c.beginPath(); c.moveTo(s*O.w*.86,-60); c.quadraticCurveTo(s*O.w*.9,120,s*O.w*.6,O.alt-40); c.stroke();
-    c.beginPath(); c.moveTo(s*O.w*.7,O.ust*.6); c.quadraticCurveTo(s*O.w*.98,-120,s*O.w*.94,-10); c.stroke(); }
+  for(const s of[-1,1]){ c.beginPath(); c.moveTo(s*O.w*.84,-40); c.quadraticCurveTo(s*O.w*.86,120,s*O.w*.58,O.alt-50); c.stroke();
+    c.beginPath(); c.moveTo(s*O.w*.66,O.ust*.62); c.quadraticCurveTo(s*O.w*.96,-120,s*O.w*.92,0); c.stroke();
+    c.beginPath(); c.moveTo(s*70,236*O.b); c.quadraticCurveTo(s*30,262*O.b,-s*10,O.alt-30); c.stroke(); }
   c.restore();
   titrek(()=>{ortuDis(O);},PAL.murekkep,.85,1.8,642+k,2,2.2);
-  titrek(()=>{ortuPencere(O);},PAL.murekkep,.8,1.6,643+k,2,1.8);
+  titrek(()=>{ortuPencere(O);},PAL.murekkep,.75,1.5,643+k,2,1.8);
   if(!O.sal){ // oya: alın kenarında küçük dişler
-    const a=O.alin, r=rng(64); c.fillStyle=rgba(karistir(R,'#e0d6b0',.35),.6);
-    for(let i=0;i<15;i++){const t=-1+i/7, x=t*118*O.e, y=a+14*t*t-1; c.beginPath(); c.arc(x,y+2,2.4+r(),0,TAU); c.fill();}
-  } else { // şalın çenenin altından çapraz geçen ucu
-    const kat=()=>{c.moveTo(-120*O.j,150); c.bezierCurveTo(-70,250,40,262,170,300); c.lineTo(200,350); c.bezierCurveTo(80,330,-60,320,-150,250); c.closePath();};
-    kumas(kat,[-160,150,210,350],{renk:karistir(R,[0,0,0],.12),seed:650,tara:.8});
+    const a=O.alin, r=rng(64); c.fillStyle=rgba(karistir(R,'#e0d6b0',.3),.55);
+    for(let i=0;i<15;i++){const t=-1+i/7, x=t*112*O.e, y=a+16*t*t-1; c.beginPath(); c.arc(x,y+1,2.2+r()*.8,0,TAU); c.fill();}
   }
-  // düğüm
-  if(!O.sal){
-    const yy=232*O.b, dugum=()=>{c.moveTo(-26,yy-6); c.quadraticCurveTo(0,yy-16,26,yy-6); c.quadraticCurveTo(36,yy+14,18,yy+26); c.quadraticCurveTo(0,yy+34,-18,yy+26); c.quadraticCurveTo(-36,yy+14,-26,yy-6); c.closePath();};
-    kumas(dugum,[-36,yy-16,36,yy+34],{renk:karistir(R,[0,0,0],.2),seed:660,tara:.6});
-  }
-  c.restore();
 }
 function ortuArka(){
   const O=ortuOlcu(), R=karistir(renkAl(),[0,0,0],.45), s=poz.sallanti*.5;
@@ -96,22 +85,29 @@ function ortuArka(){
 }
 
 /* ───────── şapkalar ───────── */
+function siperGolgesi(alt,e){ // siperin alına ve gözlere düşen gölgesi
+  c.save(); c.beginPath(); yuzYolu(); c.clip();
+  const g=c.createLinearGradient(0,alt,0,alt+124); g.addColorStop(0,'rgba(4,3,5,.95)'); g.addColorStop(.5,'rgba(4,3,5,.72)'); g.addColorStop(1,'rgba(4,3,5,0)');
+  c.fillStyle=g; c.fillRect(-200*e,alt-10,400*e,140);
+  leke(0,-6,190*e,44,PAL.siyah,.2);
+  c.restore();
+}
 function kasket(){
-  const Y=G.yuz, e=Y.en, u=Y.alin, R=renkAl(), k=poz.kaynama, alt=-132*u;
-  // siperliğin alına düşen gölgesi
-  c.save(); c.beginPath(); yuzYolu(); c.clip(); leke(0,alt+30,190*e,52,PAL.siyah,.78); leke(0,-20,200*e,40,PAL.siyah,.22); c.restore();
-  const tepe=()=>{c.moveTo(-178*e,alt-4); c.bezierCurveTo(-200*e,-196*u,-160*e,-262*u,-30*e,-272*u); c.bezierCurveTo(100*e,-276*u,206*e,-236*u,190*e,alt-6); c.quadraticCurveTo(0,alt+8,-178*e,alt-4); c.closePath();};
-  kumas(tepe,[-200*e,-276*u,206*e,alt+8],{renk:R,seed:680,tara:1});
-  // dikiş hatları ve düğme
-  titrek(()=>{c.moveTo(-30*e,-270*u); c.quadraticCurveTo(-90*e,-210*u,-150*e,alt-6); c.moveTo(-30*e,-270*u); c.quadraticCurveTo(60*e,-210*u,120*e,alt);},PAL.murekkep,.4,1.1,681+k,2,1.6);
-  const siper=()=>{c.moveTo(-150*e,alt); c.quadraticCurveTo(0,alt+14,150*e,alt); c.quadraticCurveTo(0,alt+36,-150*e,alt); c.closePath();};
-  c.beginPath(); siper(); c.fillStyle='#0d0c0b'; c.fill();
-  c.save(); c.clip(); leke(-60*e,alt+10,90*e,8,karistir(R,'#d0c8a8',.2),.35*poz.isik); c.restore();
+  const Y=G.yuz, e=Y.en, u=Y.alin, R=renkAl(), k=poz.kaynama, alt=-128*u;
+  siperGolgesi(alt,e);
+  const tepe=()=>{c.moveTo(-168*e,alt-2); c.bezierCurveTo(-190*e,-168*u,-176*e,-226*u,-60*e,-236*u); c.bezierCurveTo(70*e,-246*u,196*e,-224*u,190*e,alt-6); c.quadraticCurveTo(0,alt+14,-168*e,alt-2); c.closePath();};
+  kumas(tepe,[-190*e,-246*u,196*e,alt+14],{renk:R,seed:680,tara:1,desen:()=>{ // tüvit: küçük benekler
+    const r=rng(683); for(let i=0;i<500;i++){c.fillStyle=rgba(r()<.5?karistir(R,'#cfc6a4',.35):[0,0,0],.25+r()*.25); c.fillRect(-190*e+r()*386*e,-246*u+r()*130,1.5,1.5);}}});
+  // dikiş hatları
+  titrek(()=>{c.moveTo(-60*e,-236*u); c.quadraticCurveTo(-110*e,-190*u,-140*e,alt-4); c.moveTo(-60*e,-236*u); c.quadraticCurveTo(40*e,-190*u,100*e,alt+4);},PAL.murekkep,.4,1.1,681+k,2,1.6);
+  const siper=()=>{c.moveTo(-150*e,alt+2); c.quadraticCurveTo(0,alt+16,150*e,alt+2); c.quadraticCurveTo(0,alt+62,-150*e,alt+2); c.closePath();};
+  c.beginPath(); siper(); c.fillStyle='#0b0a09'; c.fill();
+  c.save(); c.clip(); leke(-60*e,alt+14,90*e,8,karistir(R,'#d0c8a8',.25),.4*poz.isik); c.restore();
   titrek(siper,PAL.murekkep,.85,1.6,682+k,2,1.8);
 }
 function kep(){
   const Y=G.yuz, e=Y.en, u=Y.alin, R=renkAl(), k=poz.kaynama, alt=-134*u, bant=-186*u;
-  c.save(); c.beginPath(); yuzYolu(); c.clip(); leke(0,alt+32,190*e,56,PAL.siyah,.8); leke(0,-18,200*e,40,PAL.siyah,.25); c.restore();
+  siperGolgesi(alt,e);
   const tepe=()=>{c.moveTo(-156*e,bant+4); c.bezierCurveTo(-196*e,-214*u,-196*e,-252*u,-120*e,-260*u); c.quadraticCurveTo(0,-272*u,120*e,-260*u); c.bezierCurveTo(196*e,-252*u,196*e,-214*u,156*e,bant+4); c.quadraticCurveTo(0,bant+12,-156*e,bant+4); c.closePath();};
   kumas(tepe,[-196*e,-272*u,196*e,bant+12],{renk:R,seed:690,tara:1});
   const serit=()=>{c.moveTo(-156*e,bant+4); c.quadraticCurveTo(0,bant+12,156*e,bant+4); c.lineTo(152*e,alt-2); c.quadraticCurveTo(0,alt+8,-152*e,alt-2); c.closePath();};
@@ -122,7 +118,7 @@ function kep(){
   c.fillStyle='#2a2412'; c.beginPath(); c.arc(2,bant-14,7,0,TAU); c.fill(); c.fillStyle='#6e5d32'; c.beginPath(); c.arc(5,bant-14,5.5,0,TAU); c.fill();
   leke(-4,bant-18,6,4,hex('#d8c48a'),.5*poz.isik);
   titrek(()=>{c.arc(0,bant-14,11,0,TAU);},PAL.murekkep,.6,1.2,693+k,2,1);
-  const siper=()=>{c.moveTo(-156*e,alt-2); c.quadraticCurveTo(0,alt+10,156*e,alt-2); c.quadraticCurveTo(0,alt+40,-156*e,alt-2); c.closePath();};
+  const siper=()=>{c.moveTo(-156*e,alt-2); c.quadraticCurveTo(0,alt+10,156*e,alt-2); c.quadraticCurveTo(0,alt+66,-156*e,alt-2); c.closePath();};
   c.beginPath(); siper(); c.fillStyle='#060606'; c.fill();
   c.save(); c.clip(); leke(-50*e,alt+12,100*e,7,hex('#b8b4a0'),.45*poz.isik); c.restore();
   titrek(siper,PAL.murekkep,.9,1.6,694+k,2,1.8);

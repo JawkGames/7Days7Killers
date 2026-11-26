@@ -6,7 +6,7 @@ import {PAL} from '../teknik/palet.js';
 import {rgba} from '../../cekirdek/matematik.js';
 import {rng} from '../../cekirdek/rastgele.js';
 import {poz} from './poz.js';
-import {G} from './gorunus.js';
+import {G,karistir,hexYaz} from './gorunus.js';
 import {lifDoldur,teller} from './doku.js';
 import {yuzYolu} from './yuz.js';
 
@@ -14,15 +14,15 @@ import {yuzYolu} from './yuz.js';
 const SARKMA={kirli:0, kisa:26, uzun:120, dagnik:140};
 
 export function sakal(mx,dy){
-  const Y=G.yuz, R=G.renk, S=G.sakal, k=poz.kaynama;
+  const Y=G.yuz, R=G.renk, S=G.sakal;
   const e=Y.en, m=e*Y.elmacik, j=e*Y.cene, ju=e*Y.ceneUc, b=Y.boy;
   if(S.bicim==='kirli'){ // kirli sakal: çenede ve yanakta koyu benekler
     c.save(); c.beginPath(); yuzYolu(); c.clip();
     const bolge=()=>{c.moveTo(-150*e,30); c.bezierCurveTo(-120*e,90*b,-70+mx,150+dy,mx,190+dy); c.bezierCurveTo(70+mx,150+dy,120*e,90*b,150*e,30); c.lineTo(160*e,260*b); c.lineTo(-160*e,260*b); c.closePath();};
     c.beginPath(); bolge(); c.clip();
-    leke(-40,190*b,150*e,80,R.sacKoyu,.32); leke(80*e,150*b,90*e,110,R.sacKoyu,.3);
-    const r=rng(91); c.fillStyle=rgba(R.sacKoyu,.5);
-    for(let i=0;i<520;i++){const x=(r()*2-1)*150*e, y=30+r()*200*b; c.fillRect(x,y,1.3,1.3);}
+    leke(-40,190*b,150*e,80,R.sacKoyu,.38); leke(80*e,150*b,90*e,110,R.sacKoyu,.36); leke(mx,150+dy,70,26,R.sacKoyu,.3);
+    const r=rng(91);
+    for(let i=0;i<1100;i++){const x=(r()*2-1)*150*e, y=30+r()*200*b; c.fillStyle=rgba(R.sacKoyu,.35+r()*.4); c.fillRect(x,y,1.2+r(),1.2+r());}
     c.restore(); return;
   }
   const L=SARKMA[S.bicim]*S.boy, dg=S.bicim==='dagnik';
@@ -37,10 +37,8 @@ export function sakal(mx,dy){
     c.quadraticCurveTo(30+mx,184+dy,mx,186+dy); c.quadraticCurveTo(-30+mx,184+dy,-62+mx,150+dy);
     c.bezierCurveTo(-108*e,100*b,-132*e,40*b,-138*e,-16); c.closePath();
   };
-  lifDoldur(yol,[-172*e,-20,172*e,alt],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:dg?900:(L>60?760:560),boy:L>60?30:16,
-    yon:x=>Math.PI/2-x*.0035,dag:dg?1.1:.45,kivrim:dg?1.2:.5,seed:71,acik:.2,parlak:.8});
-  // yanakta sakalın üst kenarı yumuşak: tenle karışır
-  titrek(()=>{c.moveTo(-138*e,-16); c.bezierCurveTo(-132*e,40*b,-108*e,100*b,-62+mx,150+dy);},R.sacKoyu,.35,1.2,720+k,2,2);
+  lifDoldur(yol,[-172*e,-20,172*e,alt],{renk:hexYaz(karistir(R.sac,[0,0,0],.22)),koyu:R.sacKoyu,isik:R.sacIsik,n:dg?900:(L>60?760:560),boy:L>60?30:16,
+    yon:x=>Math.PI/2-x*.0035,dag:dg?1.1:.45,kivrim:dg?1.2:.5,seed:71,acik:.34,parlak:.8,yumusak:[mx,60+dy*.5,72*e,150*e]});
   const uc=[];
   for(let i=0;i<=12;i++){const t=i/12, x=(-1+2*t)*(S.bicim==='kisa'?120:90)*e, y=alt-Math.abs(x)*(S.bicim==='kisa'?.5:.9)*(L>60?1:.4); uc.push([x,y,Math.PI/2+x*.004]);}
   for(const s of[-1,1]) for(let i=0;i<5;i++) uc.push([s*(156-i*4)*m,(10+i*30)*b,s>0?.3:Math.PI-.3]);

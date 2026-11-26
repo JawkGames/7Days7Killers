@@ -55,7 +55,10 @@ export function kas(yon,fx){
   c.save(); c.translate(yon*Y.gozAralik+fx*.8,-43+Y.kasY-poz.kasKaldir*6); c.scale(yon,1);
   c.strokeStyle=rgba(G.renk.kas,.8); c.lineCap='round';
   const n=kk===1?54:Math.round(54*kk);
-  for(let i=0;i<n;i++){const t=r(), x=lerp(-36,44,t), y=lerp(8+ic*(1-t),-1,Math.sin(t*Math.PI*.6))-6.5*Math.sin(t*Math.PI)+eg*(x-4); c.lineWidth=(.7+r()*1.1)*kk; c.beginPath(); c.moveTo(x,y+3); c.lineTo(x+5+r()*5,y-3-r()*2+t*3); c.stroke();}
+  for(let i=0;i<n;i++){const t=r(), x=lerp(-36,44,t), y=lerp(8+ic*(1-t),-1,Math.sin(t*Math.PI*.6))-6.5*Math.sin(t*Math.PI)+eg*(x-4); c.lineWidth=(.7+r()*1.1)*kk; c.beginPath();
+    if(kk===1){c.moveTo(x,y+3); c.lineTo(x+5+r()*5,y-3-r()*2+t*3);}
+    else{const h=kk*(1-t*.45); c.moveTo(x,y+3*h); c.lineTo(x+5+r()*5,y-(3+r()*2)*h+t*3);} // kalın kaş: iç uçta gür, dışa doğru incelir
+    c.stroke();}
   titrek(()=>{c.moveTo(-36,7+ic-eg*40); c.bezierCurveTo(-18,-6+ic*.5-eg*22,6,-12+eg*2,18,-10+eg*14); c.bezierCurveTo(30,-8+eg*26,39,-3+eg*35,46,4+eg*42);},PAL.murekkep,.6,1.5,440+yon+k,2,1.8);
   c.restore();
 }
@@ -76,15 +79,20 @@ function yasIzleri(fx,fy,mx,dy){
   if(a<=0) return;
   // alın çizgileri: yalnızca alının orta bandında
   for(let i=0;i<3;i++){ const y=(-104-i*20)*u, w=(70-i*6)*e;
-    titrek(()=>{c.moveTo(-w,y+4); c.bezierCurveTo(-w*.4,y-5,w*.3,y+4,w,y-2);},PAL.murekkep,.3*a,1.1,600+i+k,2,1.6); }
+    titrek(()=>{c.moveTo(-w,y+4); c.bezierCurveTo(-w*.4,y-5,w*.3,y+4,w,y-2);},PAL.murekkep,.42*a,1.1,600+i+k,2,1.6); }
   // kaz ayağı: göz dış köşelerinde
   for(const s of[-1,1]){ const x=s*(Y.gozAralik+38)+fx;
-    titrek(()=>{for(let i=0;i<3;i++){c.moveTo(x,-4+i*9); c.lineTo(x+s*(14+i*3),-10+i*13);}},PAL.murekkep,.35*a,1,610+s+k,2,1.4); }
+    titrek(()=>{for(let i=0;i<3;i++){c.moveTo(x,-4+i*9); c.lineTo(x+s*(14+i*3),-10+i*13);}},PAL.murekkep,.55*a,1.1,610+s+k,2,1.4); }
   // derin burun-dudak oluğu ve ağız köşesinden inen çizgiler
-  titrek(()=>{c.moveTo((-36+mx)*e,116); c.bezierCurveTo((-52+mx)*e,136,(-62+mx)*e,160+dy,(-60+mx)*e,184+dy); c.moveTo((36+mx)*e,116); c.bezierCurveTo((52+mx)*e,136,(62+mx)*e,160+dy,(60+mx)*e,184+dy);},PAL.murekkep,.38*a,1.3,620+k,2,2);
-  titrek(()=>{c.moveTo(mx-50,160+dy); c.quadraticCurveTo(mx-58,180+dy,mx-56,200*b); c.moveTo(mx+50,160+dy); c.quadraticCurveTo(mx+58,180+dy,mx+56,200*b);},PAL.murekkep,.3*a,1.1,622+k,2,1.6);
+  titrek(()=>{c.moveTo((-36+mx)*e,116); c.bezierCurveTo((-52+mx)*e,136,(-62+mx)*e,160+dy,(-60+mx)*e,184+dy); c.moveTo((36+mx)*e,116); c.bezierCurveTo((52+mx)*e,136,(62+mx)*e,160+dy,(60+mx)*e,184+dy);},PAL.murekkep,.55*a,1.4,620+k,2,2);
+  titrek(()=>{c.moveTo(mx-50,160+dy); c.quadraticCurveTo(mx-58,180+dy,mx-56,200*b); c.moveTo(mx+50,160+dy); c.quadraticCurveTo(mx+58,180+dy,mx+56,200*b);},PAL.murekkep,.5*a,1.2,622+k,2,1.6);
   // yanakta çöküntü çizgisi
-  if(a>.5) titrek(()=>{c.moveTo(-118*e+fx*.4,40); c.quadraticCurveTo(-112*e,90,-96*e,130*b); c.moveTo(118*e+fx*.4,40); c.quadraticCurveTo(112*e,90,96*e,130*b);},PAL.murekkep,.3*(a-.5)*2,1.1,624+k,2,1.8);
+  if(a>.6){ // çok yaşlı: sarkan çene hattı ve üst dudakta dikey çizgiler
+    const ja=(a-.6)*2.5;
+    titrek(()=>{for(const s of[-1,1]){c.moveTo(s*112*e,120*b); c.quadraticCurveTo(s*92*e,190*b,s*48,212*b);}},PAL.murekkep,.45*ja,1.2,626+k,2,1.8);
+    titrek(()=>{for(let i=-2;i<=2;i++){if(!i) continue; c.moveTo(mx+i*11,130+dy); c.lineTo(mx+i*12,141+dy);}},PAL.murekkep,.4*ja,1,628+k,2,1.2);
+  }
+  if(a>.5) titrek(()=>{c.moveTo(-118*e+fx*.4,40); c.quadraticCurveTo(-112*e,90,-96*e,130*b); c.moveTo(118*e+fx*.4,40); c.quadraticCurveTo(112*e,90,96*e,130*b);},PAL.murekkep,.45*(a-.5)*2,1.2,624+k,2,1.8);
 }
 
 export function kafa(){
@@ -108,6 +116,10 @@ export function kafa(){
     leke(s*100*e+fx*.5,74*b,50,34,PAL.morluk,.16);
   }
   leke(-100*e+fx*.5,44*b,42,20,R.tenIsik,.24*I);
+  if(G.cinsiyet==='E'){ // erkek yüzü: kaş kemeri ve çene kemiği altında koyu gölge
+    leke(fx*.6,-40,150*e,22,R.tenDerin,.3);
+    for(const s of[-1,1]) leke(s*112*e,176*b,46*e,30,R.tenDerin,s>0?.6:.35);
+  }
   const nx=fx*1.5, mx=fx*1.15;
   leke(-4*NE+nx,ny(28)+fy,7*NE,60*NB,R.tenIsik,.34*I); leke(15*NE+nx,ny(44)+fy,12*NE,60*NB,R.tenDerin,.55);
   leke(-3*NE+nx,ny(88)+fy,13*NE,10,R.tenIsik,.3*I); leke(nx,ny(120)+fy,38*NE,13,R.tenDerin,.75);

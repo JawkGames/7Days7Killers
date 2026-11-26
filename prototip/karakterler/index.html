@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karakter Galerisi</title>
+<style>
+:root{
+  --zemin:#070808;
+  --kart:#0d0f0e;
+  --cizgi:rgba(143,138,116,.28);
+  --metin:#d9d2ba;
+  --soluk:#8f8a74;
+  --lamba:#e2c27a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--zemin);color:var(--metin);font:15px/1.4 "Courier New",ui-monospace,monospace}
+header{padding:18px 16px 6px}
+h1{margin:0;font-size:20px;font-weight:700;letter-spacing:.04em}
+header p{margin:6px 0 0;color:var(--soluk);font-size:13px}
+.izgara{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;padding:14px 16px 24px}
+.kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:2px;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:left}
+.kart:hover,.kart:focus-visible{border-color:var(--metin);outline:none}
+.kart canvas{display:block;width:100%;aspect-ratio:760/860}
+.kart span{display:block;padding:7px 9px 9px;font-size:13px;color:var(--soluk)}
+.kart b{color:var(--metin);font-weight:700}
+.buyuk{position:fixed;inset:0;background:rgba(3,4,4,.94);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}
+.buyuk.acik{display:flex}
+.buyuk canvas{width:min(92vw,62vh);aspect-ratio:760/860;border:1px solid var(--cizgi)}
+.altyazi{min-height:1.4em;margin:0;font-weight:700;font-size:18px;text-align:center}
+.dugmeler{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.d{text-decoration:none;font:inherit;font-size:14px;color:var(--soluk);background:transparent;border:1px solid var(--cizgi);border-radius:2px;padding:7px 12px;cursor:pointer}
+.d:hover{color:var(--metin);border-color:var(--metin)}
+.d:focus-visible{outline:2px solid var(--lamba);outline-offset:2px}
+a{color:var(--soluk)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Karakter galerisi</h1>
+  <p>Her karakter src/icerik/gorunus/ içindeki bir veri dosyası. Hepsi aynı ışıkta, omuzdan yukarı. Büyütmek ve denemek için tıkla.</p>
+</header>
+<main class="izgara" id="izgara"></main>
+<div class="buyuk" id="buyuk" role="dialog" aria-modal="true" aria-label="Karakter">
+  <canvas id="buyukTuval"></canvas>
+  <p class="altyazi" id="altyazi" aria-live="polite"></p>
+  <div class="dugmeler">
+    <button class="d" id="konus" type="button">Konuştur</button>
+    <button class="d" id="kirp" type="button">Göz kırp</button>
+    <button class="d" id="kas" type="button">Kaş: nötr</button>
+    <button class="d" id="dur" type="button">Durağan kare</button>
+    <a class="d" id="sahneBag" href="#">Sorgu odasında aç</a>
+    <button class="d" id="kapat" type="button">Kapat</button>
+  </div>
+</div>
+<script type="module" src="./galeri.js"></script>
+</body>
+</html>

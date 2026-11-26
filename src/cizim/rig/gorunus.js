@@ -62,8 +62,8 @@ export function gorunusKur(v){
   const renk={
     tenIsik:ten.isik, ten:ten.ana, tenOrta:ten.orta, tenGolge:ten.golge, tenDerin:ten.derin, alinIsik:ten.alin,
     boyun:ten.boyun, el:ten.el,
-    dudak:r.dudak?dz(r.dudak):(erkek?karistir(ten.orta,'#4c2a31',.35):PAL.dudak),
-    dudakGolge:r.dudakGolge?dz(r.dudakGolge):(erkek?karistir(ten.golge,'#2a141a',.5):PAL.dudakGolge),
+    dudak:r.dudak?dz(r.dudak):(erkek?karistir(ten.orta,'#4c2a31',.2):PAL.dudak),
+    dudakGolge:r.dudakGolge?dz(r.dudakGolge):(erkek?karistir(ten.golge,'#2a141a',.25):PAL.dudakGolge),
     iris:r.iris?dz(r.iris):PAL.iris, irisOrta:r.irisOrta?dz(r.irisOrta):(r.iris?karistir(r.iris,'#1d211e',.45):hex('#6f786b')),
     irisKenar:r.irisKenar?dz(r.irisKenar):PAL.irisKenar,
     // kır saç yoksa ve renk verilmemişse varsayılan dizgiler aynen kalır (eski kare birebir aynı çıksın)

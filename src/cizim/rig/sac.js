@@ -14,15 +14,6 @@ export const SAC={
   sol:[[-35,-236,-230,-262,-232,200,-200,430],[-35,-168,-150,-176,-130,170,-158,436]],
   sag:[[-35,-236,246,-280,230,200,202,430],[-35,-168,150,-140,132,150,160,438]]
 };
-// dağınık saç (meczup): omuza düşen, düzensiz tutamlar
-const DAGNIK={
-  sol:[[-30,-240,-236,-268,-250,120,-226,300],[-30,-176,-150,-186,-142,120,-168,292]],
-  sag:[[-30,-240,250,-282,250,120,222,296],[-30,-176,154,-150,140,110,170,300]],
-  perce:[[[-6,-226,-40,-200,-76,-150,-96,-96],[14,-214,-10,-170,-40,-130,-58,-104]],
-         [[30,-226,52,-196,70,-150,96,-104],[48,-214,74,-170,90,-140,110,-122]],
-         [[-60,-230,-110,-206,-128,-160,-140,-112],[-40,-214,-84,-180,-106,-146,-118,-118]]]
-};
-
 export function bukle(P){const o=new Array(8); for(let k=0;k<4;k++){const y=P[k*2+1]; o[k*2]=P[k*2]+(y>100?poz.sallanti*Math.pow((y-100)/235,2):0); o[k*2+1]=y;} return o;}
 export function tutam(A,B,o){
   const R=G.renk, a=bukle(A), b=bukle(B);
@@ -58,24 +49,38 @@ function uzunArka(){
   c.bezierCurveTo(-216,210,-196,80,-192,-40); c.bezierCurveTo(-170,-206,-96,-246,0,-240); c.closePath();
   c.fillStyle=G.renk.sacArka; c.fill();
 }
-function dagnikNoktalar(){ // düzensiz silüet: sabit tohumlu, yalnızca alt uçlar salınır
-  const r=rng(5), e=G.yuz.en, s=poz.sallanti, P=[];
-  for(let i=0;i<=22;i++){
-    const t=i/22, a=Math.PI*(1.06+t*.88+(-.03)), R=(232+(r()-.5)*44)*e;
-    let x=Math.cos(a)*R*1.02, y=-40+Math.sin(a)*R*1.05;
-    if(t<.12||t>.88){y+=(t<.12?(.12-t):(t-.88))*1900;}
-    P.push([x+(y>100?s*(y-100)/120:0),y]);
-  }
-  return P;
+// dağınık saç (meczup): sabit tohumlu düzensiz uçlar; yalnızca uçlar salınır
+function puskul(x0,x1,y,derin,seed,s){ // sağdan sola tırtıklı alt kenar
+  const r=rng(seed), n=9;
+  for(let i=1;i<=n;i++){const t=i/n, x=x0+(x1-x0)*t, yy=y+(i%2?derin*(.6+r()*.8):-derin*.3*r()); c.lineTo(x+s*(.4+r()*.6),yy);}
 }
 function dagnikArka(){
-  const P=dagnikNoktalar(), R=G.renk;
-  const yol=()=>{c.moveTo(P[0][0],P[0][1]); for(let i=1;i<P.length;i++){const p=P[i-1],q=P[i]; c.quadraticCurveTo(p[0]+(q[0]-p[0])*.5+(i%2?14:-14),p[1]+(q[1]-p[1])*.5+(i%2?-10:10),q[0],q[1]);}
-    c.quadraticCurveTo(0,300,P[0][0],P[0][1]); c.closePath();};
-  lifDoldur(yol,[-260,-280,260,320],{renk:R.sacArka,koyu:[0,0,0],isik:R.sacIsik,n:420,boy:60,yon:(x,y)=>Math.atan2(y+120,x*.6),dag:.9,kivrim:.9,seed:41,acik:.18,parlak:.6});
-  teller(P.filter((p,i)=>i%1===0).map(p=>[p[0],p[1],Math.atan2(p[1]+40,p[0])]),R.sacKoyu,43,34);
+  const Y=G.yuz, R=G.renk, e=Y.en, u=Y.alin, s=poz.sallanti;
+  const yol=()=>{c.moveTo(0,-256*u); c.bezierCurveTo(120*e,-262*u,214*e,-200*u,214*e,-60); c.bezierCurveTo(222*e,60,226*e+s,170,214*e+s,246);
+    puskul(214*e+s,-214*e+s,252,60,45,s); c.bezierCurveTo(-226*e+s,170,-222*e,60,-214*e,-60); c.bezierCurveTo(-214*e,-200*u,-120*e,-262*u,0,-256*u); c.closePath();};
+  lifDoldur(yol,[-226*e,-262*u,226*e,290],{renk:R.sacArka,koyu:[0,0,0],isik:R.sacIsik,n:380,boy:56,yon:x=>Math.PI/2+x*.002,dag:.6,kivrim:1,seed:41,acik:.2,parlak:.5});
 }
-
+function dagnikOn(){
+  const Y=G.yuz, R=G.renk, e=Y.en, u=Y.alin, s=poz.sallanti;
+  // yanlardan omuza düşen iki tutam: yüzün kenarını örter
+  for(const y of[-1,1]){
+    const yol=()=>{c.moveTo(y*-20,-246*u); c.bezierCurveTo(y*150*e,-252*u,y*212*e,-150*u,y*208*e,-20); c.bezierCurveTo(y*206*e,80,y*202*e+s,170,y*192*e+s,236);
+      puskul(y*192*e+s,y*146*e+s,236,52,47+y,s); c.bezierCurveTo(y*148*e,140,y*154*e,40,y*148*e,-60); c.bezierCurveTo(y*142*e,-150*u,y*90*e,-200*u,y*-20,-212*u); c.closePath();};
+    lifDoldur(yol,y<0?[-212*e,-252*u,-140*e,260]:[140*e,-252*u,212*e,260],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:420,boy:44,yon:()=>Math.PI/2,dag:.5,kivrim:1.1,seed:48+y,acik:.26,parlak:y<0?1:.25});
+  }
+  // tepe ve alna düşen düzensiz saç çizgisi
+  const cizgi=[[110,-150],[76,-126],[40,-160],[6,-130],[-30,-156],[-64,-122],[-100,-148],[-132,-132]];
+  const tepe=()=>{c.moveTo(-150*e,-120*u); c.bezierCurveTo(-160*e,-232*u,-60*e,-264*u,0,-264*u); c.bezierCurveTo(60*e,-264*u,160*e,-232*u,150*e,-120*u);
+    for(const [x,yy] of cizgi) c.lineTo(x*e,yy*u); c.closePath();};
+  lifDoldur(tepe,[-160*e,-264*u,160*e,-120*u],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:420,boy:30,yon:x=>Math.PI/2+x*.006,dag:.8,kivrim:1,seed:49,acik:.26});
+  // alna düşen tek tük teller ve silüetten taşanlar
+  teller(cizgi.map(([x,yy])=>[x*e,yy*u,Math.PI/2+(x>0?-.3:.3)]),R.sacKoyu,50,26);
+  const dis=[];
+  for(let i=0;i<=16;i++){const a=Math.PI*(1.02+i/16*.96), x=Math.cos(a)*214*e, yy=-60+Math.sin(a)*200*u; dis.push([x,yy,a]);}
+  for(let i=0;i<8;i++){const y=i%2?1:-1; dis.push([y*(206*e),-20+i*30,y>0?.2:Math.PI-.2]);}
+  teller(dis,R.sacKoyu,51,30);
+  teller(dis.slice(0,12).map(([x,yy,a])=>[x,yy,a+.4]),R.sacIsik,52,22);
+}
 /* ───────── ön ───────── */
 function kisaSac(){
   const Y=G.yuz, R=G.renk, e=Y.en, u=Y.alin, h=G.sac.cizgi*u;
@@ -113,14 +118,6 @@ function topluSac(){
   lifDoldur(yol,[-172*e,-236*u,172*e,0],{renk:R.sac,koyu:R.sacKoyu,isik:R.sacIsik,n:420,boy:46,yon:(x,y)=>x<0?Math.PI-.35+y*.002:.35-y*.002,dag:.25,kivrim:.35,seed:37,acik:.24});
   // orta ayrım
   c.strokeStyle=rgba(R.tenGolge,.7); c.lineWidth=1.4; c.beginPath(); c.moveTo(0,-232*u); c.quadraticCurveTo(-2,-200*u,0,h+4); c.stroke();
-}
-function dagnikOn(){
-  const R=G.renk, e=G.yuz.en;
-  c.save(); if(e!==1) c.scale(e,1);
-  tutam(DAGNIK.sol[0],DAGNIK.sol[1],{seed:51,n:150,yon:-1,tel:16,telBoy:1.6,isik:[[-160,-190,70,22,R.sacIsik,.3,-.55],[-200,60,24,90,R.sacIsik,.12]]});
-  tutam(DAGNIK.sag[0],DAGNIK.sag[1],{seed:52,n:150,yon:1,tel:16,telBoy:1.6,isik:[[60,-226,110,20,R.sacIsik,.2,.2],[180,120,60,260,PAL.siyah,.55]]});
-  DAGNIK.perce.forEach((p,i)=>tutam(p[0],p[1],{seed:55+i,n:40,yon:i===1?1:-1,tel:6,telBoy:.8,isik:[]}));
-  c.restore();
 }
 // yüz silüeti (kırpma için)
 function yuzKirp(){

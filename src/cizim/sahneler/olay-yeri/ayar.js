@@ -9,7 +9,7 @@ export const TON={
   kara:[17,19,15],       // soluk baskıda siyah tam siyah değildir
   orta:[92,94,80],
   acik:[206,198,166],
-  gama:1.12,             // >1: karanlık sahne biraz daha karanlık
+  gama:.96,              // <1: orta tonlar biraz açılır
   kum:15                 // gümüş tanesi
 };
 

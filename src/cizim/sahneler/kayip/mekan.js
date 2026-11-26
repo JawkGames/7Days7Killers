@@ -8,6 +8,16 @@ import {R,hat,leke,tara} from './cizer.js';
 
 const karis=(a,b,t)=>[lerp(a[0],b[0],t)|0,lerp(a[1],b[1],t)|0,lerp(a[2],b[2],t)|0];
 
+// rutubet, is, morluk lekeleri ve akıntı izleri
+function lekeler(x0,y0,x1,y1,seed,yogun){
+  if(!yogun) return;
+  const r=rng(seed+1000), n=Math.round((x1-x0)*(y1-y0)/60000*yogun);
+  for(let i=0;i<n;i++) leke(lerp(x0,x1,r()),lerp(y0,y1,r()),70+r()*220,60+r()*200,[R.kirliSari,R.morluk,R.kufYesil,R.siyah][i%4],.07+r()*.12,r()*3);
+  for(let i=0;i<n*.8;i++){const x=lerp(x0,x1,r()), y=lerp(y0,y1,r()*.6), u=40+r()*260;
+    c.strokeStyle=`rgba(4,5,5,${.12+r()*.25})`; c.lineWidth=1+r()*2.5; c.lineCap='round';
+    c.beginPath(); c.moveTo(x,y); c.bezierCurveTo(x+(r()-.5)*8,y+u*.3,x+(r()-.5)*10,y+u*.7,x+(r()-.5)*6,y+u); c.stroke();}
+}
+
 // kaba yonu taş duvar: sıra sıra düzensiz taşlar, aralarında kara harç
 export function tasDuvar(x0,y0,x1,y1,o){
   o=o||{}; const r=rng(o.seed||11), renk=o.renk||R.tas, boy=o.boy||44;
@@ -37,10 +47,12 @@ export function sivaDuvar(x0,y0,x1,y1,o){
   c.fillStyle=g; c.fillRect(x0,y0,x1-x0,y1-y0);
   lekeler(x0,y0,x1,y1,o.seed||21,1.3);
   // dökük sıva yamaları
-  for(let i=0;i<(o.yama||5);i++){
+  for(let i=0;i<(o.yama==null?3:o.yama);i++){
     const x=lerp(x0,x1,r()), y=lerp(y0,y1,.2+r()*.7), w=40+r()*90, h=30+r()*60;
-    c.save(); c.beginPath(); c.ellipse(x,y,w,h,r()*3,0,TAU); c.clip(); tasDuvar(x-w,y-h,x+w,y+h,{seed:(x|0)+7,boy:24,leke:0}); c.restore();
-    hat(()=>{c.ellipse(x,y,w,h,0,0,TAU);},R.murekkep,.35,1.1,(x|0)+9,2,4);
+    const P=[]; for(let a=0;a<9;a++){const t=a/9*TAU, k=.55+r()*.5; P.push([x+Math.cos(t)*w*k,y+Math.sin(t)*h*k*.7]);}
+    const yol=()=>{c.moveTo(P[0][0],P[0][1]); for(let a=1;a<P.length;a++) c.lineTo(P[a][0],P[a][1]); c.closePath();};
+    c.save(); c.globalAlpha=.55; c.beginPath(); yol(); c.clip(); tasDuvar(x-w,y-h,x+w,y+h,{seed:(x|0)+7,boy:22,leke:0}); c.restore();
+    hat(yol,R.murekkep,.3,1,(x|0)+9,2,3);
   }
   for(let i=0;i<(o.catlak||7);i++){ // çatlaklar
     let x=lerp(x0,x1,r()), y=lerp(y0,y1,r()*.8);
@@ -118,7 +130,7 @@ export function gok(y0,y1,G,o){
   if(tur==='safak'){g.addColorStop(0,'#07090b'); g.addColorStop(.55,'#1a2226'); g.addColorStop(.85,'#3a3f38'); g.addColorStop(1,'#5a5640');}
   else if(tur==='aksam'){g.addColorStop(0,'#080809'); g.addColorStop(.5,'#1d1b22'); g.addColorStop(.85,'#3d3326'); g.addColorStop(1,'#5e4a2a');}
   else if(tur==='bulut'){g.addColorStop(0,'#101312'); g.addColorStop(.7,'#2a302c'); g.addColorStop(1,'#3e4339');}
-  else {g.addColorStop(0,'#030405'); g.addColorStop(.7,'#0c1113'); g.addColorStop(1,'#151b1b');}
+  else {g.addColorStop(0,'#030405'); g.addColorStop(.6,'#0e1416'); g.addColorStop(1,'#26302f');}
   c.fillStyle=g; c.fillRect(-G,y0,G*2,y1-y0);
   for(let i=0;i<12;i++) leke((r()-.5)*G*2,lerp(y0,y1,r()*.8),200+r()*300,40+r()*60,tur==='gece'?R.kufYesil:R.morluk,.08+r()*.08);
   if(tur==='gece') for(let i=0;i<40;i++){c.fillStyle=`rgba(200,205,190,${.08+r()*.25})`; c.beginPath(); c.arc((r()-.5)*G*2,lerp(y0,y1,r()*.7),.6+r()*1.2,0,TAU); c.fill();}

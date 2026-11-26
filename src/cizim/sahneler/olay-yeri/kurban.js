@@ -33,6 +33,10 @@ export function kurbanCiz(P,isik,yuva,{ortu='kilim',aci=0},r){
     let kirisik=0; for(const q of kir){const dd=Math.hypot(u-q[0],w-q[1]); if(dd<q[3]) kirisik+=q[2]*Math.cos(dd*.55+q[4])*(1-dd/q[3]);}
     hO[i][j]=Math.max(.4,h+kirisik*(h<6?1:.35));
   }}
+  for(let gec=0;gec<3;gec++){ // örtü sivri tepe yapmaz: yumuşat
+    const e=hO.map(s=>s.slice());
+    for(let i=1;i<nu;i++) for(let j=1;j<nw;j++) hO[i][j]=Math.max(.4,(e[i-1][j]+e[i+1][j]+e[i][j-1]+e[i][j+1]+e[i][j]*2)/6);
+  }
   const D=(u,w,h)=>[O[0]+au[0]*u+aw[0]*w, Y0+h, O[2]+au[2]*u+aw[2]*w];
   const nokta=(i,j)=>D(-T.boy/2+i*du,-T.en/2+j*dw,hO[i][j]);
   // yere düşen gölge: kütlenin altı kapkara, çevresi yumuşak

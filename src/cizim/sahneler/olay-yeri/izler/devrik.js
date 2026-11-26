@@ -85,6 +85,6 @@ export default {
   },
   renk(k,g){
     if(g.lamba) return;
-    k.dik(); dolgu(yolN(g.n),RENK.bakir,.4);
+    k.dik(); dolgu(yolN(g.n),RENK.bakir,.12);
   }
 };

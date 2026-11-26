@@ -32,6 +32,6 @@ export const DUZLEM={
   zemin:{u:[1,0,0], v:[0,0,-1]},
   ust:{u:[1,0,0], v:[0,0,-1]},
   arka:{u:[1,0,0], v:[0,-1,0]},  // makineye bakan duvar
-  sol:{u:[0,0,-1], v:[0,-1,0]},  // soldaki duvar (yüzü sağa)
-  sag:{u:[0,0,1], v:[0,-1,0]}    // sağdaki duvar (yüzü sola)
+  sol:{u:[0,0,1], v:[0,-1,0]},   // soldaki duvar (yüzü sağa; yerel x derine doğru)
+  sag:{u:[0,0,-1], v:[0,-1,0]}   // sağdaki duvar (yüzü sola; yerel x makineye doğru)
 };
