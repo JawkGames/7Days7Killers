@@ -22,6 +22,11 @@ export function hat(yol,renk,alfa,kalin,tohum,kat=2,oynama=1.4){
   }
   c.setTransform(M);
 }
+// Titremesiz hat: yol o anki dönüşümde, kalınlık fotoğraf biriminde (ip, zincir, ince kenar ışığı)
+export function serit(yol,renk,alfa,kalin,uc='round'){
+  const M=c.getTransform(); c.beginPath(); yol(); c.setTransform(TABAN);
+  c.lineCap=uc; c.lineJoin='round'; c.strokeStyle=rgba(renk,alfa); c.lineWidth=kalin; c.stroke(); c.setTransform(M);
+}
 // Düz dolgu (o anki dönüşümde)
 export function dolgu(yol,renk,alfa=1){c.beginPath(); yol(); c.fillStyle=rgba(renk,alfa); c.fill();}
 

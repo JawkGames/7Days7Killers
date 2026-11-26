@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pencere</title>
+<style>
+:root{
+  /* yerleşim: tek tam ekran canvas; deneme seçicileri sağ üstte, küçük */
+  --zemin:#050505;
+  --kagit:#8f8a74;
+  --acik:#d9d2ba;
+  --lamba:#e2c27a;
+  color-scheme:dark;
+}
+html,body{height:100%;margin:0;background:var(--zemin);overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+.panel{position:absolute;top:10px;right:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;
+  max-width:calc(100% - 20px);font:400 14px/1 "Courier New",ui-monospace,monospace;color:var(--kagit)}
+.panel label{display:flex;gap:6px;align-items:center}
+.panel select,.panel input,.panel button{font:inherit;color:var(--kagit);background:rgba(5,5,5,.6);border:1px solid rgba(143,138,116,.4);border-radius:2px;padding:7px 9px}
+.panel input{width:4.5em}
+.panel button{cursor:pointer}
+.panel button:hover{color:var(--acik);border-color:var(--acik)}
+.panel :focus-visible{outline:2px solid var(--lamba);outline-offset:2px}
+.durum{min-width:6em;text-align:right}
+</style>
+</head>
+<body>
+<canvas id="sahne" role="img"></canvas>
+<div class="panel" id="panel">
+  <label><span id="dogruEtiket"></span><select id="dogru"></select></label>
+  <label><span id="tohumEtiket"></span><input id="tohum" type="number" min="1" step="1"></label>
+  <button id="tekrar" type="button"></button>
+  <span class="durum" id="durum" aria-live="polite"></span>
+</div>
+<script type="module" src="./demo.js"></script>
+</body>
+</html>
