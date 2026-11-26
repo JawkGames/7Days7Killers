@@ -3,7 +3,6 @@ import {c} from '../../teknik/tuval.js';
 import {leke,tara,titrek} from '../../teknik/firca.js';
 import {rgba,clamp} from '../../../cekirdek/matematik.js';
 import {tabana,aydinlik,golgele,cokgen3,yol3} from './kalem.js';
-import {DUZLEM} from './perspektif.js';
 
 export const MUREKKEP=[8,7,10];
 
@@ -76,8 +75,11 @@ export function sivaDuvar(P,isik,O,D,[x0,x1,y0,y1],renk,r,{is=0}={}){
   tara(Math.min(...sk.map(q=>q[0])),Math.min(...sk.map(q=>q[1])),Math.max(...sk.map(q=>q[0])),Math.max(...sk.map(q=>q[1])),.6,7,MUREKKEP,.18,(r()*1e5)|0,1);
   c.restore();
   // sıvası dökülmüş yamalar
-  for(let i=0;i<3;i++){const cx=x0+40+r()*(x1-x0-80), cy=y0+40+r()*(y1-y0-120), w=30+r()*40, h=20+r()*30;
-    tasOrgu(P,isik,O,D,[cx-w,cx+w,cy-h,cy+h],golgele(renk,.9),r,{sira:12,harc:[16,14,12]});}
+  for(let i=0;i<3;i++){const cx=x0+40+r()*(x1-x0-80), cy=y0+40+r()*(y1-y0-120), w=26+r()*36, h=18+r()*26;
+    const kenar=Array.from({length:11},(_,k)=>{const t=k/11*Math.PI*2, u=.6+r()*.45; return [cx+Math.cos(t)*w*u,cy+Math.sin(t)*h*u];});
+    c.save(); tabana(); c.beginPath(); duzlemYol(P,O,D,kenar); c.clip();
+    tasOrgu(P,isik,O,D,[cx-w,cx+w,cy-h,cy+h],golgele(renk,.85),r,{sira:11,harc:[14,12,10]});
+    c.restore(); tabana(); titrek(()=>duzlemYol(P,O,D,kenar),MUREKKEP,.5,1,(r()*1e5)|0,2,1);}
 }
 
 // Zemin dörtgeni [x0,x1] × [z0,z1]: taban rengi, ışığın düştüğü yer, toprak dokusu

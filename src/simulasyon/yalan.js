@@ -227,8 +227,12 @@ export function ifadeMotoru(vaka){
     }
     let en='dogru', kural=null;
     const soylenen=[];
+    const mz=K[k].mizac;
     for(const e of b.deger){
-      const {tavir,kural:kr}=e.kisi?tavirBul(k,o,e.kisi,konumSucu(e.kisi,t)):{tavir:'dogru',kural:null};
+      // Silüeti kimin olduğunu bilmeden korumaz: yalnızca korkaklık ve dedikodu işler.
+      const {tavir,kural:kr}=!e.kisi?{tavir:'dogru',kural:null}
+        :e.kesinlik==='siluet'?(!konumSucu(e.kisi,t)?{tavir:'dogru',kural:null}:mz==='korkak'?{tavir:'susar',kural:'korkak'}:mz==='dedikoducu'?{tavir:'abarti',kural:'dedikoducu'}:{tavir:'dogru',kural:null})
+        :tavirBul(k,o,e.kisi,konumSucu(e.kisi,t));
       if(SIDDET[tavir]>SIDDET[en]){en=tavir; kural=kr;}
       if(tavir==='dogru') soylenen.push(e);
       else if(tavir==='abarti'){

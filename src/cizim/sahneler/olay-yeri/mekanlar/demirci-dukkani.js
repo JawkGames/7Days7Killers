@@ -3,9 +3,9 @@
 import {c} from '../../../teknik/tuval.js';
 import {TAU,rgba} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
-import {kutu,silindir,cokgen3,hat3,yol3,aydinlik,golgele,tabana} from '../kalem.js';
+import {kutu,silindir,cokgen3,hat3,yol3,aydinlik,golgele} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
-import {duzlemde,tasOrgu,sivaDuvar,zemin,karanlik,atmosfer,leke,tara,titrek,MUREKKEP} from '../mekan-yardim.js';
+import {duzlemde,tasOrgu,sivaDuvar,zemin,karanlik,atmosfer,leke,tara,MUREKKEP} from '../mekan-yardim.js';
 
 const TAS=[112,104,90], SIVA=[96,90,78], TOPRAK=[70,64,54], AHSAP=[96,80,60], DEMIR=[70,70,68], DERI=[78,62,46];
 const ARKA=480, SOL=-300, SAG=300;
@@ -34,7 +34,7 @@ export default {
     'zemin-kose': {duzlem:'zemin', konum:[188,0,372], yuzey:'toprak', alan:8},
     'duvar':      {duzlem:'arka', konum:[205,166,ARKA], yuzey:'siva', alan:3},
     'ocak-kenari':{duzlem:'ust', konum:[-86,OCAK.y[1],404], yuzey:'tas', alan:5},
-    'beden':      {duzlem:'zemin', konum:[-50,0,280], aci:.5, ortu:'cul'}
+    'beden':      {duzlem:'zemin', konum:[-46,0,292], aci:.42, ortu:'cul'}
   },
   ciz(P,r){
     const R=rng(7731), O=OCAK;
@@ -60,8 +60,8 @@ export default {
     for(let i=0;i<5;i++){const x=10+i*7+R()*3; hat3(P,[[x,0,ARKA-6],[x+8+R()*4,120+R()*30,ARKA-1]],DEMIR,.9,2.2,920+i,1,.5);}
     // ocak: taş seki, üstünde köz çukuru
     kutu(P,isik,O.x,O.y,O.z,TAS,930);
-    tasOrgu(P,{...isik,ortam:.16},[0,0,O.z[0]],DUZLEM.arka,[O.x[0],O.x[1],-O.y[1],0],TAS,R,{sira:18,harc:[18,16,14]});
-    tasOrgu(P,{...isik,ortam:.16},[O.x[1],0,0],DUZLEM.sag,[-O.z[1],-O.z[0],-O.y[1],0],TAS,R,{sira:18,harc:[18,16,14]});
+    tasOrgu(P,{...isik,ortam:.3},[0,0,O.z[0]],DUZLEM.arka,[O.x[0],O.x[1],-O.y[1],0],TAS,R,{sira:18,harc:[18,16,14]});
+    tasOrgu(P,{...isik,ortam:.3},[O.x[1],0,0],DUZLEM.sag,[-O.z[1],-O.z[0],-O.y[1],0],TAS,R,{sira:18,harc:[18,16,14]});
     cokgen3(P,[[O.x[0],O.y[1],O.z[0]],[O.x[1],O.y[1],O.z[0]],[O.x[1],O.y[1],O.z[1]],[O.x[0],O.y[1],O.z[1]]],[64,58,50]);
     duzlemde(P,[KOZ[0],O.y[1],KOZ[2]],DUZLEM.ust,()=>{
       c.fillStyle='rgb(14,12,10)'; c.beginPath(); c.ellipse(0,0,34,26,0,0,TAU); c.fill();
@@ -72,8 +72,12 @@ export default {
     });
     // davlumbaz: isli sıva, aşağısı köz ışığını alır
     const dv=[[O.x[0]-8,150,O.z[0]-14],[O.x[1]+8,150,O.z[0]-14],[O.x[1]-30,300,ARKA-30],[O.x[0]+30,300,ARKA-30]];
+    const dvSag=[[O.x[1]+8,150,O.z[0]-14],[O.x[1]+8,150,ARKA],[O.x[1]-30,300,ARKA],[O.x[1]-30,300,ARKA-30]];
+    cokgen3(P,dvSag,[34,30,26]); hat3(P,dvSag,MUREKKEP,.6,1.3,942,2,1.2,true);
     cokgen3(P,dv,[46,42,36]);
-    c.save(); c.beginPath(); yol3(P,dv); c.clip(); const da=P.n(KOZ[0],150,O.z[0]-14); leke(da[0],da[1],180,40,[200,170,120],.35); tara(0,0,1000,da[1]+10,1.2,5,MUREKKEP,.4,940,1); leke(da[0],da[1]-120,200,110,[0,0,0],.5); c.restore();
+    c.save(); c.beginPath(); yol3(P,dv); c.clip(); const da=P.n(KOZ[0],150,O.z[0]-14);
+    const dg=c.createLinearGradient(0,da[1],0,0); dg.addColorStop(0,'rgba(170,140,100,.55)'); dg.addColorStop(.5,'rgba(60,50,40,.2)'); dg.addColorStop(1,'rgba(0,0,0,.5)'); c.fillStyle=dg; c.fillRect(0,0,1000,da[1]+5);
+    tara(0,0,1000,da[1]+10,1.2,5,MUREKKEP,.35,940,1); for(let i=0;i<8;i++) leke(R()*600,R()*da[1],40+R()*80,20+R()*50,[0,0,0],.15); c.restore();
     cokgen3(P,[[O.x[0]-8,150,O.z[0]-14],[O.x[1]+8,150,O.z[0]-14],[O.x[1]+8,142,O.z[0]-14],[O.x[0]-8,142,O.z[0]-14]],[90,80,64]);
     hat3(P,dv,MUREKKEP,.7,1.5,941,2,1.4,true);
     // körük: ocağın sağında sehpa üstünde; deri kıvrımlı, üst tahtası kalkık, ucu ocağa girer

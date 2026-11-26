@@ -31,7 +31,7 @@ export default {
   },
   renk(k,g,p){
     const renk=Array.isArray(p.renk)?p.renk:(RENK[p.renk]||RENK.kirmizi);
-    k.duzlem(); serit(yolKur(g),renk,.42,.8*k.olcek);
+    k.duzlem(); serit(yolKur(g),renk,.34,.8*k.olcek);
     serit(()=>g.kil.forEach(q=>{c.moveTo(q[0],q[1]); c.lineTo(q[2],q[3]);}),renk,.6,.2*k.olcek);
   }
 };

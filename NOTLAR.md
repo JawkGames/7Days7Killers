@@ -52,12 +52,14 @@ Bunlar tekrar önerilmesin diye yazıldı.
 | Alt dudağı tek parça aşağı kaydırarak ağız açma | Alt dudak kopmuş gibi göründü. Çözüm: ağız köşeleri sabit, dudaklar köşelerden esneyerek açılır. |
 | Tarama çizgilerinin yüzün tamamını kaplaması | Çatlak porselen gibi durdu. Çözüm: tarama yalnızca gölgeli kutuda kalır. |
 | Masada birinci şahıs erkek eli (parmak tıkırtısı, irkilme) | Yapay durdu, tamamen kaldırıldı. |
+| Olay yeri fotoğrafında büyük düzlemi afin dönüşümle çizmek | Eğik kamerada duvar kaydı. Tam izdüşüm şart. |
+| Kalabalıkta her figüre eşit dış hat | Neon çıkartma gibi durdu. Işık tek yandan ve sıralar arasında verilince düzeldi. |
 | Yürürken bacak ve ayakkabı | Kötü durdu. Çözüm: bacak çizilmez, masa yükseltildi, palto uzatıldı. |
 | Ayaktayken yüzün kadrajın üstünden çıkıp oturunca inmesi | İstenmedi. Çözüm: ayakta ve oturur göz yüksekliği farkı küçük tutulur. |
 
 ## Kod haritası (sorgu sahnesi)
 
-Prototip `src/` altına modüllere bölündü (2026-11-26). İlk kare prototiple piksel piksel aynı çıkıyor; `prototip/sorgu-odasi/index.html` yalnızca karşılaştırma için duruyor, artık oradan geliştirilmez.
+Prototip `src/` altına modüllere bölündü (2026-11-26). Varsayılan kadınla sahne prototiple piksel piksel aynı çıkıyor (ilk kare ve yürüyüş ortası ölçüldü; karşılaştırırken sayfa tam yüklenmeden kare ilerletilirse sahte fark çıkar); `prototip/sorgu-odasi/index.html` yalnızca karşılaştırma için duruyor, artık oradan geliştirilmez.
 
 Komutlar: `npm run dev` (geliştirme sunucusu), `npm test` (Vitest, `testler/`), `npm run lint`, `npm run build`.
 
@@ -66,14 +68,18 @@ Komutlar: `npm run dev` (geliştirme sunucusu), `npm test` (Vitest, `testler/`),
 | Dosya | İçerik |
 | --- | --- |
 | `index.html`, `src/ana.js` | Sayfa ve başlangıç. `window.sorgu` (`poz`, `PAL`, `OLCU`, `KONUSMA`, `konus(metin)`) konsoldan deneme içindir. |
-| `src/cekirdek/` | `rastgele.js` (`rng`, tohumlu), `matematik.js` (`hex`, `rgba`, `lerp`, `clamp`, `yumusak`, `bez`). |
+| `src/cekirdek/` | `rastgele.js` (`rng`, tohumlu), `matematik.js`, `ayarlar.js` (`AYARLAR`: tek ayar dosyası), `olay.js` (olay kanalı), `zaman.js` (gün, adım, sorgu hakkı, Rewind, hüküm). Ayrıntı: `src/cekirdek/README.md`. |
 | `src/cizim/teknik/` | `tuval.js` (çizim hedefi `c`), `gorunum.js` (`gor`: ölçek ve ekran, `onBellek`), `firca.js` (`leke`, `tara`, `titrek`, `karalama`), `kaplama.js`, `palet.js` (`PAL`). |
-| `src/cizim/rig/` | `poz.js` (`poz`, `YUZ`), `yuz.js` (`kafa`, `goz`, `kas`, ağız), `sac.js` (`SAC`), `govde.js` (`govde`, `altGovde`). |
+| `src/cizim/rig/` | Veriyle sürülen karakter iskeleti. `karakterSec(gorunus)` etkin karakteri seçer; seçilmezse varsayılan kadın çizilir. `gorunus.js` (şema), `yuz.js`, `sac.js`, `sakal.js`, `baslik.js`, `govde.js`, `poz.js`. Şema ve yeni karakter yazma adımları: `src/cizim/rig/README.md`. Görünüş verileri `src/icerik/gorunus/<kimlik>.js`; galeri `prototip/karakterler/`. |
+| `src/cizim/sahneler/olay-yeri/` | Olay yeri fotoğrafı: `fotografKur({mekan, izler, tohum})`, mekân şablonları (`mekanlar/`), iz nesneleri (`izler/`), dokunma bölgeleri. Deneme: `prototip/olay-yeri/`. Ayrıntı README'de. |
+| `src/cizim/sahneler/pencere/` | Son: pencere sahnesi, `pencereBaslat({dogru, tohum})`. Deneme: `prototip/pencere/`. |
+| `src/cizim/sahneler/kayip/` | Son: kayıp sahneleri, `kayipSahnesi({kisi, katilMi, tohum, metin})`; 24 kişinin sahne verisi `kisiler.js`. Deneme: `prototip/kayip/`. |
+| `src/simulasyon/` | Olay üretim motoru: `vakaUret(tohum, koy, ayar)` düz veri vaka döndürür; `ifade(vaka, kisi, olgu)` kişinin ne söyleyeceğini verir. Vaka biçimi: `src/simulasyon/README.md`. `npm run vaka -- 77` bir vakanın bütün gerçeğini basar. |
 | `src/cizim/sahneler/sorgu-odasi/` | `ayar.js` (`OLCU`, `DERINLIK`, `GIRIS`), `sahne.js` (`ciz`, `guncelle`, döngü), `giris.js`, `arka-plan.js`, `ampul.js`, `masa.js`, `sandalye.js`. |
-| `src/diyalog/` | `agiz-cizelgesi.js` (`cizelgeKur`, saf işlev), `konusma.js` (`KONUSMA`, `konus`, `sozGuncelle`). |
-| `src/dil/` | `index.js` (`metin(anahtar)`, `agizTablosu()`), `tr/arayuz.js`, `tr/agiz.js`. |
+| `src/diyalog/` | `agiz-cizelgesi.js` (`cizelgeKur`, saf işlev), `konusma.js` (`KONUSMA`, `konus`, `sozGuncelle`), `kalip.js` (cümle kalıbı doldurucu, mizaca göre ton). |
+| `src/dil/` | `index.js` (`metin(anahtar)`, `agizTablosu()`), `tr/arayuz.js`, `tr/agiz.js`, `tr/ekler.js` (Türkçe ek motoru), `tr/kaliplar.js` (cümle kalıpları), `tr/kisiler.js`, `tr/terimler.js`. Ek kuralları: `src/dil/tr/README.md`. |
 | `src/arayuz/sorgu-arayuzu.js` | Alt yazı ve iki deneme düğmesi (geçici). |
-| `src/platform/` | `girdi.js` (imleç, dokunma), `tercih.js` (`azHareket`). |
+| `src/platform/` | `girdi.js` (imleç, dokunma, `egimDinle`), `ekran.js` (tam ekran, yön, görünürlük), `kayit.js` (sürümlü kayıt, göç zinciri), `tercih.js` (`azHareket`). |
 
 Çizim modülleri arayüzü tanımaz; `konusmaOlay` ve `girisOlay` üzerinden haber verir, arayüz bunlara bağlanır.
 
@@ -124,11 +130,19 @@ Kamera kayınca kenar açılmasın diye ön bellekler iki yandan `OLCU.pay` kada
 ### Eksikler
 
 - Yürüyüş, oturuş ve ağız hareketi hareket hâlinde hiç izlenmedi; yalnızca durağan karelere bakıldı. Akıcılığı kullanıcı değerlendiriyor.
-- Tek karakter var; yüz ölçüleri kodun içinde, henüz veri dosyasında değil.
+- 24 kişiden 5'inin görünüş dosyası var (mahmut, elif, bektas, sultan, riza); kalan 19 yazılacak. Yaşlı kadın ve yemenili yüzler zayıf (yüz "delikteki maske" gibi).
+- 22 mekândan 3'ünün olay yeri şablonu var (degirmen, cesme, demirci-dukkani); demirci çok karanlık.
 - Yüz ifadesi yok (gergin, kızgın, korkmuş). `poz.kasKaldir`, `poz.kasCat`, `poz.agiz` bunun için hazır.
-- Kamera yalnızca imleç ve dokunmayla çalışıyor; telefonu eğme henüz yok.
+- `egimDinle` hazır ama sorgu sahnesine bağlanmadı.
 - Alt yazı yazı tipi Google Fonts'tan geliyor; çevrimdışı çalışması için pakete alınmalı.
+
+## Simülasyon kararları
+
+- Zaman tek sayıdır: `(gün-1)*5 + dilim`; dilimler gece, sabah, öğle, ikindi, akşam. Gece günün ilk dilimidir, böylece her günün sabahında o günün fotoğrafı vardır.
+- Motor metin üretmez, yalnızca kimlik ve anahtar verir. Cümle `diyalog/kalip.js` ile kurulur.
+- Bilinen zayıflıklar: Hoca ve Yusuf hiç katil çıkmıyor; yöntemler tekdüze (çoğu taş ya da boğma); sırrın rolü (fail/tanık/mağdur) ve mekân komşuluğu veride değil, motorun içindeki geçici tablolarda.
+- Günlük sorgu hakkı geçici olarak 4 (`AYARLAR.gunlukSorguHakki`); kullanıcı kararı bekliyor.
 
 ## Sıradaki iş
 
-2. aşamanın taslağı hazır, kullanıcı onayı bekliyor. Paralel ajanlar şu işlerde: simülasyon motoru (`src/simulasyon/`), Türkçe ek ve cümle kalıbı motoru, veriyle karakter iskeleti (`src/cizim/rig/`), olay yeri fotoğrafı, pencere sahnesi, kayıp sahneleri, kayıt ve ayarlar. Açık soru: sorgu odasındaki elektrik ampulü 1943 köyüne uymuyor; gaz lambasına çevrilsin mi?
+İkinci dalga ajanlar: çözücü ve kalite eleği (4. aşama), diyalog + defter + metinle oynanabilir oyun (5. aşama), karakter iskeletinde kalite turu, kalan 19 mekânın olay yeri şablonları. Karakter kalite turu bitince kalan 19 görünüş dosyası dağıtılacak. Kullanıcıdan beklenen: `KOY-HALKI.md` onayı, ampul yerine gaz lambası kararı, günlük sorgu hakkı.

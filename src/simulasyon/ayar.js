@@ -28,7 +28,7 @@ export const SIM_AYAR=Object.freeze({
     santaj:.3, // yeni katil, sırrını bilen eski bir katil tarafından zorlanır
     ortaklik:.22, // bir katil başka bir katilin cinayetinde yardımcı olur
     ortme:.4, // bir katil başka bir katile sahte tanıklık (gizli birliktelik) verir
-    kacanTanik:.35, // olay yerine yoldan geçen biri düşer, saldırıya uğrar, kaçar, eşya bırakır
+    kacanTanik:.28, // olay yerine yoldan geçen biri düşer, saldırıya uğrar, kaçar, eşya bırakır
     oncekiGecis:.5, // olay yerinden daha önce geçen birinin izi kalır
     kurbanEsyasi:.4,
     calintiSilahKurnaz:2.5, // kurnaz katilin başkasının aletini çalma ağırlığı

@@ -25,11 +25,12 @@ const URET={
 };
 function izleriKaristir(tohum){
   const r=rng(tohum*7919+13), Mk=MEKANLAR[durum.mekan];
-  const yuvalar=Object.keys(Mk.yuvalar).filter(a=>a!=='beden').sort(()=>r()-.5);
+  const yuvalar=Object.keys(Mk.yuvalar).filter(a=>a!=='beden');
+  for(let i=yuvalar.length-1;i>0;i--){const j=r()*(i+1)|0; [yuvalar[i],yuvalar[j]]=[yuvalar[j],yuvalar[i]];}
   const n=3+(r()*2|0), kullanilan=new Set(), izler=[];
   for(const y of yuvalar){
     if(izler.length>=n) break;
-    const uygun=Object.keys(URET).filter(t=>!kullanilan.has(t)&&IZLER[t].duzlemler.includes(Mk.yuvalar[y].duzlem));
+    const Y=Mk.yuvalar[y], uygun=Object.keys(URET).filter(t=>!kullanilan.has(t)&&IZLER[t].duzlemler.includes(Y.duzlem)&&!(Y.uygunsuz||[]).includes(t));
     if(!uygun.length) continue;
     const tur=sec(r,uygun); kullanilan.add(tur);
     izler.push({tur, yuva:y, kimlik:`${tur}-${izler.length+1}`, ...URET[tur](r)});

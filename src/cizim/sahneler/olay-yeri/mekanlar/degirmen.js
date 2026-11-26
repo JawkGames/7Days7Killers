@@ -46,11 +46,11 @@ export default {
   yuvalar:{
     'zemin-on':  {duzlem:'zemin', konum:[-40,0,218], yuzey:'toprak', alan:22},
     'zemin-orta':{duzlem:'zemin', konum:[-128,0,246], yuzey:'un', alan:8},
-    'zemin-kose':{duzlem:'zemin', konum:[172,0,286], yuzey:'toprak', alan:10},
+    'zemin-kose':{duzlem:'zemin', konum:[148,0,272], yuzey:'toprak', alan:6},
     'esik':      {duzlem:'zemin', konum:[151,6,532], yuzey:'tas', alan:6},
     'duvar':     {duzlem:'arka', konum:[34,138,ARKA], yuzey:'tas', alan:8},
     'masa-ustu': {duzlem:'ust', konum:[-66,SEKI.y[1],394], yuzey:'tas', alan:5},
-    'beden':     {duzlem:'zemin', konum:[20,0,325], aci:.25, ortu:'kilim'}
+    'beden':     {duzlem:'zemin', konum:[0,0,334], aci:.25, ortu:'kilim'}
   },
   ciz(P,r){
     const R=rng(4411), K=KAPI, S=SEKI, T=TAS_, tk=TEKNE;
@@ -86,7 +86,7 @@ export default {
     }
     // un tozu: teknenin önü ve sekinin çevresi bembeyaz değil ama belirgin unlu
     duzlemde(P,[-140,0,280],DUZLEM.zemin,()=>{
-      leke(0,10,110,70,UN,.34); leke(10,40,60,36,UN,.28); leke(40,-60,90,40,UN,.2);
+      leke(0,10,110,70,UN,.45); leke(10,40,60,36,UN,.4); leke(40,-60,90,40,UN,.25);
       for(let i=0;i<40;i++) leke((R()-.5)*220,(R()-.5)*150,6+R()*22,3+R()*9,UN,.05+R()*.1,R()*3);
       tara(-120,-90,120,90,.3,3,UN,.1,77,.7);
     });

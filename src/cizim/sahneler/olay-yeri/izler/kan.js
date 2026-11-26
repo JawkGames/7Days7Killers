@@ -42,5 +42,5 @@ export default {
       dolgu(()=>{c.ellipse(0,0,d[2]*1.6,d[2],0,0,TAU);},[10,7,6],.8); c.restore();
     }
   },
-  renk(k,g){k.duzlem(); dolgu(yolN(g.ana),RENK.kan,.12); for(const d of g.damla) dolgu(()=>{c.moveTo(d[0]+d[2],d[1]); c.arc(d[0],d[1],d[2],0,TAU);},RENK.kan,.18);}
+  renk(k,g){k.duzlem(); dolgu(yolN(g.ana),RENK.kan,.08); for(const d of g.damla) dolgu(()=>{c.moveTo(d[0]+d[2],d[1]); c.arc(d[0],d[1],d[2],0,TAU);},RENK.kan,.18);}
 };

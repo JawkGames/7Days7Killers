@@ -7,7 +7,7 @@ import {kutu,cokgen3,hat3,yol3,golgele,tabana} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,duzlemYol,tasOrgu,zemin,karanlik,atmosfer,leke,tara,titrek,MUREKKEP} from '../mekan-yardim.js';
 
-const TAS=[132,124,104], KURU=[104,98,84], TOPRAK=[84,76,60], CAMUR=[58,54,44], GOK=[196,196,184];
+const TAS=[132,124,104], KURU=[104,98,84], TOPRAK=[84,76,60], CAMUR=[58,54,44];
 const ON=560;                                   // çeşme cephesinin yüzü
 const CEPHE={x:[-112,112], y:[0,232]};
 const KEMER={x:[-52,52], alt:34, omuz:150, tepe:192, derin:22};

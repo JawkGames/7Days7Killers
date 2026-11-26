@@ -32,19 +32,18 @@ export default {
       const yer=()=>{k.duzlem(); c.translate(a.x,a.y); c.rotate(a.aci); c.scale(a.ayna,1);};
       const yg=[gx*Math.cos(-a.aci)-gy*Math.sin(-a.aci), gx*Math.sin(-a.aci)+gy*Math.cos(-a.aci)]; yg[0]*=a.ayna;
       if(cukur){
-        const koyu=yz==='camur'?.72:.5;
-        yer(); c.translate(-yg[0]*.5,-yg[1]*.5); dolgu(T.yol,[0,0,0],.16*a.derin); // ezilen çamurun kabarmış kenarı (ışık yanında gölge)
-        yer(); dolgu(T.yol,[6,7,5],koyu*a.derin);
-        // çukurun ışığa bakan iç duvarı aydınlık: biçim gölge yönüne kaydırılıp içe kırpılır
+        const su=yz==='camur';
+        yer(); c.translate(yg[0]*.9,yg[1]*.9); dolgu(T.yol,[150,146,124],.3*a.derin); // ezilip kabaran kenar ışık alır
+        yer(); dolgu(T.yol,[4,5,4],.85*a.derin);
+        // çukurun dibi: çamurda su birikmiş (göğü yansıtır), toprakta ışığa bakan iç duvar aydınlık
         yer(); c.save(); c.beginPath(); T.yol(); c.clip();
-        c.translate(yg[0]*1.3,yg[1]*1.3); dolgu(T.yol,yz==='camur'?[58,56,46]:[70,66,54],.85);
-        c.translate(yg[0]*.6,yg[1]*.6); dolgu(T.yol,yz==='camur'?[34,33,27]:[46,44,36],.7);
-        for(const q of T.civi) dolgu(()=>{c.moveTo(q[0]+.55,q[1]); c.arc(q[0],q[1],.55,0,TAU);},[10,10,8],.6);
-        if(yz==='camur') leke(-yg[0]*2,-yg[1]*2,4,9,[150,150,130],.14); // dipteki su ışığı
+        c.translate(yg[0]*1.1,yg[1]*1.1); dolgu(T.yol,su?[118,120,110]:[84,78,62],su?.55:.8);
+        c.translate(yg[0]*.7,yg[1]*.7); dolgu(T.yol,su?[90,92,84]:[52,48,38],.6);
+        for(const q of T.civi) dolgu(()=>{c.moveTo(q[0]+.55,q[1]); c.arc(q[0],q[1],.55,0,TAU);},[10,10,8],.7);
         c.restore();
-        yer(); serit(T.yol,[120,116,96],.18*a.derin,.6); // kenarda kabaran çamur
+        yer(); serit(T.yol,[8,8,6],.5*a.derin,.7);
       }else if(yz==='un'){
-        yer(); dolgu(T.yol,[40,38,32],.5);
+        yer(); dolgu(T.yol,[20,18,14],.75);
         for(const q of T.civi) dolgu(()=>{c.moveTo(q[0]+.5,q[1]); c.arc(q[0],q[1],.5,0,TAU);},[20,18,14],.5);
       }else{
         yer(); c.save(); c.beginPath(); T.yol(); c.clip();

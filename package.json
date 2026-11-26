@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint src testler araclar",
-    "halk": "node araclar/koy-halki.js"
+    "halk": "node araclar/koy-halki.js",
+    "vaka": "node araclar/vaka.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

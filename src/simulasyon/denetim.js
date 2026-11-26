@@ -111,6 +111,21 @@ export function vakaDenetle(v){
     if(!y.curutme.length) e(`${y.id}: çürütme yolu yok`);
   }
 
+  // Kaybolan eşya geri gelmez: olay yerinde kalan nesne, çalınan alet sonra başka yerde iz bırakmaz.
+  const kayip=new Map();
+  const kayipYaz=(a,t)=>{if(!kayip.has(a)||kayip.get(a)>t) kayip.set(a,t);};
+  for(const i of v.izler) if(i.tur==='fiziksel'&&i.esya&&i.iztur==='nesne'&&i.alt!=='kurban-esyasi') kayipYaz(i.sahip+'|'+i.esya,i.zaman);
+  for(const o of v.olaylar) if(o.tur==='hirsizlik') kayipYaz(o.sahip+'|'+o.esya,o.zaman);
+  for(const i of v.izler) if(i.tur==='fiziksel'&&i.esya){
+    const a=i.sahip+'|'+i.esya, t=kayip.get(a);
+    const ayni=i.alt==='silah'||i.gercek.neden==='calinti-silah'||i.alt==='yara';
+    if(t!=null&&i.zaman>t&&!ayni) e(`${i.id}: ${a} ${t} anında kaybolmuştu, ${i.zaman} anında yine iz bırakıyor`);
+  }
+  for(const c of v.cinayetler) if(c.silah&&!c.silah.calinti){
+    const t=kayip.get(c.silah.sahip+'|'+c.silah.esya);
+    if(t!=null&&c.zaman>t) e(`${c.id}: silah ${c.silah.esya} daha önce kaybolmuştu`);
+  }
+
   // Bağlar
   for(const b of v.baglar){
     if(b.tur==='ortaklik'&&!v.cinayetler.some(c=>c.katil===b.katil&&c.yardimci===b.yardimci)) e('ortaklık bağı cinayette yok');

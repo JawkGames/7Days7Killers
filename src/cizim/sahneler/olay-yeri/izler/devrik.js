@@ -23,7 +23,7 @@ function yatir(pr,egim,yon){
 const yolN=n=>()=>{n.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])); c.closePath();};
 
 export default {
-  tur:'devrik', duzlemler:['zemin','ust'], aciSapma:.2,
+  tur:'devrik', duzlemler:['zemin'], aciSapma:.2,
   kapsam:(p)=>p.cesit==='lamba'?{r:16,h:4}:{r:24,h:8},
   kur(p,r){
     const yon=r()<.5?-1:1, lamba=p.cesit==='lamba';
@@ -85,6 +85,6 @@ export default {
   },
   renk(k,g){
     if(g.lamba) return;
-    k.dik(); dolgu(yolN(g.n),RENK.bakir,.12);
+    k.dik(); dolgu(yolN(g.n),RENK.bakir,.07);
   }
 };

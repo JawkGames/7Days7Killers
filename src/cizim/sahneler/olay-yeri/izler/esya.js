@@ -14,9 +14,9 @@ export default {
   kur(p,r){
     const g={cesit:KAPSAM[p.cesit]?p.cesit:'dugme', t:r()*1e5|0};
     if(g.cesit==='tespih'){ // gevşek, kendi üstüne düşmüş bir halka; imame ve püskül
-      const n=33, taneler=[]; let a=0;
+      const n=33, taneler=[];
       const rx=5.5+r()*1.5, ry=3+r()*1.5, b=r()*.8;
-      for(let i=0;i<n;i++){a=i/n*TAU; const w=1+Math.sin(a*2+b)*.18+(r()-.5)*.05; taneler.push([Math.cos(a)*rx*w,Math.sin(a)*ry*w+Math.sin(a*3)*.6]);}
+      for(let i=0;i<n;i++){const a=i/n*TAU; const w=1+Math.sin(a*2+b)*.18+(r()-.5)*.05; taneler.push([Math.cos(a)*rx*w,Math.sin(a)*ry*w+Math.sin(a*3)*.6]);}
       g.taneler=taneler; g.puskul=Array.from({length:9},()=>[(r()-.5)*1.6,r()*.5]);
     }
     return g;
@@ -33,7 +33,7 @@ export default {
       k.temas(0,0,8,5,.45,.2); k.duzlem(.4);
       serit(()=>g.taneler.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])),[30,28,24],.7,.4);
       for(const q of g.taneler){
-        dolgu(()=>{c.moveTo(q[0]+.55,q[1]); c.arc(q[0],q[1],.55,0,TAU);},[60,48,34],1);
+        dolgu(()=>{c.moveTo(q[0]+.55,q[1]); c.arc(q[0],q[1],.55,0,TAU);},[96,78,54],1);
         dolgu(()=>{c.moveTo(q[0]-.1,q[1]-.18); c.arc(q[0]-.2,q[1]-.2,.18,0,TAU);},[190,176,140],.6);
       }
       const s=g.taneler[0]; // imame ve püskül

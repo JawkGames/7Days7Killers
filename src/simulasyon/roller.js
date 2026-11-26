@@ -70,6 +70,7 @@ export function sebepAdaylari(d){
   for(const P of d.ids) for(const i of d.iliskiler[P]){
     if(!['es','ebeveyn','cocuk','korur','sevgili'].includes(i.tur)) continue;
     const X=i.kime;
+    if(d.rel(P,X).includes('korkar')) continue; // korktuğu adamı korumak için kimse öldürmez
     for(const j of d.iliskiler[X]){
       if(j.kime===P) continue;
       if(j.tur==='korkar') ekle(P,j.kime,'koruma',2,{tur:'koruma',korunan:X,iliski:'korkar'});
