@@ -204,13 +204,13 @@ export const YERLER={
     kanit:{x:300,y:960,s:.85}
   }),
   'degirmen':ip=>({
-    isik:{tur:'fener',x:380,y:600},
+    isik:{tur:'fener',x:-60,y:560},
     arka(G,ust,alt){icOda(G,ust,alt,{duvar:'tas',seed:ip.tohum+37,renk:[58,56,46]});
-      nis(-300,600,90,140); civi(380,490);
+      nis(-380,600,90,140); civi(-60,450);
       leke(-200,Z+60,300,40,[120,140,140],.12);
       karart(G,ust,alt);},
     sabit:[{nesne:'degirmenTasi',x:80,y:900},{nesne:'ark',x:-200,y:Z+60},{nesne:'cuval',x:-430,y:920},{nesne:'cuval',x:390,y:930,seed:7}],
-    yer:{nis:[-300,600],fener:[380,600],yer:[260,960]},
+    yer:{nis:[-380,600],yer:[260,960]},
     kanit:{x:-110,y:960,s:.85}
   }),
   'karakol':ip=>({
@@ -219,16 +219,16 @@ export const YERLER={
       civi(320,420);
       karart(G,ust,alt);},
     sabit:[{nesne:'pencere',x:330,y:640,w:170,h:180},{nesne:'tufekAskisi',x:-360,y:380},{nesne:'masa',x:0,y:910,w:360,h:156}],
-    yer:{defter:[-10,756],mektup:[120,758],masaSol:[-150,756],bos:[40,1010]},
+    yer:{defter:[-20,756],mektup:[130,760],masaSol:[-150,756],bos:[40,1010]},
     kanit:{x:-420,y:940,s:.85}
   }),
   'magara':ip=>({
-    isik:{tur:'ay',x:160,y:420,ic:120,dis:980},
+    isik:{tur:'ay',x:140,y:640,ic:140,dis:980},
     arka(G,ust,alt){
       kaya(-G,ust-20,G,Z+60,{seed:ip.tohum+41});
       // mağaranın ağzı: dışarıda gece ve ay
-      const agiz=()=>{c.moveTo(-60,Z-20); c.bezierCurveTo(-40,640,-110,560,-30,470); c.bezierCurveTo(10,400,30,330,110,320); c.bezierCurveTo(170,300,200,350,250,340); c.bezierCurveTo(330,360,300,470,370,540); c.bezierCurveTo(420,600,350,680,390,Z-30); c.closePath();};
-      c.save(); c.beginPath(); agiz(); c.clip(); gok(250,Z,G,{tur:'gece',seed:ip.tohum+42,ay:[240,380]}); uzakEvler(Z-60,G,{seed:ip.tohum+43,agac:2}); c.restore();
+      const agiz=()=>{c.moveTo(-160,Z-10); c.bezierCurveTo(-150,690,-200,640,-120,600); c.bezierCurveTo(-60,560,-40,480,40,470); c.bezierCurveTo(100,440,150,500,220,470); c.bezierCurveTo(300,450,330,540,400,580); c.bezierCurveTo(470,620,430,700,480,Z-20); c.closePath();};
+      c.save(); c.beginPath(); agiz(); c.clip(); gok(400,Z,G,{tur:'gece',seed:ip.tohum+42,ay:[300,530]}); uzakEvler(Z-50,G,{seed:ip.tohum+43,agac:2}); c.restore();
       hat(agiz,R.murekkep,.9,3,912,3,4);
       leke(160,Z-30,220,40,R.siyah,.5);
       toprakZemin(Z+20,alt+10,G,{seed:ip.tohum+44,renk:[36,34,28]});
@@ -236,29 +236,29 @@ export const YERLER={
       karart(G,ust,alt);},
     sabit:[{nesne:'duzTas',x:-300,y:900}],
     yer:{ates:[-30,930],kaput:[230,915],tas:[-300,856],yer:[60,980]},
-    kanit:{x:300,y:960,s:.85}
+    kanit:{x:90,y:950,s:.9}
   }),
   'ahir':ip=>({
     isik:{tur:'fener',x:-20,y:560},
     arka(G,ust,alt){icOda(G,ust,alt,{duvar:'tas',seed:ip.tohum+45,renk:[56,52,42]});
       civi(-20,470); civi(380,460);
       karart(G,ust,alt);},
-    sabit:[{nesne:'ahirBolme',x:0,y:920,w:1000,h:150,dikme:[-500,-20,480]}],
+    sabit:[{nesne:'ahirBolme',x:0,y:930,w:1100,h:100,dikme:[-540,-20,520]}],
     yer:{dikme:[-20,560],duvar:[380,460],yer:[150,990]},
-    hayvan:[[-250,915,1.25,{yon:1}],[230,905,1.2,{yon:-1}],[620,890,1.1,{yon:-1}]],
-    kanit:{x:340,y:990,s:.85}
+    hayvan:[[-90,915,1.2,{yon:1}],[-520,900,1.1,{yon:1}],[400,900,1.12,{yon:1}]],
+    kanit:{x:150,y:945,s:.9}
   }),
   'agil':ip=>({
     isik:{tur:'ay',x:60,y:780,ic:160,dis:1000},
-    arka(G,ust,alt){gok(ust-20,560,G,{tur:'gece',seed:ip.tohum+47,ay:[-400,160]});
+    arka(G,ust,alt){gok(ust-20,600,G,{tur:'gece',seed:ip.tohum+47,ay:[-400,160]});
       // alçak tepeler
-      c.fillStyle='#08090a'; c.beginPath(); c.moveTo(-G,560); c.bezierCurveTo(-G*.4,470,G*.1,540,G*.5,480); c.bezierCurveTo(G*.7,460,G*.9,500,G,520); c.lineTo(G,Z+10); c.lineTo(-G,Z+10); c.closePath(); c.fill();
+      c.fillStyle='#08090a'; c.beginPath(); c.moveTo(-G,600); c.bezierCurveTo(-G*.6,560,-G*.3,590,0,575); c.bezierCurveTo(G*.3,560,G*.7,600,G,580); c.lineTo(G,Z+10); c.lineTo(-G,Z+10); c.closePath(); c.fill();
       tara(-G,460,G,Z,.1,10,R.murekkep,.3,913);
       toprakZemin(Z-40,alt+10,G,{seed:ip.tohum+48,renk:[32,30,24]});
       karart(G,ust,alt);},
     sabit:[{nesne:'agilDuvar',x:0,y:850,w:1700,kapi:240}],
     yer:{kapi:[90,910],duvarUstu:[-330,702],yer:[-200,960]},
-    suru:[-760,760,780,1.1],
+    suru:[-760,760,716,1.1],
     kanit:{x:-260,y:950,s:.85}
   }),
   'baraka':ip=>({

@@ -14,9 +14,9 @@ const Y=(o,fn)=>yerel(o.x,o.y,o.s||1,fn,o.don);
 function minder(o){Y(o,()=>{
   const renk=o.renk||[74,40,34];
   if(o.yastik){
-    const yy=()=>{c.moveTo(-74,-24); c.bezierCurveTo(-80,-90,-70,-118,-60,-122); c.lineTo(60,-122); c.bezierCurveTo(70,-118,80,-90,74,-24); c.closePath();};
-    sekil(yy,[renk[0]*.8|0,renk[1]*.8|0,renk[2]*.8|0],[-80,-122,80,-24],{seed:12,aci:1.2,aralik:8});
-    for(let i=0;i<3;i++) hat(()=>{c.moveTo(-66,-100+i*22); c.lineTo(66,-100+i*22);},R.kirliSari,.18,2,13+i,1,1);
+    const yy=()=>{c.moveTo(-84,-26); c.bezierCurveTo(-90,-60,-84,-82,-70,-84); c.quadraticCurveTo(0,-90,70,-84); c.bezierCurveTo(84,-82,90,-60,84,-26); c.closePath();};
+    sekil(yy,[renk[0]*.8|0,renk[1]*.8|0,renk[2]*.8|0],[-90,-90,90,-26],{seed:12,aci:1.2,aralik:8});
+    for(let i=0;i<2;i++) hat(()=>{c.moveTo(-76,-68+i*22); c.quadraticCurveTo(0,-72+i*22,76,-68+i*22);},R.kirliSari,.2,2,13+i,1,1);
   }
   tabanGolge(0,2,110,16);
   const ust=()=>{c.moveTo(-74,-30); c.quadraticCurveTo(0,-38,74,-30); c.lineTo(84,-6); c.quadraticCurveTo(0,4,-84,-6); c.closePath();};
@@ -199,6 +199,18 @@ function kapi(o){Y(o,()=>{
 });}
 
 // dükkân kepengi: yatay tahtalar, demir sürgü, kilit
+function kapiCanli(o,t,I){ // dışarıda bekleyen fenerin ışığı: kapı aralıklarından ve eşiğin altından sızar, hafifçe sallanır
+  if(!o.isik) return;
+  Y(o,()=>{
+    const w=o.w||170, h=o.h||330, sal=Math.sin(t*1.4)*.5+.5, renk=o.isik==='ay'?[150,172,168]:[236,186,96];
+    c.save(); c.globalCompositeOperation='lighter';
+    c.strokeStyle=rgba(renk,(.35+.25*sal)*I); c.lineWidth=2.4;
+    c.beginPath(); c.moveTo(-w/2-1,-h); c.lineTo(-w/2-1,0); c.moveTo(w/2+1,-h); c.lineTo(w/2+1,-6); c.moveTo(-w/2,-h-1); c.lineTo(w/2,-h-1); c.stroke();
+    const g=c.createLinearGradient(0,0,0,170); g.addColorStop(0,rgba(renk,(o.isik==='ay'?.1:.32+.12*sal)*I)); g.addColorStop(1,rgba(renk,0));
+    c.fillStyle=g; c.beginPath(); c.moveTo(-w/2,0); c.lineTo(w/2,0); c.lineTo(w/2+70+sal*30,170); c.lineTo(-w/2-110+sal*30,170); c.closePath(); c.fill();
+    c.restore();
+  });
+}
 function kepenk(o){Y(o,()=>{
   const w=o.w||420, h=o.h||300;
   sekil(()=>{c.rect(-w/2-30,-h-40,w+60,h+40);},[52,48,38],[-w/2-30,-h-40,w/2+30,0],{seed:141,aralik:6});
@@ -313,8 +325,9 @@ function gugum(o){Y(o,()=>{
 });}
 function gugumCanli(o,t,I){ // ağzından taşan su, yalağa süzülür
   Y(o,()=>{
-    c.strokeStyle=rgba([170,190,186],.6*I); c.lineWidth=2.2;
-    for(const d of[-1,1]){c.beginPath(); c.moveTo(d*12,-74); for(let y=-74;y<-4;y+=6) c.lineTo(d*(14+Math.max(0,28-Math.abs(y+40)*.7))+Math.sin(y*.4+t*12+d)*1,y); c.stroke();}
+    c.strokeStyle=rgba([180,200,196],.4*I); c.lineWidth=1.6;
+    const yari=y=>y<-60?13+(y+74)*.15:y<-30?14+(y+60)*.8:y<-10?38-(y+30)*.3:32-(y+10)*.9; // gövdenin yarıçapı
+    for(const [d,k] of[[-1,.7],[1,.55],[1,.85]]){c.beginPath(); c.moveTo(d*12,-74); for(let y=-72;y<-2;y+=4) c.lineTo(d*yari(y)*k+Math.sin(y*.4+t*9+k*5)*.8,y); c.stroke();}
     const n=(t*1.5)%1; leke(0,-74,18,6,[200,215,210],.5*I); for(let i=0;i<2;i++){const m=(n+i*.5)%1; hat(()=>{c.ellipse(0,2,26+m*46,4+m*7,0,0,TAU);},[170,190,186],.45*(1-m)*I,1.2,215+i,1,0);}
   });
 }
@@ -337,12 +350,21 @@ function dikisMakinesi(o){Y(o,()=>{
   parilti(()=>{c.moveTo(-50,-112); c.lineTo(40,-117);},.25,1.6);
   c.restore();
 });}
-// gelinlik kumaşı: makinenin ayağından taşıp yere dökülen soluk beyaz
+// gelinlik kumaşı: makinenin ayağının altından masaya yayılır, masanın önünden yere dökülür
 function gelinlik(o){Y(o,()=>{
-  const yol=()=>{c.moveTo(-90,-140); c.bezierCurveTo(-40,-150,10,-148,40,-140); c.bezierCurveTo(70,-120,150,-110,170,-120); c.bezierCurveTo(200,-60,180,-10,220,0); c.lineTo(-40,0); c.bezierCurveTo(-80,-30,-110,-90,-90,-140); c.closePath();};
-  sekil(yol,[150,146,128],[-110,-150,220,0],{seed:231,isik:.25,koyu:.45,aralik:9,aci:1.2,taraA:.22});
-  for(let i=0;i<6;i++) hat(()=>{c.moveTo(60+i*24,-118); c.bezierCurveTo(70+i*26,-80,60+i*28,-30,70+i*30,0);},[60,58,50],.35,1.2,232+i,1,2); // kıvrımlar
-  hat(()=>{c.moveTo(-60,-136); c.lineTo(-58,-150);},[200,200,190],.8,1,238,1,0); // kumaşta kalmış iğne
+  const yol=()=>{
+    c.moveTo(-150,-134); c.bezierCurveTo(-110,-142,-40,-144,20,-136);           // masanın üstünde
+    c.bezierCurveTo(40,-120,50,-80,70,-40); c.bezierCurveTo(90,-10,130,4,150,22);  // önden sarkan
+    c.bezierCurveTo(90,34,-40,36,-230,28);                                          // yerde toplanan
+    c.bezierCurveTo(-200,0,-180,-60,-176,-110); c.bezierCurveTo(-170,-124,-160,-130,-150,-134); c.closePath();
+  };
+  c.save(); c.scale(.78,.78); c.translate(-30,0);
+  sekil(yol,[124,118,100],[-230,-144,150,36],{seed:231,isik:.22,koyu:.55,aralik:8,aci:1.3,taraA:.28});
+  const r=rng(233);
+  for(let i=0;i<7;i++){const x=-160+i*34+r()*10; hat(()=>{c.moveTo(x+10,-128); c.bezierCurveTo(x+14,-80,x-6,-30,x+(r()-.5)*20,26);},[70,66,56],.4,1.2,232+i,1,2);} // kıvrımlar
+  for(let x=-224;x<146;x+=14) hat(()=>{c.arc(x+7,30,7,0,Math.PI);},[190,186,166],.4,1,(x|0)+600,1,.5); // dantel etek
+  hat(()=>{c.moveTo(-64,-140); c.lineTo(-62,-156);},[220,220,210],.9,1.2,238,1,0); // kumaşta kalmış iğne
+  c.restore();
 });}
 function makas(o){Y(o,()=>{
   hat(()=>{c.ellipse(-26,-6,8,6,0,0,TAU); c.moveTo(-26+8,-2); c.ellipse(-26,8,8,6,0,0,TAU);},[50,50,48],.9,2.4,241,2,1);
@@ -515,7 +537,9 @@ function kasket(o){Y(o,()=>{
 function degirmenTasi(o){Y(o,()=>{ // iki taş üst üste, üstünde ağaç huni, önünde un teknesi
   tabanGolge(0,4,200,16,.8);
   sekil(()=>{c.rect(-200,-70,400,70);},R.tahtaKoyu,[-200,-70,200,0],{seed:521,aralik:5}); // taban sekisi
-  for(const [y,h] of[[-70,50],[-120,50]]) {const yy=y; sekil(()=>{c.moveTo(-150,yy); c.lineTo(150,yy); c.quadraticCurveTo(156,yy-h/2,150,yy-h); c.lineTo(-150,yy-h); c.quadraticCurveTo(-156,yy-h/2,-150,yy); c.closePath();},[70,68,60],[-156,yy-h,156,yy],{seed:522+y,aralik:5,aci:1.5});}
+  for(const [y,h] of[[-70,46],[-116,46]]) {const yy=y; sekil(()=>{c.moveTo(-150,yy-h); c.lineTo(-150,yy); c.ellipse(0,yy,150,22,0,Math.PI,0,true); c.lineTo(150,yy-h); c.closePath();},[70,68,60],[-156,yy-h,156,yy+22],{seed:522+y,aralik:5,aci:1.5});}
+  sekil(elips(0,-162,150,22),[92,88,76],[-150,-184,150,-140],{seed:527,isik:.3,aralik:7,aci:.1}); // üst taşın yüzü
+  sekil(elips(0,-162,20,6),[14,12,10],null,{seed:528,kalin:1.2}); // göz
   // huni
   const huni=()=>{c.moveTo(-90,-310); c.lineTo(90,-310); c.lineTo(20,-210); c.lineTo(-20,-210); c.closePath();};
   sekil(huni,R.tahta,[-90,-310,90,-210],{seed:524,aralik:6});
@@ -528,7 +552,7 @@ function degirmenTasi(o){Y(o,()=>{ // iki taş üst üste, üstünde ağaç huni
 function degirmenCanli(o,t,I){ // boşa dönen üst taş: yüzündeki çentik yavaşça kayar; inceden un tozu
   Y(o,()=>{
     for(let k=0;k<3;k++){const f=((t*.18+k/3)%1), x=-150+f*300, a=Math.sin(f*Math.PI);
-      c.strokeStyle=`rgba(10,10,8,${.7*a})`; c.lineWidth=3; c.beginPath(); c.moveTo(x,-118); c.lineTo(x+(f-.5)*10,-72); c.stroke();}
+      c.strokeStyle=`rgba(10,10,8,${.7*a})`; c.lineWidth=3; c.beginPath(); c.moveTo(x,-162); c.lineTo(x+(f-.5)*10,-116); c.stroke();}
     for(let i=0;i<6;i++){const f=(t*.12+i/6)%1; leke(-120+i*48+Math.sin(t+i)*10,-140-f*120,18,12,[170,166,150],.06*(1-f)*I);}
   });
 }
@@ -541,7 +565,7 @@ function arkCanli(o,t,I){ // oluktan taşan su: ince çizgiler halinde düşer, 
     c.lineCap='round';
     for(let i=0;i<7;i++){
       const x=-6+i*3, ph=t*3+i;
-      c.strokeStyle=rgba([150,172,168],(.25+.2*Math.sin(ph))*I); c.lineWidth=1.6;
+      c.strokeStyle=rgba([170,192,188],(.4+.2*Math.sin(ph))*I); c.lineWidth=2;
       c.beginPath(); c.moveTo(x,-238); c.quadraticCurveTo(x+18,-200,x+22+Math.sin(ph)*2,0); c.stroke();
     }
     for(let i=0;i<3;i++){const f=(t*.6+i/3)%1; hat(()=>{c.ellipse(22,4,20+f*70,4+f*10,0,0,TAU);},[150,172,168],.35*(1-f)*I,1.2,540+i,1,0);}
@@ -638,7 +662,7 @@ function cerciSandigi(o){sandik({...o,w:150,h:96,renk:[62,54,34],kilit:true}); Y
 export const NESNE={
   minder:{ciz:minder}, sofra:{ciz:sofra}, kasik:{ciz:kasik}, kase:{ciz:kase}, tabak:{ciz:tabak}, ekmek:{ciz:ekmek},
   lamba:{ciz:lamba,canli:lambaCanli}, ocak:{ciz:ocak,canli:ocakCanli}, sandik:{ciz:sandik}, asmaKilit:{ciz:asmaKilit},
-  anahtar:{ciz:anahtar}, kapi:{ciz:kapi}, kepenk:{ciz:kepenk}, ors:{ciz:ors}, nal:{ciz:nal,canli:nalCanli}, cekic:{ciz:cekic},
+  anahtar:{ciz:anahtar}, kapi:{ciz:kapi,canli:kapiCanli}, kepenk:{ciz:kepenk}, ors:{ciz:ors}, nal:{ciz:nal,canli:nalCanli}, cekic:{ciz:cekic},
   korukOcak:{ciz:korukOcak,canli:ocakKorCanli}, suTeknesi:{ciz:suTeknesi}, cesme:{ciz:cesme,canli:cesmeCanli},
   gugum:{ciz:gugum,canli:(o,t,I)=>{if(o.tasan) gugumCanli(o,t,I);}}, dikisMakinesi:{ciz:dikisMakinesi}, gelinlik:{ciz:gelinlik},
   makas:{ciz:makas}, yunYumagi:{ciz:yunYumagi}, tasSeki:{ciz:tasSeki}, masrapa:{ciz:masrapa}, baston:{ciz:baston}, pabuc:{ciz:pabuc},

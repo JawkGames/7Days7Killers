@@ -31,11 +31,11 @@ export const IPUCU={
     kanit:{tur:'kanli-bez',x:-10,y:820,s:.75}},
   // Atı ahırda eyerli bekler. Anası her akşam sofraya onun tabağını da koyar.
   cemil:{yer:'sofra',
-    nesneler:[{nesne:'tabak',yer:'sag',dolu:true,x:170,y:880},{nesne:'kasik',x:214,y:884,don:.3},{nesne:'kase',yer:'sol',dolu:true},{nesne:'ekmek',yer:'orta',parca:2},{nesne:'minder',yer:'bos',bos:true}],
+    nesneler:[{nesne:'tabak',dolu:true,x:160,y:884,s:1.35},{nesne:'kasik',x:216,y:890,don:.3},{nesne:'kase',yer:'sol',dolu:true},{nesne:'ekmek',yer:'orta',parca:2},{nesne:'minder',yer:'bos',bos:true}],
     kanit:{tur:'sandik'}},
   // Mühür masanın üstünde durur. Köye gelen ilk resmî kâğıdı imzalayacak kimse yoktur.
   dursun:{yer:'masa-basi',
-    nesneler:[{nesne:'muhur',yer:'masa'}],
+    nesneler:[{nesne:'muhur',yer:'masa',s:1.6}],
     kanit:{tur:'kanli-bez'}},
   // Çeyiz sandığı açık kalmış. Anası kırmızı hırkayı katlayıp katlayıp yeniden açar.
   elif:{yer:'ceyiz',
@@ -52,16 +52,16 @@ export const IPUCU={
     kanit:{tur:'kanli-bez'}},
   // Dikiş makinesinde yarım kalmış bir gelinlik durur. İğne kumaşın içinde kalmıştır.
   gulsum:{yer:'dikis',
-    nesneler:[{nesne:'gelinlik',x:-10,y:911},{nesne:'makas',x:-120,y:776},{nesne:'yunYumagi',yer:'yer'},{nesne:'tabure',yer:'bos'}],
+    nesneler:[{nesne:'gelinlik',x:-10,y:911,z:905},{nesne:'makas',x:-120,y:776},{nesne:'yunYumagi',yer:'yer'},{nesne:'tabure',x:-60,y:975}],
     kanit:{tur:'sandik'}},
   // Katırlar ahırda yüklü bekler. Semerlerini indiren olmaz.
   halil:{yer:'ahir',
-    hayvan:{tur:'katir',sayi:3,yuk:true,basEgik:.3},
+    hayvan:{tur:'katir',sayi:3,yuk:true,basEgik:.05},
     isik:{tur:'fener',x:-20,y:560},
     kanit:{tur:'alet',alet:'kama'}},
   // Köpeği ağılın kapısında yatar. Sürü o gün yayılmaz.
   hasan:{yer:'agil',
-    hayvan:[{tur:'koyun'},{tur:'kopek',yer:'kapi',yon:-1,s:.9}],
+    hayvan:[{tur:'koyun'},{tur:'kopek',yer:'kapi',yon:-1,s:.95,kalkik:true}],
     nesneler:[{nesne:'kaval',yer:'duvarUstu'}],
     kanit:{tur:'alet',alet:'bicak'}},
   // Gece yarısı bir kapı çalınır: doğum vardır, ebe yoktur.
@@ -75,7 +75,7 @@ export const IPUCU={
     kanit:{tur:'alet',alet:'orak'}},
   // Ambarın anahtarı çivide asılı kalır. Irgatlar o sabah ilk kez korkmadan geç kalkar.
   kadir:{yer:'ambar',
-    nesneler:[{nesne:'anahtar',yer:'civi'},{nesne:'kirbac',yer:'civi2'},{nesne:'fener',yer:'yer',sonuk:true}],
+    nesneler:[{nesne:'anahtar',yer:'civi',s:1.7},{nesne:'kirbac',yer:'civi2',s:1.2},{nesne:'fener',yer:'yer',sonuk:true}],
     kanit:{tur:'kanli-bez'}},
   // Değirmen taşı boşa döner. Su arktan taşar, kapatacak kimse yoktur.
   kazim:{yer:'degirmen',
@@ -83,7 +83,7 @@ export const IPUCU={
     kanit:{tur:'alet',alet:'balta'}},
   // Köy odasında başköşedeki minder boş. Kahve yine iki fincanlık pişmiş, biri soğuyor.
   mahmut:{yer:'koy-odasi',
-    nesneler:[{nesne:'minder',yer:'baskose',bos:true,yastik:true,s:1.1},{nesne:'tespih',x:-10,y:766},{nesne:'sofra',yer:'onu',rx:96},
+    nesneler:[{nesne:'minder',yer:'baskose',bos:true,yastik:true,s:1.3},{nesne:'tespih',x:-10,y:770,s:1.3},{nesne:'sofra',yer:'onu',rx:96},
       {nesne:'fincan',yer:'sini1'},{nesne:'fincan',yer:'sini2',buhar:true},{nesne:'mangal',yer:'mangal'},{nesne:'cezve',yer:'mangalUstu'}],
     kanit:{tur:'kanli-bez'}},
   // Çeşme başında kadınlar susar. Haberi getiren kimse kalmamıştır.
@@ -97,7 +97,7 @@ export const IPUCU={
     kanit:{tur:'kanli-bez'}},
   // Nöbet defterinin o günkü sayfası boş kalır. Anasına yazdığı mektup masada yarım durur.
   riza:{yer:'karakol',
-    nesneler:[{nesne:'defter',yer:'defter',bos:true,s:1.3},{nesne:'mektup',yer:'mektup',s:1.2}],
+    nesneler:[{nesne:'defter',yer:'defter',bos:true,s:1.7},{nesne:'mektup',yer:'mektup',s:1.6}],
     kanit:{tur:'sandik'}},
   // Eşeği çeşme başında bağlı kalır. Sandığı açan, çanı çalan olmaz.
   suleyman:{yer:'cesme', zaman:'gece',
@@ -111,7 +111,7 @@ export const IPUCU={
     kanit:{tur:'sandik'}},
   // Mağarada sönmüş bir ateş, katlanmış bir kaput. Babası o gece de taşın üstüne yemek bırakır.
   yusuf:{yer:'magara',
-    nesneler:[{nesne:'sonmusAtes',yer:'ates'},{nesne:'kaput',yer:'kaput'},{nesne:'bohca',yer:'tas'}],
+    nesneler:[{nesne:'sonmusAtes',yer:'ates'},{nesne:'kaput',yer:'kaput',s:1.35},{nesne:'bohca',yer:'tas'}],
     kanit:{tur:'alet',alet:'bicak'}},
   // Konağın kilerinin kapısı kilitli kalır. Anahtarın yerini ondan başka bilen yok.
   zeliha:{yer:'kiler', ayaktaBekleyen:[1],

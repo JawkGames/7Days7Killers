@@ -47,11 +47,11 @@ export function sivaDuvar(x0,y0,x1,y1,o){
   c.fillStyle=g; c.fillRect(x0,y0,x1-x0,y1-y0);
   lekeler(x0,y0,x1,y1,o.seed||21,1.3);
   // dökük sıva yamaları
-  for(let i=0;i<(o.yama==null?3:o.yama);i++){
+  for(let i=0;i<(o.yama==null?2:o.yama);i++){
     const x=lerp(x0,x1,r()), y=lerp(y0,y1,.2+r()*.7), w=40+r()*90, h=30+r()*60;
     const P=[]; for(let a=0;a<9;a++){const t=a/9*TAU, k=.55+r()*.5; P.push([x+Math.cos(t)*w*k,y+Math.sin(t)*h*k*.7]);}
     const yol=()=>{c.moveTo(P[0][0],P[0][1]); for(let a=1;a<P.length;a++) c.lineTo(P[a][0],P[a][1]); c.closePath();};
-    c.save(); c.globalAlpha=.55; c.beginPath(); yol(); c.clip(); tasDuvar(x-w,y-h,x+w,y+h,{seed:(x|0)+7,boy:22,leke:0}); c.restore();
+    c.save(); c.globalAlpha=.3; c.beginPath(); yol(); c.clip(); tasDuvar(x-w,y-h,x+w,y+h,{seed:(x|0)+7,boy:22,leke:0}); c.restore();
     hat(yol,R.murekkep,.3,1,(x|0)+9,2,3);
   }
   for(let i=0;i<(o.catlak||7);i++){ // çatlaklar
@@ -144,7 +144,7 @@ export function uzakEvler(ufuk,G,o){
   c.fillStyle='#050606'; c.beginPath(); c.moveTo(-G,ufuk+10);
   for(let x=-G;x<G;){const w=70+r()*140, h=24+r()*50; c.lineTo(x,ufuk-h); c.lineTo(x+w,ufuk-h+(r()-.5)*6); x+=w+r()*30; c.lineTo(x,ufuk+4);}
   c.lineTo(G,ufuk+200); c.lineTo(-G,ufuk+200); c.closePath(); c.fill();
-  for(let i=0;i<(o.agac||3);i++){const x=(r()-.5)*G*1.8, h=90+r()*90; leke(x,ufuk-h,40+r()*30,h*.5,R.siyah,.9); c.fillStyle='#050606'; c.fillRect(x-3,ufuk-h*.5,6,h*.5);}
+  for(let i=0;i<(o.agac==null?3:o.agac);i++){const x=(r()-.5)*G*1.8, h=90+r()*90; leke(x,ufuk-h,40+r()*30,h*.5,R.siyah,.9); c.fillStyle='#050606'; c.fillRect(x-3,ufuk-h*.5,6,h*.5);}
 }
 
 // köşelerin ve tepenin karanlığa gömülmesi

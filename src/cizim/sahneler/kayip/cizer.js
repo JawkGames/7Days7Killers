@@ -10,7 +10,7 @@ export const R={
   lamba:PAL.lamba, soguk:PAL.soguk, ay:hex('#9fb0aa'), murekkep:PAL.murekkep, siyah:PAL.siyah,
   tas:hex('#4a473a'), tasKoyu:hex('#2a2a22'), toprak:hex('#2e271c'), siva:hex('#57513f'),
   tahta:hex('#3a2c1d'), tahtaKoyu:hex('#1f170f'), bakir:hex('#7a4a26'), bakirIsik:hex('#c08a4a'),
-  demir:hex('#26282a'), kumas:hex('#6e6650'), bez:hex('#9a937a'), kan:hex('#4e1210'), kanKoyu:hex('#2a0807'),
+  demir:hex('#26282a'), kumas:hex('#6e6650'), bez:hex('#9a937a'), kan:hex('#6a1812'), kanKoyu:hex('#3a0a08'),
   kirmizi:hex('#6a1f1a'), siluet:hex('#060707')
 };
 
