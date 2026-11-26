@@ -37,20 +37,37 @@ Bunlar tekrar önerilmesin diye yazıldı.
 | Yürürken bacak ve ayakkabı | Kötü durdu. Çözüm: bacak çizilmez, masa yükseltildi, palto uzatıldı. |
 | Ayaktayken yüzün kadrajın üstünden çıkıp oturunca inmesi | İstenmedi. Çözüm: ayakta ve oturur göz yüksekliği farkı küçük tutulur. |
 
-## Prototip: `prototip/sorgu-odasi/index.html`
+## Kod haritası (sorgu sahnesi)
 
-Tek dosya, bağımlılığı yok (yalnızca alt yazı yazı tipi Google Fonts'tan). Çift tıklayınca tarayıcıda açılır. Yol haritasının ilk aşamasında `src/` altına modüllere bölünecek; bölünürken aşağıdaki sınırlar kullanılacak.
+Prototip `src/` altına modüllere bölündü (2026-11-26). İlk kare prototiple piksel piksel aynı çıkıyor; `prototip/sorgu-odasi/index.html` yalnızca karşılaştırma için duruyor, artık oradan geliştirilmez.
 
-### Ayar nesneleri (hepsi dosyanın başında ya da kendi bölümünün başında)
+Komutlar: `npm run dev` (geliştirme sunucusu), `npm test` (Vitest, `testler/`), `npm run lint`, `npm run build`.
+
+### Hangi şey nerede
+
+| Dosya | İçerik |
+| --- | --- |
+| `index.html`, `src/ana.js` | Sayfa ve başlangıç. `window.sorgu` (`poz`, `PAL`, `OLCU`, `KONUSMA`, `konus(metin)`) konsoldan deneme içindir. |
+| `src/cekirdek/` | `rastgele.js` (`rng`, tohumlu), `matematik.js` (`hex`, `rgba`, `lerp`, `clamp`, `yumusak`, `bez`). |
+| `src/cizim/teknik/` | `tuval.js` (çizim hedefi `c`), `gorunum.js` (`gor`: ölçek ve ekran, `onBellek`), `firca.js` (`leke`, `tara`, `titrek`, `karalama`), `kaplama.js`, `palet.js` (`PAL`). |
+| `src/cizim/rig/` | `poz.js` (`poz`, `YUZ`), `yuz.js` (`kafa`, `goz`, `kas`, ağız), `sac.js` (`SAC`), `govde.js` (`govde`, `altGovde`). |
+| `src/cizim/sahneler/sorgu-odasi/` | `ayar.js` (`OLCU`, `DERINLIK`, `GIRIS`), `sahne.js` (`ciz`, `guncelle`, döngü), `giris.js`, `arka-plan.js`, `ampul.js`, `masa.js`, `sandalye.js`. |
+| `src/diyalog/` | `agiz-cizelgesi.js` (`cizelgeKur`, saf işlev), `konusma.js` (`KONUSMA`, `konus`, `sozGuncelle`). |
+| `src/dil/` | `index.js` (`metin(anahtar)`, `agizTablosu()`), `tr/arayuz.js`, `tr/agiz.js`. |
+| `src/arayuz/sorgu-arayuzu.js` | Alt yazı ve iki deneme düğmesi (geçici). |
+| `src/platform/` | `girdi.js` (imleç, dokunma), `tercih.js` (`azHareket`). |
+
+Çizim modülleri arayüzü tanımaz; `konusmaOlay` ve `girisOlay` üzerinden haber verir, arayüz bunlara bağlanır.
+
+### Ayar nesneleri
 
 - `PAL`: bütün renkler.
 - `OLCU`: sahne ölçüleri (tasarım yüksekliği 1200 birim, baş merkezi `kafaY`, masa kenarı `masaY`, hatların kaynama hızı, kamera payı).
 - `DERINLIK`: her katmanın kamerayla ne kadar kaydığı (duvar az, masa çok).
-- `KONUSMA`: cümle, ağız şekilleri (`[açıklık, genişlik]`), harf-şekil tablosu, süreler.
+- `KONUSMA`: ağız şekilleri (`[açıklık, genişlik]`) ve süreler. Harf-şekil tablosu dil dosyasında.
 - `GIRIS`: kapı ölçüsü, uzaklık ölçeği, ayakta/oturur farkı, adım sayısı, zaman çizelgesi.
 - `SAC`: saç tutamlarının eğrileri.
 - `poz`: her karede değişen durum (bakış, göz açıklığı, ağız, nefes, ışık, kamera).
-- `window.sorgu`: dışarıdan erişim (`poz`, `PAL`, `OLCU`, `KONUSMA`, `konus(metin)`).
 
 ### Çizim tekniği (her sahnede ortak kullanılacak üç araç)
 
@@ -80,7 +97,9 @@ Kamera kayınca kenar açılmasın diye ön bellekler iki yandan `OLCU.pay` kada
 
 ### Bilinmesi gereken tuzaklar
 
-- Sayfa gizliyken ya da boyutu sıfırken açılırsa ölçek sıfır olur ve çizim döngüleri sonsuza gider. `boyutla` içindeki koruma (`hazir`) bunu engeller; kaldırılmamalı.
+- Sayfa gizliyken ya da boyutu sıfırken açılırsa ölçek sıfır olur ve çizim döngüleri sonsuza gider. `gorunumOlc` içindeki koruma (`gor.hazir`) bunu engeller; kaldırılmamalı.
+- Çizim hedefi `c`, `tuval.js` içinden canlı bağ olarak gelir. Başka katmana çizmek için `hedefAyarla` kullanılır; modül içinde `c` yeniden tanımlanmaz.
+- Çizimi değiştirmeyen bir düzenlemeden sonra kare karşılaştırması: `requestAnimationFrame` ve `Math.random` sabitlenip ilk kare prototiple karşılaştırılır (Playwright).
 - `tara` kutuyu kırpmazsa çizgiler bütün yüzeye yayılır.
 - Kadın gerçekçi boyundan kısa çizildi (`GIRIS.ayaktaFark` küçük). İkinci bir karakter yan yana geldiğinde boy oranları tutarsız görünebilir; karakter sistemi kurulurken bu çözülmeli.
 
@@ -90,8 +109,8 @@ Kamera kayınca kenar açılmasın diye ön bellekler iki yandan `OLCU.pay` kada
 - Tek karakter var; yüz ölçüleri kodun içinde, henüz veri dosyasında değil.
 - Yüz ifadesi yok (gergin, kızgın, korkmuş). `poz.kasKaldir`, `poz.kasCat`, `poz.agiz` bunun için hazır.
 - Kamera yalnızca imleç ve dokunmayla çalışıyor; telefonu eğme henüz yok.
-- Metinler kodun içinde; dil dosyasına taşınacak.
+- Alt yazı yazı tipi Google Fonts'tan geliyor; çevrimdışı çalışması için pakete alınmalı.
 
 ## Sıradaki iş
 
-`PLAN.md` yol haritasının 1. aşaması: test altyapısını kurmak ve prototipi `src/cizim` altına modüllere bölmek. Ondan önce `PLAN.md` sonundaki karar sorularının ilk ikisi (ekran yönü, ilk sürümün dili) cevaplanmalı.
+1. aşama bitti. Sırada `PLAN.md` yol haritasının 2. aşaması: kasaba halkı (20-25 kişi: kişilik, ilişkiler, sırlar, kayıp sahnesi). Bunun için `PLAN.md` sonundaki şu karar soruları cevaplanmalı: kasabanın dönemi ve yeri, oyuncunun kim olduğu. Ekran yönü ve ilk sürümün dili hâlâ açık ama 2-5. aşamaları engellemiyor.

@@ -112,9 +112,11 @@ Veri ile kod ayrı durur ve simülasyon çizimden bağımsızdır. Bu sayede vak
   README.md            proje notları (kullanıcının)
   PLAN.md              bu belge
   NOTLAR.md            kararlar, görsel kurallar, denenip vazgeçilenler, kod notları
+  index.html           oyunun sayfası (Vite girişi)
   prototip/
-    sorgu-odasi/       tek dosyalık çalışan prototip (referans; modüllere bölünecek)
+    sorgu-odasi/       tek dosyalık ilk prototip (yalnızca karşılaştırma için)
   src/
+    ana.js             başlangıç
     cekirdek/          tohumlu rastgele, zaman, olay bildirimi, kayıt
     simulasyon/        kasaba, cizelge, cinayet, iz, yalan, cozucu
     icerik/
@@ -157,7 +159,7 @@ Yeni dil, yeni karakter, yeni mekân ya da yeni olay eklemek yalnızca yeni dosy
 
 On aşama var; beşinci aşamanın sonunda oyun görselsiz olarak baştan sona oynanabilir olur. O sürüm sürükleyici değilse çizime geçilmez, önce motor düzeltilir.
 
-1. **Depo ve iskelet.** Klasörler, test altyapısı, Sorgu Odası kodunun modüllere bölünmesi. Çıktı: aynı sahne `src/` altından çalışır.
+1. **Depo ve iskelet (bitti).** Klasörler, test altyapısı, Sorgu Odası kodunun modüllere bölünmesi. Çıktı: aynı sahne `src/` altından çalışır.
 2. **Kasaba halkı.** 20-25 kişi: kişilik, ilişkiler, sırlar, kayıp sahnesi. Çıktı: onaylanmış kişi listesi.
 3. **Simülasyon motoru.** Çizelge, cinayet, iz, yalan. Çıktı: vaka inceleyicide okunabilen vakalar.
 4. **Çözücü ve kalite eleği.** Çıktı: 1000 tohumdan kaçının geçtiği ve örnek vakalar.
