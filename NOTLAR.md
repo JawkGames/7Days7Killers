@@ -22,6 +22,24 @@ Bu dosya projenin hafızasıdır. Yeni bir oturum önce `README.md`, `PLAN.md` v
 - Konuşma: ses yok; ağız oynar, alt yazı harf harf çıkar.
 - Önce olay üretim motoru ve yalnızca metinle oynanabilir sürüm, sonra çizim.
 
+## Alınan kararlar (2026-11-26, ikinci tur)
+
+- **Yer ve zaman:** Antep'in bir köyü, 1940'lar. Köyün adı Sarıkuyu (uydurma), yıl 1943. Belgelerde "kasaba" geçen yerlerde artık köy kastedilir.
+- **Oyuncu:** dışarıdan gelen bir müfettiş, Samsunlu. Köylü ona yabancıdır; kimse kendiliğinden konuşmaz.
+- **Dil:** ilk prototip yalnızca Türkçe. Metinler yine de dil dosyasında durur.
+- **Köy halkı taslağı yazıldı:** 24 kişi, `KOY-HALKI.md` (üretilen belge). Kullanıcı onayı bekliyor.
+- **Çalışma biçimi:** kullanıcı işlerin birbirine karışmayacak parçalara bölünüp paralel ajanlara verilmesini istedi. Her ajan yalnızca kendi klasörüne yazar; ortak dosyaları (`package.json`, `NOTLAR.md`, `PLAN.md`, `src/dil/index.js`) yalnızca ana oturum değiştirir. Çizim işleri de motorla aynı anda yürüyor (önceki "önce motor" sırası kullanıcı isteğiyle gevşetildi).
+
+## İçerik verisi
+
+- Kişi: `src/icerik/kisiler/<kimlik>.js` (yaş, meslek, mizaç, ev, iş, örtü, eşyalar, sırlar, ilişkiler, kayıp sahnesi). Türkçe metni `src/dil/tr/kisiler.js` içinde aynı kimlikle.
+- Mekân: `src/icerik/mekanlar/<kimlik>.js`; adları `src/dil/tr/terimler.js` içinde.
+- `src/icerik/kur.js`: `koyKur` (ilişkileri iki yönlü kurar) ve `dogrula` (şema denetimi). `src/icerik/index.js` klasörleri toplar (`koy`, `kisiListesi`, `mekanListesi`).
+- İlişki tek tarafın dosyasında bir kez yazılır; karşı yön kodla üretilir. İki tarafa da yazmak test hatasıdır.
+- `ortu`: alt gövdeyi gizleyen giysi (aba, entari, kepenek...). "Bacak çizilmez" kuralı veriye böyle girdi.
+- `esyalar`: kişinin iz bırakabilecek ayırt edici eşyaları. Kırmızı yün hem Elif'in hırkasında hem Gülsüm'ün yumağında var: bilerek, yanıltıcı iz için.
+- Metin ya da kişi değişince `npm run halk` ile `KOY-HALKI.md` yeniden üretilir.
+
 ## Denenip vazgeçilenler
 
 Bunlar tekrar önerilmesin diye yazıldı.
@@ -113,4 +131,4 @@ Kamera kayınca kenar açılmasın diye ön bellekler iki yandan `OLCU.pay` kada
 
 ## Sıradaki iş
 
-1. aşama bitti. Sırada `PLAN.md` yol haritasının 2. aşaması: kasaba halkı (20-25 kişi: kişilik, ilişkiler, sırlar, kayıp sahnesi). Bunun için `PLAN.md` sonundaki şu karar soruları cevaplanmalı: kasabanın dönemi ve yeri, oyuncunun kim olduğu. Ekran yönü ve ilk sürümün dili hâlâ açık ama 2-5. aşamaları engellemiyor.
+2. aşamanın taslağı hazır, kullanıcı onayı bekliyor. Paralel ajanlar şu işlerde: simülasyon motoru (`src/simulasyon/`), Türkçe ek ve cümle kalıbı motoru, veriyle karakter iskeleti (`src/cizim/rig/`), olay yeri fotoğrafı, pencere sahnesi, kayıp sahneleri, kayıt ve ayarlar. Açık soru: sorgu odasındaki elektrik ampulü 1943 köyüne uymuyor; gaz lambasına çevrilsin mi?

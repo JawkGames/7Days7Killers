@@ -160,7 +160,7 @@ Yeni dil, yeni karakter, yeni mekân ya da yeni olay eklemek yalnızca yeni dosy
 On aşama var; beşinci aşamanın sonunda oyun görselsiz olarak baştan sona oynanabilir olur. O sürüm sürükleyici değilse çizime geçilmez, önce motor düzeltilir.
 
 1. **Depo ve iskelet (bitti).** Klasörler, test altyapısı, Sorgu Odası kodunun modüllere bölünmesi. Çıktı: aynı sahne `src/` altından çalışır.
-2. **Kasaba halkı.** 20-25 kişi: kişilik, ilişkiler, sırlar, kayıp sahnesi. Çıktı: onaylanmış kişi listesi.
+2. **Köy halkı (taslak hazır, onay bekliyor: `KOY-HALKI.md`).** 20-25 kişi: kişilik, ilişkiler, sırlar, kayıp sahnesi. Çıktı: onaylanmış kişi listesi.
 3. **Simülasyon motoru.** Çizelge, cinayet, iz, yalan. Çıktı: vaka inceleyicide okunabilen vakalar.
 4. **Çözücü ve kalite eleği.** Çıktı: 1000 tohumdan kaçının geçtiği ve örnek vakalar.
 5. **Diyalog ve defter.** Çıktı: yalnızca metinle, baştan sona oynanabilen oyun.
@@ -175,9 +175,9 @@ On aşama var; beşinci aşamanın sonunda oyun görselsiz olarak baştan sona o
 ## Karar bekleyen sorular
 
 - [ ] Oyun dikey mi, yatay mı? Sorgu sahnesi ikisinde de çalışıyor; telefon için tek bir yön seçmek arayüzü sadeleştirir.
-- [ ] İlk sürüm yalnızca Türkçe mi, Türkçe ve İngilizce mi?
-- [ ] Kasaba hangi dönemde ve nerede? Dönem kıyafetleri, meslekleri ve olay çekirdeklerini belirler.
-- [ ] Oyuncu kim? Dışarıdan gelen bir müfettiş mi, kasabalılardan biri mi?
+- [x] İlk sürümün dili: yalnızca Türkçe.
+- [x] Yer ve zaman: Antep'in Sarıkuyu köyü, 1943.
+- [x] Oyuncu: Samsun'dan gelen müfettiş.
 - [ ] Günde kaç kişi sorguya çağrılabilir? Az olursa her seçim ağırlaşır, çok olursa Rewind'e gerek kalmaz.
 - [ ] Final Verdict'te seçilen 7 kişiye ne olur? Kayıp sahnelerinin tonu buna bağlı.
 - [ ] Oyun reklamlı mı, ücretli mi?
