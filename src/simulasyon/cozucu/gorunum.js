@@ -47,7 +47,10 @@ export function oyuncuGorunumu(vaka,secenek={}){
     })).sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1))),
   })).sort((a,b)=>a.gun-b.gun||a.zaman-b.zaman);
   dondur(fotograflar);
-  const bilinen=gun=>fotograflar.filter(f=>f.gun<=gun);
+  const gunluk=[...Array(G+1)].map((_,gun)=>fotograflar.filter(f=>f.gun<=gun));
+  const bilinen=gun=>gunluk[Math.max(0,Math.min(G,gun))];
+  // Gün gün sorulabilecekler: bilinen anlar (cinayet anı ve bir öncesi), cinayetler, izler.
+  const sorulabilir=gunluk.map(l=>({an:new Set(l.flatMap(f=>[f.zaman,f.zaman-1])),cinayet:new Set(l.map(f=>f.cinayet)),iz:new Set(l.flatMap(f=>f.izler.map(i=>i.id)))}));
 
   const kisiler={};
   for(const id of ids){
@@ -85,13 +88,13 @@ export function oyuncuGorunumu(vaka,secenek={}){
 
   // Oyuncunun o gün sorabileceği bir olgu mu? (bilmediği cinayet, görmediği iz sorulamaz)
   function olguDenetle(o,gun){
-    const f=bilinen(gun);
+    const b=sorulabilir[gun];
     switch(o&&o.tur){
-      case 'konum': if(!ids.includes(o.kisi)) return 'bilinmeyen kişi'; // düşer
-      // eslint-disable-next-line no-fallthrough
-      case 'gorulen': return f.some(x=>o.zaman===x.zaman||o.zaman===x.zaman-1)?null:'bu an için bilinen bir olay yok';
-      case 'fail': case 'fark': return f.some(x=>x.cinayet===o.cinayet)?null:'bu cinayet henüz bilinmiyor';
-      case 'esya': return f.some(x=>x.izler.some(i=>i.id===o.iz))?null:'bu iz henüz görülmedi';
+      case 'konum': if(!ids.includes(o.kisi)) return 'bilinmeyen kişi';
+        return b.an.has(o.zaman)?null:'bu an için bilinen bir olay yok';
+      case 'gorulen': return b.an.has(o.zaman)?null:'bu an için bilinen bir olay yok';
+      case 'fail': case 'fark': return b.cinayet.has(o.cinayet)?null:'bu cinayet henüz bilinmiyor';
+      case 'esya': return b.iz.has(o.iz)?null:'bu iz henüz görülmedi';
     }
     return 'bu soru sorulamaz';
   }
@@ -108,7 +111,7 @@ export function oyuncuGorunumu(vaka,secenek={}){
     let cevap=CEVAP[f.tavir]??'bilmiyor', soylenen=cevap==='soyledi'?temizle(olgu,f.soylenen):null;
     // "Bilmiyorum" ile "kimseyi söylemedi" oyuncu için aynı cümledir.
     if(soylenen&&'deger' in soylenen&&soylenen.deger===null&&(olgu.tur==='fail'||olgu.tur==='esya')){cevap='bilmiyor'; soylenen=null;}
-    return dondur({konusan,olgu:kopya(olgu),gun,cevap,soylenen});
+    return Object.freeze({konusan,olgu:{...olgu},gun,cevap,soylenen});
   }
 
   const gorunum=dondur({

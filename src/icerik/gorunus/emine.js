@@ -8,7 +8,7 @@ export default {
   renk:{ten:'#8c7f67', iris:'#46382a', sac:'#1a1510', dudak:'#5e4440', dudakGolge:'#3a2a26'},
   yasIzi:{kirisik:.25, gozAlti:1.35, cokukYanak:.6, kirSac:.05, lekeler:0},
   sac:{bicim:'toplu'},
-  baslik:{tur:'yemeni', renk:'#a08a3c', desenRenk:'#5a4a22'},
+  baslik:{tur:'yemeni', renk:'#77683a', desenRenk:'#40361c'},
   ortu:'entari', giysi:{renk:'#3a3226', icRenk:'#4a4232'},
   omuz:.96,
   boy:.97, iri:.98

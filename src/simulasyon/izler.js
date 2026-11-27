@@ -266,7 +266,7 @@ export function izTamamla(vaka,cinayetId){
   const burada=vaka.izler.filter(i=>i.cinayet===c.id&&i.gercek.tamamlama);
   const turu=i=>i.tur;
   // Sorguyla bulunan izler önce: fotoğraftan tek başına çözülen vaka kolaylaşır.
-  const sira=[['dolayli',dolayliTamamla],['tanik',tanikTamamla],['fiziksel',fizikselTamamla]];
+  const sira=[['dolayli',dolayliTamamla],['fiziksel',fizikselTamamla],['tanik',tanikTamamla]];
   sira.sort((a,b)=>burada.filter(i=>turu(i)===a[0]).length-burada.filter(i=>turu(i)===b[0]).length);
   for(const [,f] of sira){const iz=f(vaka,c); if(iz) return iz;}
   return null;
@@ -310,10 +310,11 @@ function dolayliTamamla(vaka,c){
   const alt=(c.yontem==='bicak'||c.yontem==='darbe')?'kanli-giysi':['bogma','suda-bogma','asma','itme'].includes(c.yontem)?'tirmik':null;
   if(!alt||vaka.izler.some(i=>i.cinayet===c.id&&i.alt===alt&&i.kisi===A)) return null;
   const sahne=(m,u)=>vaka.cinayetler.some(x=>x.mekan===m&&x.zaman===u);
+  const zaten=new Set(vaka.izler.filter(i=>i.cinayet===c.id).flatMap(i=>[i.tanik,i.fark_eden]).filter(Boolean)); // yeni bir kaynak olsun
   for(let u=c.zaman+1;u<=Math.min(c.zaman+D,T-1);u++){
     const mk=vaka.cizelge[A][u]; if(mk==null) return null;
     if(sahne(mk,u)) continue;
-    const h=Object.keys(vaka.cizelge).sort().find(k=>k!==A&&k!==c.kurban&&vaka.cizelge[k][u]===mk&&!koruyanMi(vaka,k,A)&&vaka.kisiler[k].mizac!=='korkak');
+    const h=Object.keys(vaka.cizelge).sort().find(k=>k!==A&&k!==c.kurban&&vaka.cizelge[k][u]===mk&&!koruyanMi(vaka,k,A)&&vaka.kisiler[k].mizac!=='korkak'&&!zaten.has(k));
     if(!h) continue;
     const iz={tur:'dolayli',cinayet:c.id,alt,kisi:A,...(alt==='kanli-giysi'?{ortu:vaka.kisiler[A].ortu}:{}),fark_eden:h,zaman:u,mekan:mk,olay:c.id,
       gercek:{neden:alt==='tirmik'?'kurban-tirmaladi':'katilin-giysisi',tamamlama:true},id:yeniId(vaka),yaniltici:false};
@@ -327,7 +328,7 @@ function dolayliTamamla(vaka,c){
 function tanikTamamla(vaka,c){
   const A=c.katil, t=c.zaman, m=c.mekan;
   const katil=new Set(vaka.cinayetler.flatMap(x=>[x.katil,x.yardimci].filter(Boolean)));
-  const zaten=new Set(vaka.izler.filter(i=>i.cinayet===c.id&&i.tur==='tanik').map(i=>i.tanik));
+  const zaten=new Set(vaka.izler.filter(i=>i.cinayet===c.id).flatMap(i=>[i.tanik,i.fark_eden]).filter(Boolean)); // yeni bir kaynak olsun
   const l=Object.keys(vaka.cizelge).sort().filter(k=>{
     const y=vaka.cizelge[k][t];
     return y&&y!==m&&(vaka.harita[m]||[]).includes(y)&&!zaten.has(k)&&!katil.has(k)&&k!==c.kurban&&vaka.kisiler[k].mizac!=='korkak'&&!koruyanMi(vaka,k,A);

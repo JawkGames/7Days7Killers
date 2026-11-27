@@ -5,7 +5,7 @@
 import {SIR_SAHIP,SIR_ILGILI,ILISKI_SEBEP,MIZAC_KATIL,YAKINLIK,TEHLIKELI} from './tablolar.js';
 import {UretimHatasi} from './zar.js';
 
-const MIZAC_US=.4; // mizacın katil seçimindeki ağırlığı (üs): büyüdükçe öfkeli ve sert kişiler daha sık katil çıkar
+const MIZAC_US=.3; // mizacın katil seçimindeki ağırlığı (üs): büyüdükçe öfkeli ve sert kişiler daha sık katil çıkar
 const TANIK_KORKUSU=.6; // tanığın korkusu, onu susturmak isteyenin sebebinin bu katı
 const yuvarla=x=>Math.round(x*100)/100;
 const ayniKaynak=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -140,7 +140,7 @@ export function rolleriSec(d,z,ciftler,cekirdekler){
     const adaylar=d.ids.filter(P=>musait(P)&&hedefler(P).length>0);
     const P=z.agirlikli(adaylar,P=>{
       const k=d.kisi(P), top=hedefler(P).reduce((s,T)=>s+w(P+'|'+T),0);
-      return Math.pow(MIZAC_KATIL[k.mizac]??1,MIZAC_US)*(k.yas>=70?.7:1)*Math.pow(top,.2);
+      return Math.pow(MIZAC_KATIL[k.mizac]??1,MIZAC_US)*(k.yas>=70?.7:1)*Math.pow(top,.1);
     });
     if(!P) throw new UretimHatasi(`yalnızca ${n} katil seçilebildi`);
     katilOlan.add(P);

@@ -1,11 +1,11 @@
 // Vaka inceleyici: bir tohumun bütün gerçeğini okunur Türkçe metinle basar.
-//   node araclar/vaka.js <tohum> [--ifadeler] [--cizelge]
+//   node araclar/vaka.js <tohum> [--ifadeler] [--cizelge] [--cozum]
 // Geliştirici aracıdır: buradaki etiketler oyun metni değildir (oyun cümleleri src/dil/ içinde).
 
 import fs from 'node:fs';
 import {pathToFileURL} from 'node:url';
 import {koyKur} from '../src/icerik/kur.js';
-import {vakaUret} from '../src/simulasyon/index.js';
+import {vakaUret,kaliteRaporu} from '../src/simulasyon/index.js';
 import tr from '../src/dil/tr/kisiler.js';
 import T from '../src/dil/tr/terimler.js';
 import {ekle,kisiAdi,mekanAdi} from '../src/dil/tr/ekler.js';
@@ -33,7 +33,7 @@ const esya=(sahip,e)=>tr[sahip]?.esyalar?.[e]??e;
 const sir=(sahip,id)=>tr[sahip]?.sirlar?.[id]??id;
 const SEBEP={susturma:'susturmak için',intikam:'intikam için',husumet:'husumetten',borc:'borcu yüzünden',korku:'korkudan',koruma:'birini korumak için',
   kiskanclik:'kıskançlıktan',namus:'namus meselesi',miras:'miras için',zorlama:'şantajla zorlandığı için',santaj:'şantajcıdan kurtulmak için',ceza:'cezalandırmak için',ihanet:'ihanete karşı',zulum:'zulme karşı'};
-const YONTEM={bicak:'bıçakla',darbe:'başına vurarak',bogma:'boğarak',zehir:'zehirleyerek',tufek:'tüfekle',  'suda-bogma':'suda boğarak'};
+const YONTEM={bicak:'bıçakla',darbe:'başına vurarak',bogma:'boğarak',zehir:'zehirleyerek',tufek:'tüfekle','suda-bogma':'suda boğarak',itme:'yüksekten iterek',asma:'asarak'};
 const kaynakYaz=k=>{
   if(!k) return '';
   if(k.tur==='sir') return `sır: "${sir(k.sahip,k.sir)}"`;
@@ -44,7 +44,7 @@ const kaynakYaz=k=>{
   return JSON.stringify(k);
 };
 const NEDEN={'katil-birakti':'katil bıraktı','yardimci-birakti':'yardımcı bıraktı','tanik-kacarken':'kaçan tanık düşürdü','onceden-gecti':'daha önce oradan geçti',
-  'kurbanin':'kurbanın','zehir-kaynagi':'zehrin kaynağı','calinti-silah':'çalıntı silah','katil-silahi':'katilin silahı','yontem':'yöntem',gordu:'gördü',duydu:'duydu',
+  'kurbanin':'kurbanın','mekan-aleti':'yerin aleti','zehir-kaynagi':'zehrin kaynağı','calinti-silah':'çalıntı silah','katil-silahi':'katilin silahı','yontem':'yöntem',gordu:'gördü',duydu:'duydu',
   'katil-disaridaydi':'katil dışarıdaydı','gizli-isi-vardi':'gizli işi vardı','katilin-giysisi':'katilin giysisi','kurban-tirmaladi':'kurban tırmaladı',
   'olay-yerinde-dusurdu':'olay yerinde düşürdü','saldiriya-ugradi':'saldırıya uğradı','kacarken-dusurdu':'kaçarken düşürdü','calinmisti':'çalınmıştı'};
 const izNesne=i=>i.esya?esya(i.sahip,i.esya):i.ortu?`${T.ortu[i.ortu]} lifi`:i.anahtar;
@@ -63,12 +63,13 @@ const izYaz=i=>{
 };
 
 let s=`VAKA tohum=${v.tohum} deneme=${v.deneme} çekirdekler=${v.cekirdekler.join(', ')||'—'}\n`;
+s+=`Kalite: ${v.kalite.gecti?'elekten geçti':'ELEKTEN GEÇEMEDİ ('+v.kalite.nedenler.join(', ')+')'}; en az ${v.kalite.zorluk.sorgu} sorgu, ${v.kalite.zorluk.adim} adım; elenen deneme ${v.kalite.elenenDenemeler.length}\n`;
 s+=`Katiller: ${v.katiller.map(k=>ad(k.kisi)).join(', ')}\n`;
 s+=`Kurbanlar: ${v.cinayetler.map(c=>ad(c.kurban)).join(', ')}\n\n`;
 for(const c of v.cinayetler){
   s+=`== ${c.id} (${c.fotografGunu}. gün fotoğrafı) ${tamAd(c.katil)} → ${tamAd(c.kurban)}\n`;
   s+=`   ${an(c.zaman)}, ${yerE(c.mekan,'de')}${c.cagrildi?' (kurban oraya çağrıldı)':''}; ${YONTEM[c.yontem]}`;
-  if(c.silah) s+=`, silah ${esya(c.silah.sahip,c.silah.esya)}${c.silah.calinti?` (${adE(c.silah.sahip,'den')} çalındı)`:''}${c.silah.birakildi?', olay yerinde kaldı':''}`;
+  if(c.silah) s+=`, silah ${esya(c.silah.sahip,c.silah.esya)}${c.silah.calinti?` (${adE(c.silah.sahip,'den')} çalındı)`:''}${c.silah.mekanAleti?` (${yerE(c.silah.mekanAleti,'in')} aleti${c.silah.getirildi?', getirildi':''})`:''}${c.silah.birakildi?', olay yerinde kaldı':''}`;
   s+='\n';
   s+=`   Sebep: ${SEBEP[c.sebep.tur]??c.sebep.tur} — ${kaynakYaz(c.sebep.kaynak)}\n`;
   if(c.sebep.asil) s+=`   Asıl sebep (${adE(c.zorlayan,'in')}): ${SEBEP[c.sebep.asil.tur]} — ${kaynakYaz(c.sebep.asil.kaynak)}\n`;
@@ -109,5 +110,15 @@ if(arg.includes('--ifadeler')){
 if(arg.includes('--cizelge')){
   s+='\nÇİZELGE\n';
   for(const k of Object.keys(v.cizelge).sort()) s+=`${ad(k).padEnd(18)} ${v.cizelge[k].map((m,t)=>`${t%D===0?'| ':''}${m??'×'}`).join(' ')}\n`;
+}
+if(arg.includes('--cozum')){
+  const r=kaliteRaporu(v);
+  s+='\nÇÖZÜM (çözücü yalnızca oyuncunun gördüklerini kullanır)\n';
+  const kaynak=k=>k.startsWith('iz:')?k.slice(3):ad(k.slice(2));
+  for(const c of r.cozum.cinayetler){
+    s+=`${c.cinayet}: şüpheliler ${c.supheliler.map(x=>`${ad(x.kisi)} (${x.bagimsizSayisi} bağımsız)`).join(', ')||'—'}\n`;
+    for(const z of c.zincirler) s+=`   ${z.id} ${ad(z.kisi)} [${z.tur}${z.alt?' '+z.alt:''}${z.not?' '+z.not:''}] ${z.sabit.map(kaynak).join(' + ')}${z.eleme.length?'; elenen '+z.eleme.map(e=>`${ad(e.kisi)}:${e.tur}`).join(', '):''}\n`;
+  }
+  s+=`Çelişkiler: ${r.celiskiler.length}; takvim: ${r.enAzSorgu.gunler.map((g,i)=>`${i+1}. gün ${g.map(ad).join(', ')||'—'}`).join(' | ')}\n`;
 }
 console.log(s);

@@ -65,7 +65,8 @@ function baglam({vaka,kisi,soru,gun,defter,dil=DIL_TR}){
   const ev=vaka.kisiler[kisi].ev;
   const K=dil.kaliplar;
   const kur=(tur,degerler={})=>cumleKur(K,tur,{mizac,degerler,rng:r});
-  const zs=t=>zamanSozu(t,gun,{dilimler:vaka.ayar.dilimler,rng:r});
+  // Aynı gün aynı an hep aynı sözle anılır (soru da cevap da "dün gece yatsıdan sonra" der).
+  const zs=t=>zamanSozu(t,gun,{dilimler:vaka.ayar.dilimler,rng:rngAl(vaka.tohum,'zaman',t,gun)});
   const yer=(m,konu)=>mekanDeger(m,{konusanEv:ev,konuEv:konu&&konu!==kisi?vaka.kisiler[konu]?.ev:undefined},dil);
   return {vaka,kisi,soru,gun,defter,dil,r,mizac,ev,kur,zs,yer,kd:id=>kisiDeger(id,dil),S:sorguZamani(vaka,gun)};
 }

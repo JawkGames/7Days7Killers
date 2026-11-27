@@ -2085,6 +2085,14 @@ export const SORU_KALIPLARI={
     '{kim} için başka söyledin, ama {diger} onun {zaman} {yer:de} olmadığını söylüyor.',
     '{diger:e} göre {kim} {zaman} {yer:de} değildi. Ne diyorsun?',
   ],
+  'yuzlesme-o-kendi':[
+    '{kim} için başka söyledin, ama {kim} kendisi {zaman} {yer:de} olduğunu söylüyor.',
+    '{kim:in} kendi sözüne göre {zaman} {yer:de+di}. Sen başka dedin.',
+  ],
+  'yuzlesme-o-kendi-degil':[
+    '{kim} için başka söyledin, ama {kim} kendisi {zaman} {yer:de} olmadığını söylüyor.',
+    '{kim:in} kendi sözüne göre {zaman} {yer:de} değildi. Sen başka dedin.',
+  ],
   'yuzlesme-esya':[
     '{diger:e} göre bu {esya} senin. Ne diyorsun?',
     'Bu {esya} için {diger} başka söylüyor. Senin değil mi?',

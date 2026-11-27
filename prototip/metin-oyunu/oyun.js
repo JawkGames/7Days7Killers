@@ -77,13 +77,16 @@ function seceneklerCiz(){
     k.append(onay);
     return;
   }
+  // Çağırma seçenekleri (24 kişi) sıkışık ızgarada, öbürleri alt alta.
+  const izgara=el('div',{className:'izgara'});
   for(const s of secenekler(b,d)){
     const bt=el('button',{type:'button',textContent:s.etiket,className:s.eylem.tur==='ilerle'||s.eylem.tur==='geriSar'?'ana':''});
     bt.onclick=()=>{
       if(s.eylem.tur==='hukum'){hukumKipi=true; hukumSecimi=new Set(); seceneklerCiz(); return;}
       eylemYap(s.eylem);
     };
-    k.append(bt);
+    if(s.eylem.tur==='cagir'){ if(!izgara.parentNode) k.append(izgara); izgara.append(bt); }
+    else k.append(bt);
   }
 }
 

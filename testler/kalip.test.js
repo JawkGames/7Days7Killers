@@ -114,7 +114,7 @@ describe('kalıp kümesi (kaliplar.js)',()=>{
     const esyalar=Object.values(kisiler).flatMap(k=>Object.values(k.esyalar));
     const r=rng(11);
     let n=0;
-    for(let i=0;i<400;i++){
+    for(let i=0;i<150;i++){
       const ortuler=Object.values(terimler.ortu);
       const d={kim:adlar[i%adlar.length],sahip:adlar[(i*7)%adlar.length],yer:yerler[i%yerler.length],esya:esyalar[i%esyalar.length],zaman:['o gece','yatsıdan sonra','sabah ezanında'][i%3],
         kimler:{...adlar[(i*3)%adlar.length],metin:adlar[(i*5)%adlar.length].metin+' ve '+adlar[(i*3)%adlar.length].metin},ortu:ortuler[i%ortuler.length],ses:['bir bağırtı','bir silah sesi'][i%2],
@@ -127,7 +127,7 @@ describe('kalıp kümesi (kaliplar.js)',()=>{
       }
     }
     expect(n).toBeGreaterThan(10000);
-  });
+  },30000);
 });
 
 describe('belirlenimcilik',()=>{

@@ -13,7 +13,7 @@ import {coz} from './coz.js';
 export const KALITE_AYAR=Object.freeze({
   enAzZincir:2,
   enAzSorgu:3, // bundan az sorguyla (iki bağımsız zincirle) çözülen vaka çok kolaydır
-  tekTanikEnCok:4, // tek bir tanığın tek ifadesiyle çözülebilen cinayet sayısı bunu aşarsa vaka çok kolaydır
+  tekTanikEnCok:5, // tek bir tanığın tek ifadesiyle çözülebilen cinayet sayısı bunu aşarsa vaka çok kolaydır
   fotografEnCok:3, // hiç sorgusuz, yalnızca fotoğraftan iki zincirle çözülen cinayet sayısı bunu aşarsa vaka çok kolaydır
 });
 

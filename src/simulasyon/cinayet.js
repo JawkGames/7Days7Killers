@@ -170,8 +170,10 @@ export function cinayetleriYerlestir(d,z,cz,roller){
     if(y.silah){
       const p=y.silah.calinti?o.calintiBirakma:y.silah.mekanAleti?o.aletBirakma:o.silahBirakma*(d.kisi(A).mizac==='ofkeli'?1.5:1);
       // Zehrin kalıntısı (bardakta kuru ot, sıçan otu) her zaman kalır.
-      silah={mekanAleti:null,...y.silah,birakildi:y.yontem==='zehir'||z.olasilik(p),olay:onOlay?onOlay.id:null};
-      const st=durum(silah.sahip??silah.mekanAleti,silah.esya);
+      const st=durum(y.silah.sahip??y.silah.mekanAleti,y.silah.esya);
+      // Olay yerinde kalan eşya sonra kullanılamaz: daha geç bir anda kullanılmışsa (aynı güne düşen cinayetler) bırakılmaz.
+      const sonraKullanildi=st.kullanim.some(x=>x>t)||(st.kayip!=null&&st.kayip>t);
+      silah={mekanAleti:null,...y.silah,birakildi:y.yontem==='zehir'||(!sonraKullanildi&&z.olasilik(p)),olay:onOlay?onOlay.id:null};
       // Zehirde "bırakılan" otun kalıntısıdır; torba sahibinde kalır.
       if(silah.calinti) st.kayip=onOlay.zaman; else if(silah.birakildi&&y.yontem!=='zehir') st.kayip=t; else st.kullanim.push(t);
     }

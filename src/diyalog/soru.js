@@ -66,7 +66,7 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
     if(soruldu(defter,K,soru.id)) return;
     if(out.some(s=>s.id===soru.id)) return;
     const r=rngAl(tohum,'soru',K,soru.id);
-    const zaman=soru.zaman!=null?zamanSozu(soru.zaman,gun,{dilimler:kamu.dilimler,rng:r}):undefined;
+    const zaman=soru.zaman!=null?zamanSozu(soru.zaman,gun,{dilimler:kamu.dilimler,rng:rngAl(tohum,'zaman',soru.zaman,gun)}):undefined;
     const liste=SK[kalipTuru];
     if(!liste) throw new Error('Soru kalıbı yok: '+kalipTuru);
     const etiket=doldur(liste[Math.floor(r()*liste.length)],{...degerler,...(zaman?{zaman}:{})},r);
@@ -97,7 +97,9 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
       const dIddia=(diger.iddialar||[]).find(i=>(i.tur==='konum'||i.tur==='degil')&&i.kisi===kon.kisi&&i.zaman===kon.zaman);
       const yer=mekanDeger(dIddia.mekan,{konuEv:kamu.kisiler[kon.kisi]?.ev},dil);
       const t={...soru,zaman:kon.zaman};
+      if(kon.zaman>=S) continue; // Rewind'den sonra: henüz yaşanmamış bir an için yüzleştirilmez
       if(kon.kisi===K) ekle(t,dIddia.tur==='konum'?'yuzlesme-sen-orada':'yuzlesme-sen-degil',{diger:d,yer},100);
+      else if(diger.kisi===kon.kisi) ekle(t,dIddia.tur==='konum'?'yuzlesme-o-kendi':'yuzlesme-o-kendi-degil',{kim:kd(kon.kisi),yer},100);
       else ekle(t,dIddia.tur==='konum'?'yuzlesme-o-orada':'yuzlesme-o-degil',{diger:d,kim:kd(kon.kisi),yer},100);
     }else if(kon.tur==='sahip'){
       const esya=kamu.izler[kon.iz]?.ad??dil.oyun.iz.tur.nesne;
