@@ -33,7 +33,7 @@ export default {
   isik,
   yuvalar:{
     'zemin-on':   {duzlem:'zemin', konum:[60,0,300], yuzey:'toprak', alan:14},
-    'zemin-orta': {duzlem:'zemin', konum:[-30,0,760], yuzey:'toprak', alan:12},
+    'zemin-orta': {duzlem:'zemin', konum:[230,0,780], yuzey:'toprak', alan:10},
     'ocak-onu':   {duzlem:'zemin', konum:[OCAK.x+10,0,OCAK.z-80], yuzey:'toprak', alan:8},
     'yatak':      {duzlem:'ust', konum:[YATAK.x+10,16,YATAK.z-20], yuzey:'toprak', alan:12, aci:Math.PI/2},
     'duvar':      {duzlem:'sag', konum:[YUZ_X,92,470], yuzey:'tas', alan:10, uygunsuz:['saat']},
@@ -110,7 +110,7 @@ export default {
       c.strokeStyle='rgba(150,140,116,.5)'; c.lineWidth=5*o; c.beginPath(); c.moveTo(s0[0],s0[1]-5*o); c.lineTo(s1[0],s1[1]-5*o); c.stroke();
       titrek(()=>{c.moveTo(s0[0],s0[1]+8*o); c.lineTo(s1[0],s1[1]+8*o);},MUREKKEP,.5,1,985,2,.6); }
     // toplanmış çalı çırpı (sol önde): kuru dallar yığını, kesik uçları açık
-    { const X=-150, Z=345; duzlemde(P,[X,0,Z],DUZLEM.zemin,()=>leke(0,0,90,40,[0,0,0],.5));
+    { const X=250, Z=345; duzlemde(P,[X,0,Z],DUZLEM.zemin,()=>leke(0,0,90,40,[0,0,0],.5));
       for(let i=0;i<46;i++){const a=(R()-.5)*.5+(R()<.5?0:Math.PI), l=60+R()*70, y=4+R()*22, z=Z+(R()-.5)*40, x0=X+(R()-.5)*60;
         const A=P.n(x0-Math.cos(a)*l/2,y,z-Math.sin(a)*8), B=P.n(x0+Math.cos(a)*l/2,y+(R()-.5)*10,z+Math.sin(a)*8), o=P.olcek(x0,y,z);
         c.strokeStyle=rgba(golgele([90,78,60],.5+R()*.6),1); c.lineWidth=(1.5+R()*2.2)*o; c.lineCap='round'; c.beginPath(); c.moveTo(A[0],A[1]); c.quadraticCurveTo((A[0]+B[0])/2,(A[1]+B[1])/2+(R()-.5)*6*o,B[0],B[1]); c.stroke();
@@ -121,7 +121,7 @@ export default {
       leke(p[0],p[1],w*3,w*.9,R()<.6?[0,0,0]:golgele(KAYA,.8),.12+R()*.12); if(R()<.3){leke(p[0]+w*.2,p[1]+w*.2,w*1.2,w*.4,[0,0,0],.4); c.fillStyle=rgba(golgele(KAYA,.3+R()*.25),1); c.beginPath(); c.moveTo(p[0]-w,p[1]); c.lineTo(p[0]-w*.3,p[1]-w*.6); c.lineTo(p[0]+w*.8,p[1]-w*.4); c.lineTo(p[0]+w,p[1]); c.closePath(); c.fill();}}
     { const a=P.n(OCAK.x,0,OCAK.z-60), b=P.n(-60,0,300); for(let i=0;i<14;i++){const t=R(); leke(lerp(a[0],b[0],t)+(R()-.5)*40,lerp(a[1],b[1],t),10+R()*16,3+R()*4,[200,198,186],.18);} }
     // yerde kopmuş kaya parçaları
-    for(const [i,[x,z,e]] of [[-300,560,50],[230,700,40],[-120,300,26],[300,300,40],[200,820,30]].entries()) kaya(P,isik,x,z,{en:e,boy:e*.5,derin:e*.7,renk:KAYA,tohum:990+i,nA:8,nK:3});
+    for(const [i,[x,z,e]] of [[-300,560,50],[230,700,40],[-120,300,26],[-280,320,40],[200,820,30]].entries()) kaya(P,isik,x,z,{en:e,boy:e*.5,derin:e*.7,renk:KAYA,tohum:990+i,nA:8,nK:3});
   },
   ustCiz(P,r){
     atmosfer(r,{tarama:.07,leke:.07});

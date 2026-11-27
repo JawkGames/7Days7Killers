@@ -46,7 +46,7 @@ export default {
   yuvalar:{
     'zemin-on':   {duzlem:'zemin', konum:[150,0,320], yuzey:'toprak', alan:12},
     'zemin-orta': {duzlem:'zemin', konum:[230,0,560], yuzey:'toprak', alan:10},
-    'zemin-kose': {duzlem:'zemin', konum:[-330,0,560], yuzey:'toprak', alan:8},
+    'zemin-kose': {duzlem:'zemin', konum:[-250,0,520], yuzey:'toprak', alan:8},
     'esik':       {duzlem:'zemin', konum:[(KAPI.x[0]+KAPI.x[1])/2,6,EV.z[0]-16], yuzey:'tas', alan:4},
     'duvar':      {duzlem:'arka', konum:[400,118,EV.z[0]], yuzey:'tas', alan:10, uygunsuz:['saat']},
     'sirahane':   {duzlem:'ust', konum:[SIRA.x+52,SIRA.h,SIRA.z-SIRA.derin/2+8], yuzey:'tas', alan:4},

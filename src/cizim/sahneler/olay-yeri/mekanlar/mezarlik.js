@@ -85,7 +85,7 @@ export default {
   yuvalar:{
     'zemin-on':     {duzlem:'zemin', konum:[110,0,318], yuzey:'toprak', alan:16},
     'zemin-orta':   {duzlem:'zemin', konum:[40,0,600], yuzey:'toprak', alan:10},
-    'zemin-kose':   {duzlem:'zemin', konum:[-430,0,960], yuzey:'toprak', alan:12},
+    'zemin-kose':   {duzlem:'zemin', konum:[270,0,930], yuzey:'toprak', alan:6},
     'sanduka-ustu': {duzlem:'ust', konum:[-262,SANDUKA.h+8,620], yuzey:'tas', alan:12, aci:SANDUKA.yaw},
     'mezar-tasi':   {duzlem:'arka', konum:[BUYUK.O[0],62,BUYUK.O[2]], yuzey:'tas', alan:3, uygunsuz:['civi']},
     'taze-mezar':   {duzlem:'zemin', konum:[TAZE_M.x-30,0,TAZE_M.z-80], yuzey:'toprak', alan:10},
