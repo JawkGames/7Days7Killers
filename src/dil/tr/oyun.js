@@ -294,6 +294,13 @@ export default {
       'harman-yeri':['harman'], fistiklik:['fıstıklık'], 'bag-evi':['bağ evi'], magara:['mağara'],
       'sinir-patikasi':['patika','sınır'], agil:['ağıl'],
     },
+    // Yalan söyleyen suçlunun istemi için (oyuncuya gösterilmez): sakladığı gerçek ve mazereti.
+    saklanan:{
+      katil:'{zaman} {yer:de} {kurban:i} sen öldürdün.',
+      yardimci:'{zaman} {yer:de} {kurban:in} öldürülmesine yardım ettin.',
+      ortme:'{kim:in} işlediği bir cinayeti örtüyorsun.',
+    },
+    mazeret:'{zaman} {yer:de}',
     // Denetim: anlamda (ya da soruda) geçmiyorsa modelin ekleyemeyeceği zaman sözleri.
     zamanSozleri:['gece','sabah','öğle','öğleyin','ikindi','akşam','yatsı','dün','bugün','evvelsi','evvelki','ezan','şafak','sabaha karşı','gün ağar'],
     // Denetim: anlamda geçmiyorsa söylenemeyecek suçlama kökleri.

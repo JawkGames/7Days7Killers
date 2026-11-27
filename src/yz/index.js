@@ -1,14 +1,14 @@
 // Yapay zekâ katmanının tek giriş noktası. Oyun katmanı (src/oyun) bunu bilmez; arayüz çağırır.
 //
 //   const yz = yzKur({arkaUc, dil, zamanAsimi, kisiler});   // arkaUc null → her şey kalıplara düşer
-//   await yz.soyle({kisi, soru, kalip, tavir, gerginlik, tepki, oyuncuSorusu, anahtar})
+//   await yz.soyle({kisi, soru, kalip, tavir, gerginlik, tepki, yalan, oyuncuSorusu, anahtar})
 //        → {metin, kaynak:'yz'|'kalip'|'onbellek', neden?, ham?, sure}
 //   await yz.soruEsle({metin, adaylar:[{id, etiket}], kisi})
 //        → {id: adaylardan biri ya da 'yok', kaynak, neden?, ham?, sure}
 //   await yz.kacamak({kisi, metin, gerginlik, anahtar})
 //        → {metin, kaynak, neden?}  (serbest soru hiçbir hazır soruya denk gelmediğinde; bilgi taşımaz, deftere girmez)
 //
-// Güvenlik: soyle'nin cümlesi dogrula.js'ten geçmezse, model zaman aşımına uğrarsa ya da hata verirse motorun kalıp cümlesi
+// Güvenlik: doğru konuşanın cümlesi sıkı, yalan ya da abartı söyleyeninki gevşek denetlenir (dogrula.js); geçmezse, model zaman aşımına uğrarsa ya da hata verirse motorun kalıp cümlesi
 // kullanılır. soruEsle yalnızca listedeki bir soruyu seçebilir; seçilen sorunun cevabını yine motor verir.
 // Önbellek: aynı (anahtar, kalıp) için aynı sonuç (anahtar: tohum, kişi, soru kimliği, döngü). Zaman aşımı ve hata
 // önbelleğe girmez (sonra yeniden denenir); denetimden geçmeyen cevabın kalıbı girer (aynı soru hep aynı söylenir).
@@ -67,7 +67,7 @@ export function yzKur({arkaUc=null,dil=DIL_TR,zamanAsimi=6000,kisiler=null,onbel
   }
 
   /** Kalıp cümleyi karakterin ağzından söyletir. */
-  async function soyle({kisi,kisiVeri=null,soru=null,oyuncuSorusu=null,kalip,tavir='dogru',gerginlik=.2,tepki=null,anahtar=null}){
+  async function soyle({kisi,kisiVeri=null,soru=null,oyuncuSorusu=null,kalip,tavir='dogru',gerginlik=.2,tepki=null,yalan=null,anahtar=null}){
     const t0=simdi();
     const kalipSonuc=(neden,ham)=>({metin:kalip,kaynak:'kalip',...(neden?{neden}:{}),...(ham!=null?{ham}:{}),sure:Math.round(simdi()-t0)});
     if(!arkaUc||!kalip) return kalipSonuc(arkaUc?'kalıp boş':null);
@@ -75,13 +75,15 @@ export function yzKur({arkaUc=null,dil=DIL_TR,zamanAsimi=6000,kisiler=null,onbel
     return bellekli(k,async()=>{
       let ham;
       try{
-        ham=await iste(istemKur({kisi,kisiVeri:kisiVeriAl(kisi,kisiVeri),soru,oyuncuSorusu,kalip,tavir,gerginlik,tepki,dil}),{sema:CEVAP_SEMASI,semaAdi:'cevap'});
+        ham=await iste(istemKur({kisi,kisiVeri:kisiVeriAl(kisi,kisiVeri),soru,oyuncuSorusu,kalip,tavir,gerginlik,tepki,yalan,dil}),{sema:CEVAP_SEMASI,semaAdi:'cevap'});
       }catch(e){
         return {sakla:false,sonuc:kalipSonuc(e.zamanAsimi?'zaman aşımı':'hata: '+(e.message||e))};
       }
       const cevap=cevapAyikla(ham,'cevap');
       // Denetimde soru olarak motorun sorusu kullanılır: oyuncunun yazdığı adlar modele söyleme hakkı vermez.
-      const den=cevapDenetle({cevap,kalip,soru,kisi,dil,adlar});
+      // Yalan ve abartıda denetim gevşek (yalanın özü korunur, uydurma serbest); doğru konuşanda sıkı.
+      const gevsek=tavir==='yalan'||tavir==='abarti';
+      const den=cevapDenetle({cevap,kalip,soru,kisi,dil,adlar,gevsek,saklanan:(yalan?.saklanan||[]).join(' ')});
       if(!den.tamam) return {sakla:true,sonuc:kalipSonuc('denetim: '+den.neden,cevap??ham)};
       return {sakla:true,sonuc:{metin:cevap,kaynak:'yz',ham:cevap,sure:Math.round(simdi()-t0)}};
     });

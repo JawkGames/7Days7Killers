@@ -44,6 +44,7 @@ Bu dosyayı Gemini (Antigravity ya da Gemini CLI) her oturumun başında okur. C
 - Kalın, titrek siyah mürekkep dış hat; gölgelerde tarama; yarı gerçekçi oranlar (çizgi film ya da anime değil).
 - Soluk, kirli palet: küflü yeşil `#2B352C`, morluk moru `#35273B`, kirli sarı ışık `#D4B062`, toprak kahveleri.
 - Tek ışık kaynağı; sahnelerin çoğu karanlık ama okunur.
+- **Atmosfer (main2'den farklı):** main2'deki ışık fazla büyük, fazla parlak ve düzdü; kasvet yoktu. Işık küçük ve loş bir kaynaktan (gaz lambası ya da çıplak ampul) gelir, hızla söner; resmin büyük kısmı derin gölgede, köşeler neredeyse siyah. Yüzlerin yarısı karanlıkta. Hafif film kumu, kirli duvar, rutubet lekesi. Atmosfer örneği: `varliklar/gorsel/tarz/atmosfer-sorgu-odasi.png` (oyunun kodla çizilmiş sorgu odası). Çizgi ve doku main2 gibi, ışık ve kasvet bu örnek gibi.
 
 ## Teknik kurallar
 

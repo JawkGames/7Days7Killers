@@ -1,7 +1,12 @@
 // Modelin cümlesini oyuna koymadan önce denetler. Geçmezse oyun kalıp cümleyi kullanır.
-// Asıl güvence: model, anlamda (kalıp cümlede) ve soruda geçmeyen hiçbir kişi, yer, eşya, zaman sözü ya da suçlama
-// söyleyemez; anlamdaki kişi ve yer adlarını da atlayamaz. Böylece bir masumu suçlayamaz, katili ele veremez,
-// olmayan bir olay uyduramaz, oyuncunun ipucunu yutamaz.
+// İki kip var:
+// - Sıkı (motor "doğru konuşuyor" dediğinde: dogru, bilmez, susar): model, anlamda (kalıp cümlede) ve soruda geçmeyen
+//   hiçbir kişi, yer, eşya, zaman sözü ya da suçlama söyleyemez; anlamdaki kişi ve yer adlarını atlayamaz; olumluyu
+//   olumsuza çeviremez. Böylece doğru konuşan asla uydurmaz: gördüğünü söyler, görmediğine görmedim der.
+// - Gevşek (motor yalan ya da abartı dediğinde): yalanın özü korunur (anlamdaki kişi, yer ve zaman sözü cevapta geçer,
+//   olumlu-olumsuz çevrilmez), gerisi serbesttir: başkasını suçlayabilir, ayrıntı uydurabilir. Ama sakladığı gerçeği
+//   (saklanan: cinayetin kurbanı, yeri) anlamda yoksa ağzına alamaz, itiraf edemez.
+// İki kipte de rol dışı ve yasak ifadeler reddedilir. Uydurmalar deftere girmez: defter motorun iddialarını tutar.
 
 import {DIL_TR} from '../diyalog/adlar.js';
 
@@ -77,13 +82,21 @@ export function adlariBul(metin,adlar){
 
 const YASAK=[/yapay\s*zek/i,/\bmodel\b/i,/talimat/i,/\bjson\b/i,/[{}<>]/,/\bAI\b/,/\bprompt/i,/\bkural/i,/oyuncu/i,/\bsistem\b/i];
 
+// Olumsuzluk izleri (kaba ama yeterli): "değil", "yok", "hayır", "hiç" ve olumsuz fiil ekleri (görmedim, bilmem, gelmez).
+const OLUMSUZ=new RegExp(`(^|[^${HARF}])(değil|yok|hayır|hiç|ne\\s+de)|m[ae]d[ıi]|m[ae]z([^${HARF}]|$)|m[ae]m([^${HARF}]|$)|m[ae]y[ıi]|m[ıiuü]yor|m[ae]m[ıi][sş]|m[ae]yecek|m[ae]yacak`,'u');
+const OLUMSUZ_DEGIL=new RegExp(`(^|[^${HARF}])(tamam|imam|hamam|namaz)[${HARF}]*`,'gu'); // "-mam/-maz" ile biten ama olumsuz olmayanlar
+export const olumsuzMu=t=>OLUMSUZ.test(kucuk(t).replace(OLUMSUZ_DEGIL,' '));
+// İtiraf: birinci tekil şahısla öldürme sözü.
+const ITIRAF=/(öldürdüm|öldürmüşüm|vurdum|boğdum|zehirledim|ittim|kestim|bıçakladım|ben\s+yaptım|benim\s+işim)/u;
+const cumleler=t=>t.split(/[,;:.!?…]+\s*|\s+(?:ama|fakat|ancak)\s+/u).filter(Boolean); // yan cümlelere böler
+
 /**
- * @param {{cevap:string, kalip:string, soru?:?string, kisi:string, dil?:Object, adlar?:Array, kalipAdlari?:boolean}} g
+ * @param {{cevap:string, kalip:string, soru?:?string, kisi:string, dil?:Object, adlar?:Array, gevsek?:boolean, saklanan?:string}} g
  *   kalip: söylenecek anlam ('' ise hiçbir ad, zaman ve suçlama söylenemez: kaçamak cevap).
  *   soru: müfettişin (motorun) sorusu; adları ve zaman sözleri serbesttir ama atlanması denetlenmez.
  * @returns {{tamam:boolean, neden?:string}}
  */
-export function cevapDenetle({cevap,kalip,soru=null,kisi,dil=DIL_TR,adlar=null}){
+export function cevapDenetle({cevap,kalip,soru=null,kisi,dil=DIL_TR,adlar=null,gevsek=false,saklanan=''}){
   if(typeof cevap!=='string') return {tamam:false,neden:'cevap yok'};
   const c=cevap.trim();
   if(c.length<2) return {tamam:false,neden:'boş'};
@@ -93,19 +106,41 @@ export function cevapDenetle({cevap,kalip,soru=null,kisi,dil=DIL_TR,adlar=null})
   const A=adlar||adListesi(dil);
   const kaynak=`${kalip||''} ${soru||''}`;
   const kendi='kisi:'+kisi;
+  const adAdi=a=>A.find(x=>x.tur+':'+x.id===a)?.ad;
   const cevapta=adlariBul(c,A), kaynakta=adlariBul(kaynak,A), kalipta=adlariBul(kalip||'',A);
-  for(const a of cevapta){
-    if(a===kendi) continue; // kendi adını anabilir
-    if(!kaynakta.has(a)) return {tamam:false,neden:`anlamda olmayan ${a.split(':')[0]}: ${A.find(x=>x.tur+':'+x.id===a)?.ad}`};
-  }
-  // Anlamdaki kişi ve yer adları atlanamaz (oyuncunun ipucu kaybolmasın). Eşya adı başka sözle anılabilir.
+  const Y=dil.oyun?.yz||{};
+  // Anlamdaki kişi ve yer adları atlanamaz (oyuncunun ipucu ya da yalanın özü kaybolmasın). Eşya başka sözle anılabilir.
   for(const a of kalipta){
     if(a===kendi||a.startsWith('esya:')) continue;
-    if(!cevapta.has(a)) return {tamam:false,neden:`anlamdaki ad düşmüş: ${A.find(x=>x.tur+':'+x.id===a)?.ad}`};
+    if(!cevapta.has(a)) return {tamam:false,neden:`anlamdaki ad düşmüş: ${adAdi(a)}`};
+  }
+  // Olumlu-olumsuz çevrilmemeli.
+  if(kalip){
+    const ko=olumsuzMu(kalip), co=olumsuzMu(c);
+    if(ko&&!co) return {tamam:false,neden:'olumsuz anlam olumluya çevrilmiş'};
+    if(!ko&&co){
+      // Gevşekte laf kalabalığında olumsuz söz olabilir; ama mazeretin yerini anan cümle olumsuz olamaz.
+      const yerler=[...kalipta].filter(a=>a.startsWith('mekan:')||a.startsWith('kisi:'));
+      const ilgili=gevsek&&yerler.length?cumleler(c).filter(x=>{const b2=adlariBul(x,A); return yerler.some(a=>b2.has(a));}):[c];
+      if(!gevsek||ilgili.some(olumsuzMu)) return {tamam:false,neden:'olumlu anlam olumsuza çevrilmiş'};
+    }
+  }
+  if(gevsek){
+    // Yalanın zamanı korunur.
+    for(const z of Y.zamanSozleri||[]) if(adGeciyor(kalip||'',z)&&!adGeciyor(c,z)) return {tamam:false,neden:'anlamdaki zaman düşmüş: '+z};
+    // Sakladığı gerçeği ağzına alamaz, itiraf edemez.
+    if(ITIRAF.test(kucuk(c))&&!ITIRAF.test(kucuk(kaynak))) return {tamam:false,neden:'itiraf'};
+    if(saklanan){
+      for(const a of adlariBul(saklanan,A)) if(a!==kendi&&cevapta.has(a)&&!kaynakta.has(a)) return {tamam:false,neden:`sakladığını ele veriyor: ${adAdi(a)}`};
+    }
+    return {tamam:true};
+  }
+  for(const a of cevapta){
+    if(a===kendi) continue; // kendi adını anabilir
+    if(!kaynakta.has(a)) return {tamam:false,neden:`anlamda olmayan ${a.split(':')[0]}: ${adAdi(a)}`};
   }
   // Rakam (saat, sayı) ancak kaynakta varsa.
   for(const s of c.match(/\d+/g)||[]) if(!kaynak.includes(s)) return {tamam:false,neden:'anlamda olmayan sayı: '+s};
-  const Y=dil.oyun?.yz||{};
   for(const z of Y.zamanSozleri||[]) if(adGeciyor(c,z)&&!adGeciyor(kaynak,z)) return {tamam:false,neden:'anlamda olmayan zaman: '+z};
   const kc=kucuk(c), kk=kucuk(kaynak);
   for(const k of Y.suclama||[]) if(kc.includes(kucuk(k))&&!kk.includes(kucuk(k))) return {tamam:false,neden:'anlamda olmayan suçlama: '+k};

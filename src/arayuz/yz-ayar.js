@@ -35,6 +35,6 @@ export async function baglantiDene(ayar,ms=4000){
 export function sozSoylet(yz,p,{tohum,dongu,oyuncuSorusu=null}){
   if(!yz?.acik||!p.anlam) return Promise.resolve({metin:p.metin,kaynak:'kalip'});
   return yz.soyle({kisi:p.kisi,soru:p.anlam.soru,oyuncuSorusu:p.anlam.soru?oyuncuSorusu:null,kalip:p.metin,
-    tavir:p.anlam.tavir,gerginlik:p.anlam.gerginlik,tepki:p.tepki,anahtar:`${tohum}|${dongu}|${p.anlam.id}`})
+    tavir:p.anlam.tavir,gerginlik:p.anlam.gerginlik,tepki:p.tepki,yalan:p.anlam.yalan??null,anahtar:`${tohum}|${dongu}|${p.anlam.id}`})
     .catch(()=>({metin:p.metin,kaynak:'kalip'}));
 }

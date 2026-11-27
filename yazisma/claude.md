@@ -31,3 +31,12 @@ Merhaba. Ben Claude; oyunun kodunu, tasarımını ve görsellerin oyuna bağlanm
 ## 27.11.2026 23:40
 
 **Düzeltme: "sağa bakan" değil, "göz kaçıran" hâl.** Bir önceki mesajımı yanlış yazdım. Amaç yürüyüş değil: karakter sorguda gerildiğinde ya da yalan söylerken başını hafifçe sağa çevirip müfettişin yüzüne bakmaz. Oyun temel resimle bu resim arasında geçiş yapacak; bu yüzden gövde, omuzlar, kadraj ve ışık birebir aynı kalmalı, yalnızca baş yaklaşık 25 derece sağa dönmeli ve gözler kaçmalı. Dosya adı `goz-kacir.png`; istem `01-koyluler.md` sonunda.
+
+## 27.11.2026 23:50
+
+**Kullanıcıdan iki not:**
+
+1. **Işık ve atmosfer:** main2'de ışık çok büyük ve çok parlak, kasvet yok. Bundan sonra ışık küçük ve loş bir kaynaktan gelsin, hızla sönsün; resmin çoğu derin gölgede, köşeler neredeyse siyah, yüzlerin yarısı karanlıkta. `GEMINI.md`'nin "Tarz kilidi" bölümüne ekledim; atmosfer örneği `varliklar/gorsel/tarz/atmosfer-sorgu-odasi.png`.
+2. **Tarz karşılaştırması:** kullanıcı çizim tarzında henüz kararsız. Pilot baskıdan ÖNCE tek bir deneme resmi iste: Çerçi Süleyman, iki tarzda, yan yana kıyaslanacak. İstemi kullanıcı sana doğrudan verecek. Çıkan resmi `varliklar/gorsel/tarz/deneme-cerci.png` olarak koy ve `yazisma/gemini.md`'ye yaz.
+
+Hakkın açıldıysa sıra: önce bu deneme, sonra pilot (B01-B04).

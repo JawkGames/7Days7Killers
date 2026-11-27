@@ -17,7 +17,7 @@
 
 import {zamanBaslat,ilerle,cagir,geriSar,hukumVer,kalanSorgu} from '../cekirdek/zaman.js';
 import {AYARLAR} from '../cekirdek/ayarlar.js';
-import {vakaUret,MUDAHALE_TURLERI} from '../simulasyon/index.js';
+import {vakaUret,MUDAHALE_TURLERI,ifade} from '../simulasyon/index.js';
 import {doldur,sec,cumleKur} from '../diyalog/kalip.js';
 import {defterYeni,cinayetEkle,izEkle,izBulunduMu,ifadeEkle,bugunSorulan,karsilastir,isaretle,ifadeBul,ogrenilenSirlar,gozlemEkle,tedbirEkle} from '../diyalog/defter.js';
 import {sorulariUret} from '../diyalog/soru.js';
@@ -105,7 +105,31 @@ function tedbirSozu(b,t,tablo){
 }
 
 // Yapay zekânın söyleyiş için kullanacağı anlam (oyuncuya gösterilmez).
-const anlamKur=(id,soru,c)=>({id,soru,tavir:c.tavir??'dogru',gerginlik:c.gerginlik??c.tepki?.gerginlik??.2});
+const anlamKur=(id,soru,c,yalan=null)=>({id,soru,tavir:c.tavir??'dogru',gerginlik:c.gerginlik??c.tepki?.gerginlik??.2,
+  ...(c.kural?{kural:c.kural}:{}),...(yalan?{yalan}:{})});
+
+// Yalan söyleyen suçlunun (katil, yardımcı, örten) yalanını tutarlı sürdürmesi için: sakladığı gerçek, şimdiye dek
+// söylediği mazeretler, suç atabileceği kişiler (motorun suç attığı kişi ve hasımları). Yalnızca motor bu cevapta
+// "yalan" dediğinde ve konuşan gerçekten suçluysa kurulur; masumun anlamına sır ya da gerçek girmez.
+function yalanBilgisi(b,d,K,c){
+  if(c.tavir!=='yalan') return null;
+  const v=V(b,d), Y=O(b).yz, S0=S(b,d), gun=d.zaman.gun;
+  const cin=v.cinayetler.filter(x=>(x.katil===K||x.yardimci===K)&&x.zaman<S0);
+  const ortulen=(v.baglar||[]).filter(x=>x.tur==='ortme'&&x.ortan===K).map(x=>x.ortulen).filter(X=>v.cinayetler.some(c2=>c2.katil===X&&c2.zaman<S0));
+  if(!cin.length&&!ortulen.length) return null;
+  const zs=t=>zamanSozu(t,gun,{dilimler:v.ayar.dilimler,rng:rngAl(v.tohum,'zaman',t,gun)});
+  const ev=v.kisiler[K].ev;
+  const saklanan=[...cin.map(x=>doldur(x.katil===K?Y.saklanan.katil:Y.saklanan.yardimci,{zaman:zs(x.zaman),yer:mekanDeger(x.mekan,{},b.dil),kurban:kisiDeger(x.kurban,b.dil)})),
+    ...ortulen.map(X=>doldur(Y.saklanan.ortme,{kim:kisiDeger(X,b.dil)}))];
+  const iddialar=[...d.defter.ifadeler.filter(f=>f.kisi===K).flatMap(f=>f.iddialar||[]),...(c.iddialar||[])];
+  const mazeret=[...new Set(iddialar.filter(i=>i.tur==='konum'&&i.kisi===K&&Number.isInteger(i.zaman)&&i.mekan&&i.zaman<S0)
+    .map(i=>doldur(Y.mazeret,{zaman:zs(i.zaman),yer:mekanDeger(i.mekan,{konusanEv:ev},b.dil)})))].slice(-4);
+  const yasar=X=>X!==K&&canli(v,X,S0)&&!cin.some(x=>x.kurban===X);
+  const hedef=new Set();
+  for(const x of cin){const X=ifade(v,K,{tur:'fail',cinayet:x.id},{gun}).soylenen?.deger; if(typeof X==='string'&&yasar(X)) hedef.add(X);}
+  for(const i of v.iliskiler) if(i.kimden===K&&i.tur==='hasim'&&yasar(i.kime)) hedef.add(i.kime);
+  return {saklanan,mazeret,hedefler:[...hedef].slice(0,3).map(X=>ad(b,X))};
+}
 
 function sabir(b,kisi){return OYUN_AYAR.sabir[b.vaka.kisiler[kisi].mizac]??5;}
 
@@ -279,7 +303,7 @@ export function uygula(b,d,eylem){
       if(yazilan) soru.yazilan=yazilan;
       const tepki={gerginlik:c.tepki.gerginlik,duzey:c.tepki.duzey,gozKacirma:c.tepki.gozKacirma,duraksama:c.tepki.duraksama,not:c.tepki.not};
       const {defter}=ifadeEkle(d.defter,{kisi:K,soru,olgu:c.olgu,iddialar:c.iddialar,metin:c.metin,tepki},kimlik(d));
-      const g=[parca('soru',yazilan??q.etiket),parca('soz',c.metin,{kisi:K,tepki,anlam:anlamKur(q.id,q.etiket,c)}),parca('sahne',tepki.not,{kisi:K,tepki}),...c.notlar.map(n=>parca('sistem',n))];
+      const g=[parca('soru',yazilan??q.etiket),parca('soz',c.metin,{kisi:K,tepki,anlam:anlamKur(q.id,q.etiket,c,yalanBilgisi(b,d,K,c))}),parca('sahne',tepki.not,{kisi:K,tepki}),...c.notlar.map(n=>parca('sistem',n))];
       let yeni={...d,defter};
       const kalan=sabir(b,K)-bugunSorulan(defter,K,kimlik(d));
       if(kalan<=0){
