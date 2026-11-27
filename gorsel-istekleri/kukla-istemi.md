@@ -19,7 +19,7 @@ Top row, left to right:
 2. The same head, front view, eyes CLOSED (lids drawn as curved ink lines with lashes). Identical size and position to part 1.
 Middle row:
 3. Two separate round irises (dark brown, with a black pupil and a tiny highlight), drawn alone, about the size of the eye whites.
-4. Three mouths alone, same size as on the face, skin around them included: closed, half-open (teeth slightly visible), wide open (dark inside, tongue visible).
+4. Three mouths alone, cut from the SAME face at the same size and position as on the head: each mouth piece shows EVERYTHING that is around the mouth on the head exactly the same (moustache, beard, stubble, chin tattoo, wrinkles, nose tip), only the lips change: closed, half-open (teeth slightly visible), wide open (dark inside, tongue visible). A moustache or beard must NEVER be missing from the mouth pieces.
 Bottom row:
 5. Torso from the waist up WITH the neck attached at the top, NO head, the neck top cut flat; arms hanging down relaxed, hands not visible (cut at the bottom edge). Front view, the same width as the head would need.
 Skin color must be identical on the head, mouths and neck.
