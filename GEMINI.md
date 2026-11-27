@@ -13,18 +13,18 @@ Bu dosyayı Gemini (Antigravity ya da Gemini CLI) her oturumun başında okur. C
 **Yapar**
 - `gorsel-istekleri/durum.md` tablosunda durumu `istek` olan kalemleri sırayla üretir.
 - Her resmi tablodaki dosya adıyla, `varliklar/gorsel/` altına koyar.
-- Ürettiği satırın durumunu `üretildi` yapar; not düşmek isterse "Gemini notu" sütununa yazar.
+- Ürettiklerini, kotasını ve sorularını `yazisma/gemini.md`'ye yazar (`durum.md`'yi Claude günceller).
 - Ham resmi de saklar: `varliklar/gorsel/ham/<aynı yol>` (arka planı silinmemiş, kırpılmamış hâli). Claude gerekirse kendisi yeniden işler.
 
 **Yapmaz**
-- Oyun kodu yazmaz, değiştirmez. Depodaki hiçbir `.js`, `.html`, `.css`, `.md` dosyasına dokunmaz (yalnızca `gorsel-istekleri/durum.md` istisna).
+- Oyun kodu yazmaz, değiştirmez. Depodaki hiçbir `.js`, `.html`, `.css`, `.md` dosyasına dokunmaz (yalnızca `yazisma/gemini.md` istisna).
 - Oyunun konusunu, yerini, zamanını, kişilerini, mekânlarını değiştirmez. Bunlar `PLAN.md`, `NOTLAR.md`, `KOY-HALKI.md` içinde sabittir.
-- `durum.md`'de `kabul` ya da `ret` yazmaz; onları Claude yazar.
+- `gorsel-istekleri/durum.md`'yi değiştirmez; onu yalnızca Claude günceller.
 
 ## Teslim yolu (git)
 
 1. `claude/nifty-hypatia-6t4ipq` dalından `gemini-gorsel` adlı dal açar (varsa günceller: `git pull origin claude/nifty-hypatia-6t4ipq`).
-2. Yalnızca `varliklar/gorsel/**` ve `gorsel-istekleri/durum.md` değişir.
+2. Yalnızca `varliklar/gorsel/**` ve `yazisma/gemini.md` değişir.
 3. `gemini-gorsel` dalına gönderir. Claude oradan alıp birleştirir.
 
 `main2` dalı arşivdir: oradaki ayrı oyun kodu kullanılmayacak. İşe yarayan resimleri Claude zaten aldı.
@@ -67,7 +67,7 @@ Resimler tek tek üretilmez. Her üretimde bir **baskı** (çok parçalı tek re
 | İz nesnesi | 300 px | 4x3 = 12 nesne | 4x3 = 12 nesne |
 | Arayüz parçası | parçanın istenen boyu | duruma göre | duruma göre |
 
-  Baskı istenen boydan küçük gelirse ızgarayı küçült (2x2 yerine 1x2 ya da tek), parçaları sonraki baskıya kaydır ve `durum.md`'nin "Gemini notu" sütununa gelen çözünürlüğü yaz. Büyütünce pikselleşen parça kabul edilmez.
+  Baskı istenen boydan küçük gelirse ızgarayı küçült (2x2 yerine 1x2 ya da tek), parçaları sonraki baskıya kaydır ve gelen çözünürlüğü `yazisma/gemini.md`'ye yaz. Büyütünce pikselleşen parça kabul edilmez.
 - **Izgara kuralları:** parçalar eşit hücrelerde; hücreler arasında geniş düz beyaz boşluk (en az %4); hiçbir şey hücre dışına taşmaz; her hücrede aynı kadraj ve aynı ölçek. Sıra: soldan sağa, yukarıdan aşağı, tablodaki sırayla.
 - **Kareler (göz kapalı, ağız açık):** kişiler tek tek değil, **bütün baskı düzenletilerek** üretilir: "bu baskıdaki herkesin gözlerini kapat". Dört kişi tek üretimde biter.
 - **Küçük resimler ayrıca üretilmez:** karakter simgeleri, defter küçük resimleri gibi her şeyi Claude büyük resimden küçültür.
@@ -75,7 +75,7 @@ Resimler tek tek üretilmez. Her üretimde bir **baskı** (çok parçalı tek re
 
 ## Kota bitince
 
-Üretim hakkı bitince işi bırak ve `gorsel-istekleri/durum.md` en üstündeki **Kota** satırını doldur: hangi baskıda kalındı, hakkın ne zaman yeniden açılacağı (Türkiye saati, `GG.AA.YYYY SS:DD`). Kullanıcıya da aynı saati söyle. Claude bu saati tutar ve kullanıcıya hatırlatır.
+Üretim hakkı bitince işi bırak ve `yazisma/gemini.md`'ye yaz: hangi baskıda kalındı, hakkın ne zaman yeniden açılacağı (Türkiye saati, `GG.AA.YYYY SS:DD`). Claude bu saati tutar ve kullanıcıya hatırlatır.
 
 ## İş listesi
 
@@ -90,6 +90,8 @@ Sıra ve durum: `gorsel-istekleri/durum.md`. Her kalemin ayrıntılı istemi ayn
 | `05-sonlar.md` | Kayıp sahneleri ve pencere sahnesinin katmanları |
 | `06-arayuz.md` | Fotoğraf çerçevesi ve diğer arayüz parçaları |
 
-## Geri bildirim
+## Yazışma
 
-Claude her teslimden sonra `durum.md`'de satırı `kabul` ya da `ret` yapar ve ret sebebini yazar. Reddedilen kalem yeniden `istek` olur.
+Claude ile Gemini birbirine `yazisma/` klasöründen yazar; kullanıcı aracı olmaz. Kurallar `yazisma/README.md` içinde. Gemini her oturumun başında `yazisma/claude.md`'nin son mesajını okur, sonunda `yazisma/gemini.md`'ye yazar.
+
+Claude her teslimden sonra `durum.md`'de baskıyı `kabul` ya da `ret` yapar ve sebebini `yazisma/claude.md`'ye yazar. Reddedilen baskı yeniden `istek` olur.

@@ -1,8 +1,8 @@
 # Görsel iş listesi
 
-**Kota:** — (Gemini doldurur: hangi baskıda kalındı, hak ne zaman açılıyor, Türkiye saati)
+**Kota:** 28.11.2026 02:54'te açılıyor (kullanıcıdan). Güncel bilgi `yazisma/gemini.md`'de.
 
-Gemini her oturumda bu tabloya bakar, `istek` durumundaki baskıları sırayla üretir ve `üretildi` yapar. `kabul` ve `ret` yazan yalnızca Claude'dur. Baskı kuralları (çözünürlük, ızgara, parça boyu) `GEMINI.md` içinde. Yollar `varliklar/gorsel/` altındadır; istemler "İstem" sütunundaki numaralı dosyadadır.
+Gemini her oturumda bu tabloya bakar, `istek` durumundaki baskıları sırayla üretir ve teslimi `yazisma/gemini.md`'ye yazar. Bu tabloyu yalnızca Claude günceller (`üretildi`, `kabul`, `ret`). Baskı kuralları (çözünürlük, ızgara, parça boyu) `GEMINI.md` içinde. Yollar `varliklar/gorsel/` altındadır; istemler "İstem" sütunundaki numaralı dosyadadır.
 
 Durumlar: `istek` (üret), `sırada` (henüz üretme), `beklemede` (karar bekleniyor), `üretildi` (Claude bakacak), `kabul`, `ret` (sebep notta; düzeltip yeniden üret).
 
