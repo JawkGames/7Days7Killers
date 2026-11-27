@@ -11,6 +11,7 @@ Light: one small dim warm light from the upper left. The right side of the face 
 Palette: muted, dirty, desaturated: moldy green #2B352C, bruise purple #35273B, dirty yellow #D4B062, earth browns, faded wool colors. Skin is a warm sunburnt olive tone with a shadow tone of the same hue. No saturated colors, no pure white (lightest tone is off-white #E8DFC8).
 Aging: a light worn-paper texture over every part: faint grain, tiny specks and scratches, a few small torn or chipped spots on the ink lines, as if the drawing was printed on old cheap paper. Subtle, it must not hide the face.
 Face: realistic adult features, natural nose and lips, tired serious expression, mouth closed and neutral, eyebrows thick ink strokes.
+Hair, beard, moustache, eyebrows and stubble: drawn with MANY fine individual ink strokes, strand by strand, each strand visible, grey and white strands mixed in where the age fits; never a flat filled shape. Skin: dense fine ink texture lines (wrinkles, pores, crow's feet, forehead lines) all over the face, like a detailed old engraving.
 
 SHEET (fixed layout, do not change):
 One single image, pure flat black background #000000, no shadow on the background, no text, no labels, no frame, no watermark. All parts separated by wide black gaps, nothing touches or overlaps, everything at the same scale and same lighting.
