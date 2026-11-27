@@ -61,3 +61,17 @@ main2'deki iki kalabalık resmi reddedildi: fötr şapkalı Avrupa kalabalığı
 | `varliklar/gorsel/pencere/kalabalik-ofke.png` | 1920x1080, saydam | Öfkeli köylü kalabalığı, aynı bakış açısından: aba, şalvar, kasket, poşu, yemeni; meşale, dirgen, tırpan, orak; kollar havada, bağıran ama yüzü seçilmeyen silüetler. Kalabalık resmin alt yarısında. |
 | `varliklar/gorsel/pencere/kalabalik-cosku.png` | 1920x1080, saydam | Aynı kalabalık, coşkulu: gaz fenerleri, havaya kalkan kollar, havaya atılan kasket, rahatlamış duruş. Aynı yerleşim ve boyut. |
 | `varliklar/gorsel/pencere/oda.png` | 1920x1080, saydam pencere boşluğu | İçeriden bakış: solda büyük ahşap doğramalı pencere (cam kısmı saydam bırakılır), karanlık oda, sağda müfettişin arkadan silüeti: uzun palto, fötr şapka, belden aşağısı masanın arkasında. |
+
+## Baskı istemi (kayıp sahneleri, 4 sahne tek resimde)
+
+```text
+A 2x2 sheet of four separate quiet, sorrowful 16:9 scenes for a dark detective game set in a village near Gaziantep, Turkey, in 1943. Match the attached style reference exactly.
+In each, someone is gone and the place shows it. Any people present are dark silhouettes with faces hidden, still; no hands in close-up, no legs in motion. One light source, deep shadows, much empty space.
+Top-left: <A>
+Top-right: <B>
+Bottom-left: <C>
+Bottom-right: <D>
+Thin white gutters between the cells. Highest resolution available (4K if possible). No text, no labels, no frame.
+```
+
+Pencere katmanları birbirine oturmak zorunda olduğu için baskı yapılmaz; her biri tek resim. Coşkulu kalabalık, öfkeli kalabalık resmi düzenletilerek yapılır (yerleşim ve boyut aynı kalsın).

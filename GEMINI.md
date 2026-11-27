@@ -52,6 +52,31 @@ Bu dosyayı Gemini (Antigravity ya da Gemini CLI) her oturumun başında okur. C
 - **Yasaklar:** yazı, imza, filigran, çerçeve yok (istekte ayrıca istenmedikçe). Yakın plan el yok. Bacak ve ayak görünmez. Modern hiçbir şey yok (elektrik direği, plastik, fermuar, lastik taban).
 - **Dosya adı:** tablodaki ad, aynen. Küçük harf, Türkçe karakter yok, boşluk yerine tire.
 
+## Toplu üretim (baskı): kotayı korumak için
+
+Resimler tek tek üretilmez. Her üretimde bir **baskı** (çok parçalı tek resim) istenir; parçaları Claude keser. Böylece aynı kotayla birkaç kat fazla resim çıkar ve aynı baskıdaki parçalar birbirine daha tutarlı olur.
+
+- **Hangi baskı:** `gorsel-istekleri/durum.md` tablosu baskılar hâlinde yazılıdır (B01, B02...). Her baskının içindeki parçalar, sırası ve ızgarası orada.
+- **Çözünürlük:** her baskı, aracın verebildiği **en yüksek çözünürlükte** istenir (4K verebiliyorsa 4K).
+- **Izgara sayısını çözünürlük belirler.** Kesilen her parça en az şu boyda olmalı:
+
+| Tür | Bir parçanın en az boyu | 4K baskıda | 2K baskıda |
+| --- | --- | --- | --- |
+| Köylü portresi (sorgu odasında büyük görünür) | 1000 px yükseklik | 2x2 = 4 kişi | 1 kişi (2x2 yapma) |
+| Olay yeri, kayıp sahnesi, pencere katmanı (tam ekran) | 1600 px genişlik | 2x2 = 4 sahne | 1 sahne |
+| İz nesnesi | 300 px | 4x3 = 12 nesne | 4x3 = 12 nesne |
+| Arayüz parçası | parçanın istenen boyu | duruma göre | duruma göre |
+
+  Baskı istenen boydan küçük gelirse ızgarayı küçült (2x2 yerine 1x2 ya da tek), parçaları sonraki baskıya kaydır ve `durum.md`'nin "Gemini notu" sütununa gelen çözünürlüğü yaz. Büyütünce pikselleşen parça kabul edilmez.
+- **Izgara kuralları:** parçalar eşit hücrelerde; hücreler arasında geniş düz beyaz boşluk (en az %4); hiçbir şey hücre dışına taşmaz; her hücrede aynı kadraj ve aynı ölçek. Sıra: soldan sağa, yukarıdan aşağı, tablodaki sırayla.
+- **Kareler (göz kapalı, ağız açık):** kişiler tek tek değil, **bütün baskı düzenletilerek** üretilir: "bu baskıdaki herkesin gözlerini kapat". Dört kişi tek üretimde biter.
+- **Küçük resimler ayrıca üretilmez:** karakter simgeleri, defter küçük resimleri gibi her şeyi Claude büyük resimden küçültür.
+- **Teslim:** baskının kendisi `varliklar/gorsel/baski/<baskı kimliği>.png` (ya da `.webp`) olarak konur. Kesmek isteğe bağlı; kesersen parçaları tablodaki adlarla koy. Claude her hâlde baskıdan kendisi de keser.
+
+## Kota bitince
+
+Üretim hakkı bitince işi bırak ve `gorsel-istekleri/durum.md` en üstündeki **Kota** satırını doldur: hangi baskıda kalındı, hakkın ne zaman yeniden açılacağı (Türkiye saati, `GG.AA.YYYY SS:DD`). Kullanıcıya da aynı saati söyle. Claude bu saati tutar ve kullanıcıya hatırlatır.
+
 ## İş listesi
 
 Sıra ve durum: `gorsel-istekleri/durum.md`. Her kalemin ayrıntılı istemi aynı klasördeki konu dosyalarındadır:

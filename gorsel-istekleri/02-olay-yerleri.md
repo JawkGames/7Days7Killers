@@ -12,7 +12,7 @@ Tarz için `varliklar/gorsel/tarz/ornek-mekan.webp` (main2'deki değirmen) refer
 - **Işık:** tek kaynak (pencere, kapı, gök ya da lamba). Karanlık ama okunur; orta tonlar açık.
 - **Dosya:** `varliklar/gorsel/mekanlar/<kimlik>.webp`
 
-## Ortak istem kalıbı
+## Tek resim istemi (yalnızca baskı mümkün değilse)
 
 ```text
 Empty crime-scene location for a dark detective game set in a village near Gaziantep, Turkey, in 1943. Match the attached style reference exactly: thick trembling black ink lines, hatching, muted dirty palette.
@@ -47,3 +47,15 @@ One light source; dark but readable.
 | `sultan-evi` | A very old woman's crumbling room: a sagging ceiling beam propped with a post, plaster fallen off showing stone, a dark half-open door to a shed, milk bowls on the floor (one overturned), an old chest, brushwood. Daylight through a hole in the roof. |
 | `ebe-evi` | A midwife's room at night: bundles of dried herbs hanging upside down from a pole, a shelf with bottles and a lit oil lamp, an arched hearth with a copper cauldron, a bronze mortar, a low birthing stool. |
 | `irgat-evi` | A poor labourer's home for seven: a reed mat with a low round floor table, wooden spoons and bowls, a tall stack of folded floor mattresses, a covered cradle, a small window half-covered with a patched cloth. Dim but readable. |
+
+## Baskı istemi (4 mekân tek resimde)
+
+```text
+A 2x2 sheet of four separate empty crime-scene locations for a dark detective game set in a village near Gaziantep, Turkey, in 1943. Match the attached style reference exactly.
+Each cell is a 16:9 picture; standing eye height looking slightly down; the floor or ground fills the lower half and is clearly visible and empty. Completely empty: no people, no body, no animals, no blood, no evidence. One light source each; dark but readable.
+Top-left: <A>
+Top-right: <B>
+Bottom-left: <C>
+Bottom-right: <D>
+Thin white gutters between the cells. Highest resolution available (4K if possible). No text, no labels, no frame.
+```

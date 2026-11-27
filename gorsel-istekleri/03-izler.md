@@ -80,3 +80,12 @@ Seen from above at about 45 degrees, lying on the ground, centered, no cast shad
 | `kece-tuyu` | a tuft of grey felt fibres |
 | `kan-lekesi` | a dark dried blood stain on the ground, irregular, not cartoonish |
 | `kan-damlalari` | a few dark dried blood drops in a short trail |
+
+## Baskı istemi (12 nesne tek resimde)
+
+```text
+A 4x3 sheet of twelve separate objects for a dark detective game set in a village near Gaziantep, Turkey, in 1943, each to be placed on the floor of a crime scene. Match the attached style reference exactly (thick trembling ink outline, hatching, muted palette).
+Each object seen from above at about 45 degrees, lying on the ground, centered in its own cell, no cast shadow, true relative scale (small objects stay small).
+In order, left to right, top to bottom: <1>, <2>, <3>, <4>, <5>, <6>, <7>, <8>, <9>, <10>, <11>, <12>.
+Plain flat white background, wide white gutters, nothing crosses a cell border. Highest resolution available. No text, no labels.
+```

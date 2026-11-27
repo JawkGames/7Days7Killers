@@ -10,7 +10,7 @@ Her köylüden üç resim: temel portre, göz kapalı, ağız açık. Kim oldukl
 - **Dosyalar:** `varliklar/gorsel/kisiler/<kimlik>/temel.png`, `goz-kapali.png`, `agiz-acik.png`.
 - **Kareler:** `goz-kapali` ve `agiz-acik` sıfırdan çizilmez; `temel` resmi düzenletilerek üretilir. Yüz, saç, giysi, ışık ve konum birebir aynı kalmalı; yalnızca gözler ya da ağız değişir. Yüz başka birine dönüşürse o kare yeniden üretilir.
 
-## Ortak istem kalıbı
+## Tek resim istemi (yalnızca baskı mümkün değilse)
 
 `<KİŞİ>` yerine aşağıdaki tablodan o kişinin satırını koy:
 
@@ -62,3 +62,27 @@ Edit this exact image. Keep everything identical (face, hair, clothes, light, po
 | `ismail` | İsmail Uçar, a day labourer ("Irgat İsmail"), 38. Narrow long face, hollow cheeks and temples, large anxious eyes, brows raised at the inner ends, thin neck. A checked cloth head wrap (poşu) knotted at the side. Patched old aba. |
 | `emine` | Emine Uçar, İsmail's wife, a maid at the landlord's house, 34. Wide tired face, heavy-lidded eyes, dark circles, a loose strand of hair escaping. Yellow headscarf tied at the back of the neck, a plain long dress. |
 | `suleyman` | Süleyman Aydın, the travelling peddler ("Çerçi"), 49. Round face, full cheeks, big nose, a sly smile with one corner higher, squinting friendly-cunning eyes, greying moustache. Brown flat cap, worn brown overcoat over a waistcoat. |
+
+## Baskı istemi (4 kişi tek resimde)
+
+Kişiler tek tek değil, `durum.md`'deki baskılar hâlinde üretilir. `<A>`…`<D>` yerine baskıdaki dört kişinin satırları sırayla konur:
+
+```text
+A 2x2 character sheet of four separate portraits for a dark detective game set in a village near Gaziantep, Turkey, in 1943. Match the attached style reference exactly: thick trembling black ink outlines, hatched shadows, semi-realistic proportions, muted dirty palette.
+Every cell has identical framing and scale: head to waist, upright, face toward the viewer, eyes looking at the viewer, top of the head 8% below the cell top, chin about 45% down the cell, centered. Mouth closed. Hands not visible. One warm oil-lamp light from the upper left; right half of each face in shadow.
+Top-left: <A>
+Top-right: <B>
+Bottom-left: <C>
+Bottom-right: <D>
+Plain flat white background, wide white gutters between the cells, nothing crosses a cell border. Highest resolution available. No text, no labels, no frame.
+```
+
+Göz kapalı ve ağız açık baskıları, temel baskı düzenletilerek yapılır:
+
+```text
+Edit this exact sheet. Keep everything identical (faces, hair, clothes, light, positions, sizes). Only close the eyes of all four people naturally, relaxed eyelids.
+```
+
+```text
+Edit this exact sheet. Keep everything identical (faces, hair, clothes, light, positions, sizes). Only open the mouth of all four people naturally as if saying "a", dark mouth interior, a hint of teeth.
+```
