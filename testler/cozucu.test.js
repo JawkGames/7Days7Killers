@@ -162,7 +162,8 @@ describe('kalite eleği: 100 tohum',()=>{
       expect(v.kalite.zorluk).toEqual(r.zorluk);
     }
     expect(gecen).toBe(100);
-    expect(ilk).toBeGreaterThan(50); // ilk denemede geçenler yarıdan çok
+    // Zorluk ayarıyla "çok kolay" eşiği sıkılaştı; ilk denemede geçen pay düştü, yeniden denemeyle hepsi geçiyor.
+    expect(ilk).toBeGreaterThan(10);
   },120000);
   it('elek kapatılınca ilk deneme döner ve rapor yine yazılır',()=>{
     const v=vakaUret(3,KOY,{elek:false});
