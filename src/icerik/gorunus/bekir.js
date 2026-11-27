@@ -1,5 +1,5 @@
 // Bekir Usta (Bekir Çelik, 47): köyün demircisi ve nalbandı. Oğlundan söz açılınca susar. Sakin.
-// İri, geniş, kare yüz; kalın boyun; geniş burun; yumuşak, uçları hafif inik kaş; kömür izli yanık ten; kalın bıyık, kısa sakal; takke; yanık izli deri önlük.
+// Demirhanenin isi yüzünde ve önlüğünde (toz: is). İri, geniş, kare yüz; kalın boyun; geniş burun; yumuşak, uçları hafif inik kaş; kömür izli yanık ten; kalın bıyık, kısa sakal; takke; yanık izli deri önlük.
 // Oğlu Yusuf'a geniş burnunu, kare çenesini ve göz aralığını verdi.
 export default {
   id:'bekir', cinsiyet:'E', yas:47,
@@ -11,7 +11,8 @@ export default {
   sac:{bicim:'kisa', cizgi:-122},
   sakal:{bicim:'kisa', boy:.9}, biyik:{bicim:'kalin'},
   baslik:{tur:'takke', renk:'#5a5444'},
-  ortu:'onluk', giysi:{renk:'#4a3524', ic:'gomlek', icRenk:'#4c4536'},
+  toz:{tur:'is', yuz:.75, giysi:.6, sac:0},
+  ortu:'onluk', giysi:{onluk:'deri', renk:'#4a3524', ic:'gomlek', icRenk:'#4c4536'},
   omuz:1.25,
   boy:1.05, iri:1.08
 };

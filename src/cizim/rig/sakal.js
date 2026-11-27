@@ -100,10 +100,11 @@ function kirliOzel(mx,dy){
 }
 
 const DUSME={ince:0, kalin:6, pala:34};
-export function biyik(mx){
+export function biyik(mx,yUst){
   const Y=G.yuz, R=G.renk, B=G.biyik, k=poz.kaynama;
   const ince=B.bicim==='ince', d=DUSME[B.bicim]||0, cy=152-poz.agiz*5;
   const burunAlti=(Y.burunBoy===1?112:-14+126*Y.burunBoy)-(Y.boy-1)*152-(Y.burunBoy-1)*60-Y.agizY;
+  if(G.ozel&&yUst!=null&&(ince||B.yukseklik!=null||B.kalin!=null)) return biyikAyarli(mx,yUst,cy,burunAlti,d);
   const ust=ince?cy-11:Math.min(burunAlti+3,cy-12), W=(ince?50:60)*Y.dudakEn, alt=ince?cy-1:cy+3;
   const yol=()=>{
     c.moveTo(mx,ust+3); c.bezierCurveTo(mx-26,ust-3,mx-W*.8,ust+4,mx-W,alt+d-2);
@@ -121,4 +122,32 @@ export function biyik(mx){
     yon:x=>x<mx?Math.PI*.5+.75:Math.PI*.5-.75,dag:.4,kivrim:.3,seed:81,acik:.22,parlak:.7});
   titrek(()=>{c.moveTo(mx-W,alt+d-2); c.bezierCurveTo(mx-W*.9,alt+d*.5,mx-W*.5,alt,mx,alt-1); c.bezierCurveTo(mx+W*.5,alt,mx+W*.9,alt+d*.5,mx+W,alt+d-2);},PAL.murekkep,.55,1.3,730+k,2,1.6);
   leke(mx,alt+4,W*.8,5,PAL.siyah,.35); // bıyığın dudağa düşen gölgesi
+}
+
+/* yeni yol: dudaktan yüksekliği ve kalınlığı ayarlanan bıyık. yUst: üst dudağın en açık ağızdaki üst kenarı.
+   ince: kalem bıyık. Üst dudağın üstünde, arada ten görünür; ortada filtrum boşluğu, uçlar incelir.
+   kalin/pala: biyik.yukseklik verilirse alt kenar dudağın o kadar üstünde biter; biyik.kalin dikey kalınlığı çarpar. */
+function biyikAyarli(mx,yUst,cy,burunAlti,d){
+  const Y=G.yuz, R=G.renk, B=G.biyik, k=poz.kaynama, kal=B.kalin==null?1:B.kalin, ince=B.bicim==='ince';
+  if(ince){
+    const alt=yUst-(B.yukseklik==null?5:B.yukseklik), ust=Math.max(alt-7*kal,burunAlti+2), W=44*Y.dudakEn;
+    const yarim=(p,s)=>{p.moveTo(mx+s*3.5,ust+1.5); p.quadraticCurveTo(mx+s*W*.45,ust-1,mx+s*W,alt-1+d*.3);
+      p.quadraticCurveTo(mx+s*W*.6,alt+.5,mx+s*3.5,alt); p.closePath();};
+    const yol=p=>{yarim(p,-1); yarim(p,1);};
+    c.save(); c.translate(1,3); c.fillStyle=rgba(R.tenDerin,.3); c.beginPath(); yol(c); c.fill(); c.restore(); // dudağa düşen ince gölge
+    c.fillStyle=rgba(karistir(R.sacKoyu,R.sac,.3),.82); c.beginPath(); yol(c); c.fill();
+    lifKutle(yol,[mx-W,ust-2,mx+W,alt+1],{renk:R.sac,koyu:karistir(R.sacKoyu,[0,0,0],.3),isik:R.sacIsik,n:150,boy:6,
+      yon:x=>x<mx?Math.PI*.5+1.15:Math.PI*.5-1.15,dag:.3,kivrim:.2,seed:83,acik:.2,parlak:.5,taban:.6});
+    titrek(()=>{for(const s of[-1,1]){c.moveTo(mx+s*W,alt-1+d*.3); c.quadraticCurveTo(mx+s*W*.6,alt+.5,mx+s*3.5,alt);}},PAL.murekkep,.5,1.1,732+k,2,1);
+    return;
+  }
+  let alt=B.yukseklik==null?cy+3:yUst-B.yukseklik, ust=Math.min(burunAlti+3,cy-12);
+  ust=Math.max(alt-(alt-ust)*kal,burunAlti-4);
+  const W=60*Y.dudakEn;
+  const yolP=p=>{p.moveTo(mx,ust+3); p.bezierCurveTo(mx-26,ust-3,mx-W*.8,ust+4,mx-W,alt+d-2); p.bezierCurveTo(mx-W*.9,alt+d*.5,mx-W*.5,alt,mx,alt-1);
+    p.bezierCurveTo(mx+W*.5,alt,mx+W*.9,alt+d*.5,mx+W,alt+d-2); p.bezierCurveTo(mx+W*.8,ust+4,mx+26,ust-3,mx,ust+3); p.closePath();};
+  lifKutle(yolP,[mx-W,ust-4,mx+W,alt+d],{renk:R.sac,koyu:karistir(R.sacKoyu,[0,0,0],.3),isik:R.sacIsik,n:Math.round(340*Math.min(1.4,kal)),boy:17,
+    yon:x=>x<mx?Math.PI*.5+.85:Math.PI*.5-.85,dag:.45,kivrim:.35,seed:81,acik:.24,parlak:.7,taban:1.1});
+  titrek(()=>{c.moveTo(mx-W,alt+d-2); c.bezierCurveTo(mx-W*.9,alt+d*.5,mx-W*.5,alt,mx,alt-1); c.bezierCurveTo(mx+W*.5,alt,mx+W*.9,alt+d*.5,mx+W,alt+d-2);},PAL.murekkep,.55,1.3,730+k,2,1.6);
+  leke(mx,alt+4,W*.8,5,PAL.siyah,.35);
 }

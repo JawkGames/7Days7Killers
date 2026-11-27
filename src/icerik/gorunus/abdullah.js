@@ -8,7 +8,7 @@ export default {
   yasIzi:{kirisik:.6, gozAlti:1.2, cokukYanak:.6, kirSac:.92, lekeler:.4},
   sac:{bicim:'kisa', cizgi:-124},
   sakal:{bicim:'uzun', boy:1.2}, biyik:{bicim:'kalin'},
-  baslik:{tur:'sarik', renk:'#bab29a'},
+  baslik:{tur:'sarik', renk:'#a49c86', tepeRenk:'#6a5a44'},
   ortu:'cubbe', giysi:{renk:'#2b2822', ic:'gomlek', icRenk:'#8c8672'},
   omuz:1.02,
   boy:1.01, iri:1.0

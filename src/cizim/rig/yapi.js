@@ -18,20 +18,26 @@ export function kimlikTohum(){let h=17; for(const ch of G.id) h=(h*31+ch.charCod
 // yüz silüetinin noktaları (sağ yan; sol yan aynası). Başlığın yüz penceresi de bunları kullanır.
 export function yuzNoktalari(){
   const Y=G.yuz, P=G.yapi, e=Y.en, m=e*Y.elmacik, j=e*Y.cene, ju=e*Y.ceneUc, b=Y.boy, u=Y.alin;
-  const sk=P.sakak*8, km=P.kemik*6, sr=P.sarkik, ko=G.cinsiyet==='E'?P.kemik:0, dl=P.dolgun;
+  const t=P.tombul||0, sr=P.sarkik, gd=gidi(), sk=P.sakak*8, km=P.kemik*6, dl=P.dolgun;
+  const ko=(G.cinsiyet==='E'?P.kemik:0)*(1-t*.7); // tombul yüzde çene köşesi yumuşar
+  // çene kemiği ve çene ucu genişliği silüete doğrudan yazılır (cene/ceneUc 1'den saptıkça)
+  // geniş çene köşesi aşağıda ve köşeli, dar çene yukarıda ve sivri; köşe hiçbir zaman elmacıktan geniş olmaz (kutu kafa olmasın)
+  const cg=(Y.cene-1)*50, ug=(Y.ceneUc-1)*30*e, ust=(161*m+km)*.95;
   // yuvarlak çene (varsayılan biçim) ile köşeli çene (düz çene hattı, çukur yanak) arasında ko oranında geçiş
-  const L=(a,b2,t)=>a+(b2-a)*t;
-  const kose=[118*j+sr*7+ko*8,(140+sr*10+ko*14)*b], ucN=[32*ju+ko*10,(215+sr*5)*b];
-  const yuvC1=[100*j+sr*9,(178+sr*18)*b], yuvC2=[64*ju+sr*4,(206+sr*12)*b];
+  const L=(a,b2,t2)=>a+(b2-a)*t2;
+  const kose=[Math.min(118*j+sr*7+ko*8+t*12,ust+t*10),(140+sr*10+ko*14+t*22+cg)*b], ucN=[32*ju+ko*6+ug+t*8,(215+sr*5+gd*20)*b];
+  const yuvC1=[Math.min(100*j,ust*.86)+sr*9+t*22,(178+sr*18+t*14+cg*.5)*b], yuvC2=[64*ju+sr*4+ug*.8+t*14+gd*22,(206+sr*12+gd*20)*b];
   const duzC1=[L(kose[0],ucN[0],.38)+4,L(kose[1],ucN[1],.38)+6], duzC2=[L(kose[0],ucN[0],.74)+2,L(kose[1],ucN[1],.74)+4];
   return {
     alin:[[95*e,-202*u],[152*e-sk*.6,-150*u],[158*e-sk,-50*u]],
-    // yanak: genç ve dolguda yuvarlak, kemikli yüzde elmacıkta çıkıntı ve altında çukur, erkekte köşeli çene açısı
-    yanak:[[161*m+km+dl*3,(20-ko*14)*b],[L(146*m+dl*6,136*m,ko),(88+ko*16)*b],kose],
+    // yanak: genç ve dolguda yuvarlak, kemikli yüzde elmacıkta çıkıntı ve altında çukur, erkekte köşeli çene açısı; tombulda alt yanak dışa taşar
+    yanak:[[161*m+km+dl*3+t*8,(20-ko*14)*b],[L(146*m+dl*6,136*m,ko)+t*28,(88+ko*16+t*10)*b],kose],
     cene:[[L(yuvC1[0],duzC1[0],ko),L(yuvC1[1],duzC1[1],ko)],[L(yuvC2[0],duzC2[0],ko),L(yuvC2[1],duzC2[1],ko)],ucN],
-    uc:[[L(13*ju,18*ju,ko),(220+sr*5-ko*2)*b]]
+    uc:[[L(13*ju,18*ju,ko)+ug*.5+gd*10,(220+sr*5-ko*2+gd*20)*b]]
   };
 }
+// gıdı (çift çene) miktarı: sarkma, tombullukla büyür; zayıf yaşlıda yalnızca hafif
+export function gidi(){const P=G.yapi; return P.sarkik*(.35+.65*(P.tombul||0));}
 export function yuzYoluOzel(p){
   p=p||c; const N=yuzNoktalari(), [a1,a2,a3]=N.alin, [y1,y2,y3]=N.yanak, [c1,c2,c3]=N.cene, [u1]=N.uc;
   p.moveTo(0,-200*G.yuz.alin);
@@ -84,6 +90,19 @@ export function yapiBoya(fx,fy,mx,dyA){
   // burun-dudak oluğunun ışık yanındaki gölgesi (yaşla)
   const y01=clamp((G.yas-30)/40,0,1);
   if(y01>0) for(const s of[-1,1]) leke(s*(50*e)+mx,150+dyA*.6,12,34,R.tenDerin,(s>0?.4:.3)*y01,s*-.4);
+  // tombul: yanak elması ışık alır, alt yanak ağırlaşır (ağız köşesinin yanında yağ kıvrımı), çene altı dolgun
+  const t=P.tombul||0;
+  if(t>0){
+    leke(-92*e+fx*.4,70*b,52*e,40,R.tenIsik,.22*t*I);
+    for(const s of[-1,1]){ leke(s*118*e,150*b,40,46,R.tenDerin,(s>0?.5:.3)*t); leke(s*84*e,110*b,30,26,[128,82,70],(s<0?.1:.05)*t); }
+  }
+  // gıdı: çene ucunun altında ikinci kabarıklık; üstünde kıvrım gölgesi, altında koyu
+  const gd=gidi();
+  if(gd>.05){
+    leke(0,(218+gd*6)*b,64*e,9,R.tenDerin,.6*Math.min(1,gd*1.5));
+    leke(-26,(232+gd*14)*b,56*e,13,R.tenIsik,.42*Math.min(1,gd*1.5)*I);
+    leke(30,(244+gd*20)*b,90*e,16,R.tenDerin,.6*gd);
+  }
   // çene altı sarkması: çene hattının altında gıdı, yanlarda düşük yanak
   if(P.sarkik>0){
     for(const s of[-1,1]) leke(s*92*e,196*b,40,26,R.tenDerin,(s>0?.55:.35)*P.sarkik,s*.4);
@@ -130,7 +149,12 @@ export function yapiHat(fx,mx,dyA){
   titrek(()=>{c.moveTo(mx-7,116+dyA*.5); c.lineTo(mx-9,136+dyA*.8); c.moveTo(mx+8,116+dyA*.5); c.lineTo(mx+9,136+dyA*.8);},PAL.murekkep,.22,1,519+k,2,1.2);
   titrek(()=>{c.moveTo(mx-22,198+dyA); c.quadraticCurveTo(mx,206+dyA,mx+24,197+dyA);},PAL.murekkep,.22+.25*y01,1.2,520+k,2,1.4);
   // sarkık gıdı hattı
-  if(P.sarkik>.2) titrek(()=>{c.moveTo(-70*e,228*b); c.quadraticCurveTo(0,252*b+P.sarkik*8,74*e,226*b);},PAL.murekkep,.4*P.sarkik,1.3,521+k,2,2);
+  const gd=gidi();
+  if(gd>.12) titrek(()=>{c.moveTo(-44*e,(214+gd*4)*b); c.quadraticCurveTo(0,(228+gd*8)*b,46*e,(212+gd*4)*b);},PAL.murekkep,.7*Math.min(1,gd*1.8),1.6,521+k,2,1.8); // çene ucunun altındaki kıvrım
+  else if(P.sarkik>.2) titrek(()=>{c.moveTo(-70*e,228*b); c.quadraticCurveTo(0,252*b+P.sarkik*8,74*e,226*b);},PAL.murekkep,.4*P.sarkik,1.3,521+k,2,2);
+  // tombul: ağız köşesinin dışında, alt yanağın ağırlığını veren yay
+  const t=P.tombul||0;
+  if(t>.2) for(const s of[-1,1]) titrek(()=>{c.moveTo(s*(70+t*8)*e+mx*.5,120+dyA*.5); c.quadraticCurveTo(s*(88+t*10)*e,165+dyA,s*(70+t*6)*e,206*b);},PAL.murekkep,(s>0?.35:.25)*t,1.2,525+s+k,2,1.8);
   // erkek: köşeli çene açısının altında koyu vurgu
   if(G.cinsiyet==='E'&&!sakalli) titrek(()=>{c.moveTo(108*e,150*b); c.quadraticCurveTo(100*e,186*b,64*e,212*b);},PAL.murekkep,.45,2.2,522+k,2,1.8);
 }
@@ -155,6 +179,14 @@ export function gozAki(){
    Oturan figürde boyun her %1'i başı 7 birim yukarı kaldırır (gövde de birlikte); iri: bütün figürün ölçeği (.94-1.08),
    baş merkezi çevresinde. İkisi de 1 ise hiçbir dönüşüm yapılmaz (varsayılan kadın birebir aynı kalır). */
 export const KAFA_Y=470, BOY_BIRIM=700; // KAFA_Y: sahnenin OLCU.kafaY'si (gövde bu koordinatlarda çizilir)
+/* Baş ölçeği (yalnızca yeni yol): baş, çenenin altındaki boyun noktası çevresinde küçülür; boyun ve omuz yerinde kalır.
+   Gövdeye göre "balon" gibi duran başı toplar. G.bas: verilmezse erkekte .95, kadında .97. */
+const BAS_MERKEZ=215;
+export function basDonusumu(){
+  if(!G.ozel||G.bas===1) return false;
+  c.save(); c.translate(0,BAS_MERKEZ); c.scale(G.bas,G.bas); c.translate(0,-BAS_MERKEZ);
+  return true;
+}
 export function figurDonusumu(govdeMi){
   if(G.boy===1&&G.iri===1) return false;
   const d=(G.boy-1)*BOY_BIRIM, s=G.iri;

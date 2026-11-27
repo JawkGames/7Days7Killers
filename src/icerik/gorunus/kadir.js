@@ -1,6 +1,6 @@
 // Kâhya (Kadir Bozkurt, 43): ağanın sağ kolu. Irgatı o çalıştırır, borcu o toplar. Sert.
 // Geniş, kare yüz, basık alın; birbirine yakın, dar ve çatık gözler; çok gür kaşlar; pala bıyık, kirli sakal;
-// kalın boğa boynu; kısa kesilmiş kara saç, başı açık; koyu aba, altında yelek.
+// kavgada kırılmış, kemeri çıkıntılı, ucu yana kaymış burun; kalın boğa boynu; kısa kesilmiş kara saç, başı açık; koyu aba, altında yelek.
 export default {
   id:'kadir', cinsiyet:'E', yas:43,
   yuz:{en:1.08, boy:1, alin:.92, elmacik:1.06, cene:1.2, ceneUc:1.2, gozAralik:61, gozEn:.92, gozBoy:.76, gozKapak:.3,
@@ -8,6 +8,8 @@ export default {
   renk:{ten:'#80705a', iris:'#30281e', sac:'#120f0c'},
   yasIzi:{kirisik:.35, gozAlti:.8, cokukYanak:.5, kirSac:.08, lekeler:.1},
   yapi:{kemik:.75},
+  ifade:{agizKose:-.25},
+  iz:[{tur:'kirikBurun', yon:1, guc:1.3}],
   sac:{bicim:'kisa', cizgi:-116},
   sakal:{bicim:'kirli'}, biyik:{bicim:'pala'},
   baslik:{tur:'yok'},

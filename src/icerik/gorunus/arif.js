@@ -1,17 +1,18 @@
 // Bakkal Arif (Arif Tok, 52): köyün tek dükkânı onun; kimin kime ne kadar borcu olduğunu ezbere bilir. Kurnaz.
 // Geniş, yuvarlak, tombul yüz; kel tepe, yanlarda kır saç; kısık gözler, ince kaş, kalın kısa burun, kırlaşmış kalın bıyık, yanaklar tıraşlı;
-// kalın boyun ve gıdı; soluk bez önlük, altında yelek.
+// kalın boyun ve gıdı; soluk bez önlük, altında yelek. Kurnaz: sağ kaşı hep biraz kalkık, ağzının bir köşesi yukarıda.
 export default {
   id:'arif', cinsiyet:'E', yas:52,
   yuz:{en:1.12, boy:.94, alin:1.08, elmacik:.98, cene:1.14, ceneUc:1.02, gozAralik:66, gozEn:.9, gozBoy:.7, gozKapak:.3,
     kasKalin:.85, kasEgim:.04, kasY:-4, burunBoy:.94, burunEn:1.3, dudakEn:1, dudakKalin:.72, agizY:-2, boyun:1.32},
   renk:{ten:'#8f7c64', iris:'#3a2e22', sac:'#2a241c'},
   yasIzi:{kirisik:.72, gozAlti:1, cokukYanak:.25, kirSac:.62, lekeler:.3},
-  yapi:{dolgun:.55, kemik:.08, sarkik:.6, sakak:.1},
+  yapi:{dolgun:.55, kemik:.08, sarkik:.6, sakak:.1, tombul:.8},
+  ifade:{kasSag:-8, agizYan:.35},
   sac:{bicim:'kel'},
     biyik:{bicim:'kalin'},
   baslik:{tur:'yok'},
-  ortu:'onluk', giysi:{renk:'#7a705a', ic:'yelek', icRenk:'#5e5646', yelekRenk:'#2a2620'},
+  ortu:'onluk', giysi:{onluk:'bez', renk:'#7a705a', ic:'yelek', icRenk:'#5e5646', yelekRenk:'#2a2620'},
   omuz:1.08,
   boy:.98, iri:1.04
 };

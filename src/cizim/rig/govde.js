@@ -65,9 +65,12 @@ export function gomlekYaka(yon,koyu,k){
   c.restore();
 }
 
+// yeni yolda erkek boynu biraz daha kalın: baş gövdeye "balon" gibi oturmasın
+const erkekOzel=()=>G.ozel&&G.cinsiyet==='E';
+const boyunEn=()=>erkekOzel()?G.yuz.boyun*1.1:G.yuz.boyun;
 /* boyun: genişlik yuz.boyun ile, alt kenarı iç giysinin yakasına göre (V ya da yuvarlak) */
 function boyun(k,dek,v){
-  const R=G.renk, w=G.yuz.boyun, A=G.yasIzi;
+  const R=G.renk, w=boyunEn(), A=G.yasIzi;
   const yol=w===1&&v?()=>{c.moveTo(-72,620); c.bezierCurveTo(-70,700,-72,752,-94,788); c.lineTo(-58,800); c.lineTo(0,906); c.lineTo(58,800); c.lineTo(94,788); c.bezierCurveTo(72,752,70,700,72,620); c.closePath();}
     :()=>{c.moveTo(-72*w,620); c.bezierCurveTo(-70*w,700,-72*w,752,-94*w,788); c.lineTo(-58*w,800);
       if(v) c.lineTo(0,dek); else c.quadraticCurveTo(0,dek*2-800,58*w,800);
@@ -90,6 +93,19 @@ function boyun(k,dek,v){
     titrek(()=>{c.moveTo(-40*w,690); c.quadraticCurveTo(-30*w,760,-12*w,800); c.moveTo(40*w,690); c.quadraticCurveTo(30*w,760,12*w,800);},PAL.murekkep,.35*a,1.2,360+k,2,1.8);
   }
   if(G.cinsiyet==='E') titrek(()=>{c.moveTo(-6,748); c.quadraticCurveTo(4,758,-2,770);},PAL.murekkep,.4,1.2,361+k,2,1.4); // gırtlak
+  if(G.ozel) boyunKas(k,w);
+}
+
+/* yeni yol: boyun kasları. Kulak arkasından köprücük ortasına inen iki kas (ışık yanında açık bir sırt, gölge yanında koyu),
+   boynun omuza açılan dibinde trapez gölgesi: boyun omuza oturur, çubuk gibi durmaz. */
+function boyunKas(k,w){
+  const R=G.renk, er=G.cinsiyet==='E';
+  c.save(); c.beginPath(); c.moveTo(-72*w,620); c.bezierCurveTo(-70*w,700,-72*w,752,-94*w,788); c.lineTo(94*w,788); c.bezierCurveTo(72*w,752,70*w,700,72*w,620); c.closePath(); c.clip();
+  leke(-40*w,720,14*w,60,R.tenIsik,(er?.2:.12)*poz.isik,-.35); // ışık yanındaki kasın sırtı
+  leke(-58*w,700,16,70,R.tenDerin,.4,-.2); leke(64*w,710,22,80,PAL.siyah,.35,.2);
+  c.restore();
+  titrek(()=>{c.moveTo(-58*w,660); c.quadraticCurveTo(-40*w,730,-14,790); c.moveTo(58*w,660); c.quadraticCurveTo(40*w,730,14,790);},PAL.murekkep,er?.3:.18,1.1,362+k,2,1.6);
+  if(er) titrek(()=>{c.moveTo(-74*w,720); c.quadraticCurveTo(-80*w,764,-104*w,784); c.moveTo(74*w,720); c.quadraticCurveTo(80*w,764,104*w,784);},PAL.murekkep,.35,1.3,363+k,2,1.8); // trapez
 }
 
 /* dış örtü silüeti */
@@ -204,7 +220,7 @@ function palto(k,X,T){
     gomlekYaka(-1,false,k); gomlekYaka(1,true,k);
   } else {
     const acik=()=>{c.moveTo(-150,790); c.lineTo(150,790); c.lineTo(10,1110); c.lineTo(-10,1110); c.closePath();};
-    icCiz(k,acik); boyun(k,836,false); yakaBandi(k,G.yuz.boyun,834,G.giysi.icRenk||IC_RENK.gomlek);
+    icCiz(k,acik); boyun(k,836,false); yakaBandi(k,boyunEn(),834,G.giysi.icRenk||IC_RENK.gomlek);
   }
   yaka(-1,false,k,T); yaka(1,true,k,T);
 }
@@ -219,7 +235,7 @@ function acikOrtu(k,X,T,cubbe){
   const acik=()=>{c.moveTo(-o.boyun,o.y); c.bezierCurveTo(-120,880,-140,1000,-150,1300); c.lineTo(150,1300); c.bezierCurveTo(140,1000,120,880,o.boyun,o.y); c.closePath();};
   icCiz(k,acik);
   boyun(k,836,false);
-  yakaBandi(k,G.yuz.boyun,834,G.giysi.icRenk||IC_RENK.gomlek);
+  yakaBandi(k,boyunEn(),834,G.giysi.icRenk||IC_RENK.gomlek);
   // önün kalın kenarı: içe dönen kumaş
   for(const s of[-1,1]){
     const yol=()=>{c.moveTo(s*o.boyun,o.y); c.bezierCurveTo(s*120,880,s*140,1000,s*150,1300); c.lineTo(s*(cubbe?196:186),1300); c.bezierCurveTo(s*176,1000,s*150,880,s*(o.boyun+30),o.y+4); c.closePath();};
@@ -301,14 +317,14 @@ function entari(k,X,T){
     const acik=()=>{c.moveTo(-o.boyun,o.y); c.bezierCurveTo(-100,900,-96,1000,-92,1300); c.lineTo(92,1300); c.bezierCurveTo(96,1000,100,900,o.boyun,o.y); c.closePath();};
     entariIc(k,acik);
     boyun(k,830,false);
-    yakaBandi(k,G.yuz.boyun,826,hexYaz(karistir(hex(G.giysi.icRenk||IC_RENK.entari),[0,0,0],.2)));
+    yakaBandi(k,boyunEn(),826,hexYaz(karistir(hex(G.giysi.icRenk||IC_RENK.entari),[0,0,0],.2)));
     for(const s of[-1,1]) titrek(()=>{c.moveTo(s*o.boyun,o.y); c.bezierCurveTo(s*100,900,s*96,1000,s*92,1300);},PAL.murekkep,.8,1.6,465+s+k,2,2);
   } else {
     const R=hex(T.ana), D=karistir(R,'#2a1a18',.5), r=rng(470);
     disBoya(()=>silYol(X,o),T,k,X,()=>{for(let i=0;i<500;i++){const x=-400+r()*800, y=780+r()*520, s=2+r()*2; c.fillStyle=rgba(D,.35+r()*.2); c.beginPath(); c.arc(x,y,s,0,TAU); c.fill();}});
     titrek(()=>silKenar(X,o),PAL.murekkep,.9,2,352+k,3,3);
     boyun(k,830,false);
-    yakaBandi(k,G.yuz.boyun,826,hexYaz(karistir(R,[0,0,0],.25)));
+    yakaBandi(k,boyunEn(),826,hexYaz(karistir(R,[0,0,0],.25)));
   }
 }
 function onluk(k,X,T){
@@ -323,11 +339,67 @@ function onluk(k,X,T){
     }
   }
   boyun(k,836,false);
-  yakaBandi(k,G.yuz.boyun,834,hexYaz(IR));
+  yakaBandi(k,boyunEn(),834,hexYaz(IR));
+  if(G.ozel) return onlukOzel(k,X,T,G.giysi.onluk||'bez');
   const A=hex(T.ana);
   const govdeYol=()=>{c.moveTo(-130,930); c.quadraticCurveTo(0,918,130,930); c.lineTo(150,1300); c.lineTo(-150,1300); c.closePath();};
   kumas(govdeYol,[-150,918,150,1300],{renk:A,seed:490,tara:1});
   for(const s of[-1,1]) titrek(()=>{c.moveTo(s*62,790); c.quadraticCurveTo(s*90,860,s*122,932);},karistir(A,[0,0,0],.3),.95,5,495+s+k,2,1.6);
+}
+/* yeni yol: önlük çeşitleri. bez: göğüsten inen soluk bez, cep ve lekeler; un: bezin üstünde un bulutu;
+   deri: göğsü örten kalın deri, kalın boyun kayışı, perçin, parlak sürtünme izi, kıvrım ve yanık izleri. */
+function onlukOzel(k,X,T,tur){
+  const A=hex(T.ana), deri=tur==='deri', ust=deri?866:900, r=rng(486);
+  const yol=()=>{c.moveTo(-(deri?128:116),ust); c.quadraticCurveTo(0,ust-(deri?10:8),deri?128:116,ust); c.bezierCurveTo(deri?140:124,ust+80,deri?168:150,1020,deri?186:166,1080);
+    c.lineTo(deri?196:176,1300); c.lineTo(-(deri?196:176),1300); c.lineTo(-(deri?186:166),1080); c.bezierCurveTo(-(deri?168:150),1020,-(deri?140:124),ust+80,-(deri?128:116),ust); c.closePath();};
+  // önlüğün gömleğe düşen gölgesi
+  c.save(); c.translate(10,8); c.beginPath(); yol(); c.fillStyle='rgba(4,3,5,.45)'; c.filter='blur(6px)'; c.fill(); c.restore();
+  // boyun kayışı / bağı
+  for(const s of[-1,1]){
+    if(deri){
+      const kay=()=>{c.moveTo(s*66,788); c.quadraticCurveTo(s*80,840,s*104,ust+4); c.lineTo(s*84,ust+6); c.quadraticCurveTo(s*62,846,s*52,792); c.closePath();};
+      kumas(kay,[s<0?-104:52,788,s<0?-52:104,ust+6],{renk:karistir(A,[0,0,0],s>0?.45:.2),seed:487+s,tara:.8});
+    } else titrek(()=>{c.moveTo(s*62,790); c.quadraticCurveTo(s*82,846,s*106,ust+2);},karistir(A,[0,0,0],.25),.95,4,495+s+k,2,1.6);
+  }
+  kumas(yol,[-196,ust-10,196,1300],{renk:A,seed:490,tara:deri?1:.8,golge:deri?1:.8,desen:()=>{
+    if(deri){ // deri: sürtünmeden parlayan geniş lekeler ve sert kıvrımlar, yanık izleri
+      leke(-70,960,60,90,karistir(A,'#e8d8b0',.35),.3*poz.isik,-.2); leke(-40,1130,40,70,karistir(A,'#e8d8b0',.3),.22*poz.isik);
+      c.lineCap='round'; for(let i=0;i<7;i++){const x=-120+r()*230, y=930+r()*300; c.strokeStyle=rgba(karistir(A,'#f0e0bc',.4),(.15+r()*.2)*poz.isik*(x<0?1:.4)); c.lineWidth=1.5+r()*2; c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+14,y+20,x+8+r()*16,y+40+r()*30); c.stroke();}
+      kivrimlar([[[-150,1060,-60,1050,60,1068,170,1080],1,.9],[[-100,960,-90,1040,-80,1140,-90,1290],1,.8],[[80,920,90,1020,110,1140,120,1290],1,1]],A,491,.8);
+      for(let i=0;i<5;i++){const x=-110+r()*220, y=960+r()*280, rr=6+r()*12; leke(x,y,rr*1.6,rr*1.3,[14,10,8],.7); leke(x,y,rr*2.4,rr*2,[110,70,40],.18);} // yanık
+    } else { // bez: soluk dokuma, cep, kirli lekeler
+      for(let y=ust;y<1300;y+=5+r()*3){c.strokeStyle=rgba(karistir(A,[0,0,0],.3),.08); c.lineWidth=1; c.beginPath(); c.moveTo(-200,y); c.lineTo(200,y+(r()-.5)*3); c.stroke();}
+      for(let i=0;i<6;i++) leke(-120+r()*240,940+r()*320,10+r()*20,8+r()*14,karistir(A,[40,30,20],.5),.18+r()*.12);
+      kivrimlar([[[-80,ust+20,-90,1000,-100,1140,-110,1290],1,.7],[[60,ust+30,70,1000,90,1150,100,1290],1,.8],[[-10,1080,-6,1160,0,1220,4,1290],1,.5]],A,492,.7);
+    }
+  }});
+  if(deri){ // kenar dikişi ve kayış perçinleri
+    c.save(); c.setLineDash([6,6]);
+    titrek(()=>{c.save(); c.translate(0,6); c.scale(.92,1); yol(); c.restore();},karistir(A,'#d8c8a0',.3),.45,1.2,496+k,1,1);
+    c.restore();
+    for(const s of[-1,1]){dugme(s*96,ust+12,5,k,'#8a7a5a'); leke(s*96-2,ust+10,3,3,hex('#e8dcb8'),.6*poz.isik);}
+  } else { // cep
+    const cep=()=>{c.moveTo(30,1040); c.lineTo(118,1034); c.lineTo(124,1116); c.lineTo(36,1122); c.closePath();};
+    kumas(cep,[30,1034,124,1122],{renk:karistir(A,[0,0,0],.12),seed:497,tara:.7});
+    c.save(); c.setLineDash([4,4]); titrek(()=>{c.moveTo(34,1048); c.lineTo(118,1042);},PAL.murekkep,.4,1,498+k,1,1); c.restore();
+  }
+}
+// un ya da is: dış silüet kırpılmışken, giysinin üstüne
+function giysiTozu(X){
+  const T=G.toz; if(!T||!(T.giysi>0)) return;
+  const o=ORTU[G.ortu]||ORTU.palto, r=rng(499), q=T.giysi;
+  c.save(); c.beginPath(); silYol(X,o); c.clip();
+  if(T.tur==='is'){
+    const D=T.renk?hex(T.renk):[24,20,17];
+    for(let i=0;i<10;i++) leke(-200+r()*400,860+r()*400,20+r()*50,10+r()*30,D,(.2+r()*.25)*q,r()*3);
+  } else {
+    const U=T.renk?hex(T.renk):[222,216,196];
+    leke(X(-200),850,120,40,U,.28*q,-.2); leke(-40,1040,150,120,U,.22*q); leke(90,1180,120,90,U,.2*q); leke(X(260),900,80,40,U,.16*q);
+    for(let i=0;i<1400*q;i++){const x=-380+r()*760, y=790+r()*510; c.fillStyle=rgba(U,.1+r()*.3); c.fillRect(x,y,1+r()*1.8,1+r()*1.8);}
+    // önlükte un sürtmesi: yatay silinmiş izler
+    c.lineCap='round'; for(let i=0;i<9;i++){const x=-140+r()*240, y=980+r()*260; c.strokeStyle=rgba(U,(.18+r()*.2)*q); c.lineWidth=6+r()*8; c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+30,y-6,x+60+r()*40,y+(r()-.5)*10); c.stroke();}
+  }
+  c.restore();
 }
 function kepenek(k,X,T){
   const o=ORTU.kepenek, R=hex(T.ana);
@@ -347,6 +419,7 @@ export function govde(){
 function govdeCiz(){
   const k=poz.kaynama, X=omuzEsle(), T=ortuTon();
   c.save(); c.translate(0,-38-poz.nefes*3.2);
+  if(erkekOzel()) c.translate(0,-10); // erkekte omuz biraz yüksek: kısa, kalın boyun
   const o=G.ortu;
   if(o==='aba'||o==='cubbe') acikOrtu(k,X,T,o==='cubbe');
   else if(o==='kaput') kaput(k,X,T);
@@ -355,6 +428,7 @@ function govdeCiz(){
   else if(o==='kepenek') kepenek(k,X,T);
   else palto(k,X,T);
   const ET=etekTon();
+  if(G.ozel) giysiTozu(X);
   if(!(o==='palto'&&G.giysi.ic==='bluz')) erime(()=>silYol(X,ORTU[o]||ORTU.palto),ET);
   baslikGovde(X,yol=>erime(yol,ET));
   c.restore();

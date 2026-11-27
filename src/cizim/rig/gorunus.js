@@ -9,7 +9,10 @@ import varsayilan from '../../icerik/gorunus/varsayilan.js';
 export const SAC_BICIMLERI=['uzun','toplu','kisa','kel','dagnik'];
 export const SAKAL_BICIMLERI=['yok','kirli','kisa','uzun','dagnik'];
 export const BIYIK_BICIMLERI=['yok','ince','kalin','pala'];
-export const BASLIKLAR=['yok','kasket','kep','yemeni','yazma','takke','sarik','sal'];
+export const BASLIKLAR=['yok','kasket','kep','yemeni','yazma','takke','sarik','sal','kulah','posu'];
+export const KISA_SAC_TURLERI=['duz','acik','kabarik','yana','geri'];
+export const YEMENI_BAGLARI=['cene','arka','yasmak'];
+export const ONLUKLER=['bez','un','deri'];
 export const ORTULER=['aba','entari','palto','cubbe','kaput','onluk','kepenek'];
 export const IC_GIYSILER=['bluz','gomlek','yelek','entari'];
 
@@ -99,9 +102,15 @@ export function gorunusKur(v){
   // ozel: yeni çizim yolu (yüz yapısı, başlık kaynaşması, kumaş kıvrımı). Varsayılan kadın eski yolla, prototiple birebir çizilir.
   const ozel=(v.id||'?')!=='varsayilan';
   const yapi={...yapiTuret(yas,erkek,yasIzi),...(v.yapi||{})};
+  // yalnızca yeni yolda okunan ayrıntılar (README: "Ayrıntılar"); hepsi isteğe bağlı
+  const gozluk=v.gozluk?{bicim:'tel', renk:'#2c2820', ...v.gozluk}:null;
+  const gozFarki=v.gozFarki&&v.gozFarki.perde?{kapak:.32, ...v.gozFarki}:null;
+  const ifade={agizKose:0, agizYan:0, kasSol:0, kasSag:0, bakisX:0, bakisY:0, ...(v.ifade||{})};
+  const iz=Array.isArray(v.iz)?v.iz:[];
+  const toz=v.toz?{tur:'un', yuz:.5, sac:.5, giysi:.6, ...v.toz}:null;
   return {id:v.id||'?', cinsiyet:erkek?'E':'K', yas, yuz, renk, yasIzi, sac, sakal, biyik, baslik, ortu, giysi,
-    omuz:v.omuz==null?1:v.omuz, kulak, ortuyor, ozel, yapi,
-    boy:v.boy==null?1:v.boy, iri:v.iri==null?1:v.iri, ham:v};
+    omuz:v.omuz==null?1:v.omuz, kulak, ortuyor, ozel, yapi, gozluk, gozFarki, ifade, iz, toz,
+    boy:v.boy==null?1:v.boy, iri:v.iri==null?1:v.iri, bas:v.bas==null?(ozel?(erkek?.95:.97):1):v.bas, ham:v};
 }
 
 /* etkin görünüş: rig modülleri bunu okur (canlı bağ) */

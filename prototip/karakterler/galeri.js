@@ -30,7 +30,16 @@ const SECENEK=[
   {id:'s-yazma-entari', cinsiyet:'K', yas:34, baslik:{tur:'yazma', renk:'#4a4438', desen:'duz'}, ortu:'entari', giysi:{renk:'#3c362b'}, renk:{ten:'#8f846e'}},
   {id:'s-onluk-k', cinsiyet:'K', yas:45, baslik:{tur:'yemeni', renk:'#6a5f48'}, ortu:'onluk', giysi:{renk:'#5a5444', icRenk:'#4a4234'}, renk:{ten:'#8c806a'}},
   {id:'s-toplu', cinsiyet:'K', yas:28, sac:{bicim:'toplu'}, ortu:'entari', giysi:{hirka:'#3f3a30'}, renk:{ten:'#958a74'}},
-  {id:'s-aba-uzun', cinsiyet:'E', yas:70, sakal:{bicim:'uzun', boy:1.2}, biyik:{bicim:'pala'}, baslik:{tur:'kasket'}, ortu:'aba', giysi:{ic:'gomlek'}, renk:{ten:'#82705a'}, omuz:1.05}
+  {id:'s-aba-uzun', cinsiyet:'E', yas:70, sakal:{bicim:'uzun', boy:1.2}, biyik:{bicim:'pala'}, baslik:{tur:'kasket'}, ortu:'aba', giysi:{ic:'gomlek'}, renk:{ten:'#82705a'}, omuz:1.05},
+  // ayrıntılar (README "Ayrıntılar"): yeni başlıklar, saç türleri, bağlama biçimleri, önlükler, gözlük, perde, iz, toz, ifade
+  {id:'s-kulah-kabarik', cinsiyet:'E', yas:30, sac:{bicim:'kisa', tur:'kabarik'}, baslik:{tur:'kulah'}, ortu:'kepenek', renk:{ten:'#86745a'}, ifade:{agizKose:.5}},
+  {id:'s-posu-deri', cinsiyet:'E', yas:44, sakal:{bicim:'kirli'}, baslik:{tur:'posu'}, ortu:'onluk', giysi:{onluk:'deri'}, toz:{tur:'is', yuz:.6, giysi:.5}, renk:{ten:'#86745e'}},
+  {id:'s-acik-un', cinsiyet:'E', yas:46, sac:{bicim:'kisa', tur:'acik', cizgi:-140}, biyik:{bicim:'kalin', yukseklik:2}, ortu:'onluk', giysi:{onluk:'un'}, toz:{tur:'un'}, renk:{ten:'#958a74', sac:'#3a342a'}},
+  {id:'s-gozluk-yana', cinsiyet:'E', yas:30, sac:{bicim:'kisa', tur:'yana'}, gozluk:{bicim:'tel'}, biyik:{bicim:'ince'}, ortu:'palto', giysi:{ic:'gomlek'}, renk:{ten:'#958a72'}},
+  {id:'s-geri-perde', cinsiyet:'E', yas:40, sac:{bicim:'kisa', tur:'geri'}, gozFarki:{perde:'sol'}, iz:[{tur:'yara', x:-70, y:-8, boy:100, aci:1.3, dikis:true}, {tur:'kirikBurun'}], ortu:'aba', renk:{ten:'#80705a'}, ifade:{kasSag:-7, agizYan:.4}},
+  {id:'s-tombul', cinsiyet:'E', yas:55, sac:{bicim:'kel'}, yapi:{tombul:.8, sarkik:.7}, ortu:'onluk', giysi:{onluk:'bez'}, renk:{ten:'#8c7860'}, ifade:{agizKose:.8}},
+  {id:'s-yemeni-arka', cinsiyet:'K', yas:30, baslik:{tur:'yemeni', bag:'arka', tutam:'sol', renk:'#6a5f48'}, ortu:'entari', renk:{ten:'#8f846e'}, iz:[{tur:'ben', x:40, y:120}]},
+  {id:'s-yemeni-yasmak', cinsiyet:'K', yas:50, baslik:{tur:'yemeni', bag:'yasmak', renk:'#3a3430', desen:'duz'}, ortu:'entari', renk:{ten:'#8f846e'}, ifade:{agizKose:-.3, bakisY:.6}}
 ];
 const kaynak=new URLSearchParams(location.search).has('secenek')?SECENEK:gorunusListesi;
 const liste=[...kaynak].sort((a,b)=>a.id==='varsayilan'?-1:b.id==='varsayilan'?1:a.id.localeCompare(b.id,'tr'));

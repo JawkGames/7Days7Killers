@@ -1,5 +1,5 @@
 // Onbaşı (Rıza Demirtaş, 35): karakolun tek amiri, Erzurumlu, sert. Sınırda sekiz yıl geçirdi.
-// Köşeli yüz, dar ve çatık bakış, kalın kara kaşlar; kalın bıyık, kirli sakal; jandarma kepi; kapalı yakalı kaput.
+// Sol elmacığında sınırdan kalma kısa yara izi. Köşeli yüz, dar ve çatık bakış, kalın kara kaşlar; kalın bıyık, kirli sakal; jandarma kepi; kapalı yakalı kaput.
 export default {
   id:'riza', cinsiyet:'E', yas:35,
   yuz:{en:1.04, boy:1.03, elmacik:1.08, cene:1.12, ceneUc:1.1, gozAralik:65, gozEn:.94, gozBoy:.76, gozKapak:.2,
@@ -7,6 +7,7 @@ export default {
   renk:{ten:'#86735a', iris:'#3c3428', sac:'#14110e'},
   yasIzi:{kirisik:.15, gozAlti:.8, cokukYanak:.75, kirSac:0, lekeler:0},
   sac:{bicim:'kisa', cizgi:-130},
+  iz:[{tur:'yara', x:-104, y:62, boy:44, aci:.55, egri:3}],
   sakal:{bicim:'kirli'}, biyik:{bicim:'kalin'},
   baslik:{tur:'kep', renk:'#47472f'},
   ortu:'kaput', giysi:{renk:'#3d3e2c', icRenk:'#4d4a36'},
