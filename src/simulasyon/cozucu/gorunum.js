@@ -55,6 +55,12 @@ export function oyuncuGorunumu(vaka,secenek={}){
     kisiler[id]={ev:k.ev,is:k.is,cinsiyet:k.cinsiyet,yas:k.yas,mizac:k.mizac,ortu:k.ortu,esyalar:[...k.esyalar]};
   }
   dondur(kisiler);
+  // Aile bağları (eş, ana-baba, çocuk) köyde herkesçe bilinir; öteki ilişkiler (sevda, borç, korku) bilinmez.
+  const aile={};
+  for(const id of ids) aile[id]=[];
+  for(const i of vaka.iliskiler) if(['es','ebeveyn','cocuk'].includes(i.tur)&&aile[i.kimden]&&!aile[i.kimden].includes(i.kime)) aile[i.kimden].push(i.kime);
+  for(const id of ids) aile[id].sort();
+  dondur(aile);
 
   // Ağızdan çıkanı temizler: silüetin kim olduğu söylenmez (yalnızca örtüsü), dolaylı izin kimliği opaklaşır.
   const temizle=(o,s)=>{
@@ -109,6 +115,7 @@ export function oyuncuGorunumu(vaka,secenek={}){
     ayar:{gunSayisi:G,dilimler:[...vaka.ayar.dilimler],gunlukSorguHakki:secenek.gunlukSorguHakki??AYARLAR.gunlukSorguHakki,sorguAni:[...Array(G)].map((_,i)=>sorguAni(i+1))},
     kisiIdleri:[...ids],
     kisiler,
+    aile,
     harita:kopya(vaka.harita),
     // Herkesçe bilinen kural: eşya olay yerinde hangi izi bırakır ("kırmızı yün ipi").
     esyaIzi:e=>esyaIzi(e).iz,

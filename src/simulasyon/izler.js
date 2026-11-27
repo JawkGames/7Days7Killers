@@ -2,7 +2,7 @@
 // Kural: hiçbir iz süs değildir. Her iz bir olaya (vaka.olaylar) bağlıdır ve o olayın zamanında
 // izin sahibi/tanığı/fark edeni çizelgeye göre gerçekten oradadır. Testler bunu tek tek denetler.
 
-import {ESYA,esyaIzi,ORTU_IZ,YONTEM_YARA,MIZAC_DIKKATSIZLIK,mekanAletleri} from './tablolar.js';
+import {ESYA,esyaIzi,ORTU_IZ,YONTEM_YARA,MIZAC_DIKKATSIZLIK,GIZLI_NEDEN_ONEKLERI,mekanAletleri} from './tablolar.js';
 
 const INCE=['ayak-izi','lif','kirinti','leke']; // gözle zor seçilen, "üstünden geçen" bırakabilecek izler
 
@@ -26,6 +26,8 @@ export function izleriKur(d,z,cz,sonuc){
   // Kişinin bırakabileceği izler: eşyaları (silah olarak kullanılanlar hariç) ve örtüsünün lifi.
   const {elde,alinabilir,durum}=sonuc.esya;
   // t anında bırakılabilecek izler. Nesne (eşyanın kendisi) yalnızca sonra bir daha kullanılmayacaksa düşer.
+  // Ayırt edicilik: az kişide olan iz (çizme izi, çekiç) daha sık kalır; beş kişinin abası daha seyrek.
+  const ayirt=anahtar=>3/(2+adaylar(anahtar).length);
   const izSecenekleri=(id,t,yalnizInce,haric=[])=>{
     const k=d.kisi(id), l=[];
     for(const e of k.esyalar||[]){
@@ -33,21 +35,33 @@ export function izleriKur(d,z,cz,sonuc){
       const x=esyaIzi(e);
       if(yalnizInce&&!INCE.includes(x.tur)) continue;
       if(x.tur==='nesne'&&!alinabilir(id,e,t)) continue;
-      l.push({esya:e,anahtar:x.iz,iztur:x.tur,w:INCE.includes(x.tur)?3:1});
+      l.push({esya:e,anahtar:x.iz,iztur:x.tur,w:(INCE.includes(x.tur)?3:1)*ayirt(x.iz)});
     }
-    if(ORTU_IZ[k.ortu]) l.push({ortu:k.ortu,anahtar:ORTU_IZ[k.ortu],iztur:'lif',w:2});
+    if(ORTU_IZ[k.ortu]) l.push({ortu:k.ortu,anahtar:ORTU_IZ[k.ortu],iztur:'lif',w:2*ayirt(ORTU_IZ[k.ortu])});
     return l;
   };
   // t0'dan sonra t1'e kadar k ile aynı yerde olan ilk kişi (yakını öncelikli): {u, kim, mekan}
-  const farkEden=(k,t0,t1,haric=[])=>{
+  // P'nin t anındaki yerini doğrulayabilecek biri var mı? (İkisi de orada gizli bir iş için değil.)
+  const gizli=(k,t)=>GIZLI_NEDEN_ONEKLERI.some(p=>(cz.neden[k][t]||'').startsWith(p));
+  // En az iki kişi (yakını olmayan) doğrulamalı: tek kişinin sözü sağlam mazeret değildir.
+  const AILE=['es','ebeveyn','cocuk'];
+  const dogrulanir=(P,t)=>cz.canli(P,t)&&!gizli(P,t)&&cz.orada(cz.yer[P][t],t).filter(h=>h!==P&&!gizli(h,t)&&!d.rel(h,P).some(r=>AILE.includes(r))).length>=2;
+  // korumaz: katilin aleyhine olan iz için, onu korumayacak (yakını, dostu, borçlusu olmayan) biri öncelikli.
+  const KORUYAN=['es','ebeveyn','cocuk','sevgili','sever','korur','dost','borclu','korkar','ortak'];
+  const farkEden=(k,t0,t1,haric=[],korumaz=false)=>{
+    let yedek=null;
     for(let u=t0+1;u<=Math.min(t1,zaman.T-1);u++){
-      if(!cz.canli(k,u)) return null;
+      if(!cz.canli(k,u)) break;
       const mk=cz.yer[k][u];
       if(cz.sahne(mk,u)) continue; // başka bir cinayetin anı: orada kimse kimsenin giysisine bakmaz
       const l=cz.orada(mk,u).filter(h=>h!==k&&!haric.includes(h));
-      if(l.length) return {u,kim:l.find(h=>d.rel(h,k).length)||l[0],mekan:mk};
+      if(!l.length) continue;
+      if(!korumaz) return {u,kim:l.find(h=>d.rel(h,k).length)||l[0],mekan:mk};
+      const iyi=l.find(h=>!d.rel(h,k).some(r=>KORUYAN.includes(r)));
+      if(iyi) return {u,kim:iyi,mekan:mk};
+      yedek??={u,kim:l[0],mekan:mk};
     }
-    return null;
+    return yedek;
   };
 
   for(const c of cinayetler){
@@ -106,6 +120,8 @@ export function izleriKur(d,z,cz,sonuc){
       const l=[];
       for(let u=Math.max(0,t-4);u<t;u++) for(const P of cz.orada(m,u)){
         if(ilgili.includes(P)||(kt&&kt.kisi===P)||cz.yer[P][t]===m) continue;
+        // Çürütülebilsin: cinayet anında yanında başkası olan (mazereti doğrulanabilen) biri.
+        if(!dogrulanir(P,t)) continue;
         const s=izSecenekleri(P,u,true);
         if(s.length) l.push({P,u,s,w:1+(u-(t-4))*.3});
       }
@@ -125,7 +141,7 @@ export function izleriKur(d,z,cz,sonuc){
         gercek:{neden:'kurbanin',...(e==='gumus-saat'?{gosterdigiDilim:dilim}:{})}});
     }
     // Zehrin geldiği ot torbası: otu veren masumdur.
-    if(c.zehirKaynagi){
+    if(c.zehirKaynagi&&dogrulanir(c.zehirKaynagi.kisi,t)){
       const K=c.zehirKaynagi.kisi, x=esyaIzi(c.zehirKaynagi.esya);
       const iz=ekle({tur:'fiziksel',alt:'esya',anahtar:x.iz,iztur:x.tur,esya:c.zehirKaynagi.esya,ortu:null,sahip:K,adaylar:adaylar(x.iz),mekan:m,zaman:t,olay:c.zehirKaynagi.olay,yaniltici:true,gercek:{neden:'zehir-kaynagi'}});
       const ol=olaylar.find(x=>x.id===c.zehirKaynagi.olay);
@@ -185,15 +201,15 @@ export function izleriKur(d,z,cz,sonuc){
       }
     }
     if((c.yontem==='bicak'||c.yontem==='darbe')&&z.olasilik(o.kanliGiysi)){
-      const f=farkEden(A,t,t+D,[V]);
+      const f=farkEden(A,t,t+D,[V],true);
       if(f) kanit.push(dolayli({alt:'kanli-giysi',kisi:A,ortu:d.kisi(A).ortu,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'katilin-giysisi'}}).id);
     }
     if(['bogma','suda-bogma','asma','itme'].includes(c.yontem)&&z.olasilik(o.tirmik)){
-      const f=farkEden(A,t,t+D,[V]);
+      const f=farkEden(A,t,t+D,[V],true);
       if(f) kanit.push(dolayli({alt:'tirmik',kisi:A,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'kurban-tirmaladi'}}).id);
     }
     if(ki&&ki.iztur==='nesne'&&ki.esya){
-      const f=farkEden(A,t,t+2*D,[V]);
+      const f=farkEden(A,t,t+2*D,[V],true);
       if(f) kanit.push(dolayli({alt:'eksik-esya',kisi:A,esya:ki.esya,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'olay-yerinde-dusurdu'}}).id);
     }
     if(kacanY){
@@ -218,8 +234,81 @@ export function izleriKur(d,z,cz,sonuc){
         }
       }
     }
-    // Katile giden hiçbir iz yoksa olay yerinde ince bir iz kalır (çözülebilirlik).
+    // Çözülebilirlik: katile giden güçlü (az adaylı ya da yüzden) iz ikiden azsa olay yerinde başka izler kalır,
+    // giysideki kan ya da tırmık fark edilir. Eleğin "iki bağımsız zincir" kuralı için malzeme budur; zincirin
+    // gerçekten kurulup kurulmadığına çözücü karar verir.
+    const guclu=()=>kanit.map(id=>izler.find(i=>i.id===id)).filter(i=>i.alt!=='gece-yoklugu'&&(!i.adaylar||i.adaylar.length<=3)&&(i.tur!=='tanik'||i.kesinlik==='yuz')).length;
+    const birakilan=()=>izler.filter(i=>i.cinayet===c.id&&i.sahip===A&&i.esya).map(i=>i.esya);
+    for(let deneme=0;deneme<2&&guclu()<2;deneme++){
+      const s=z.agirlikli(izSecenekleri(A,t,false,[...birakilan(),...(c.silah?[c.silah.esya]:[])]).filter(x=>!izler.some(i=>i.cinayet===c.id&&i.sahip===A&&i.anahtar===x.anahtar)));
+      if(!s) break;
+      if(s.esya&&s.iztur==='nesne') durum(A,s.esya).kayip=t;
+      kanit.push(ekle({tur:'fiziksel',alt:'esya',anahtar:s.anahtar,iztur:s.iztur,esya:s.esya??null,ortu:s.ortu??null,sahip:A,adaylar:adaylar(s.anahtar),mekan:m,zaman:t,olay:c.id,gercek:{neden:'katil-birakti'}}).id);
+    }
+    if(guclu()<2){
+      const alt=(c.yontem==='bicak'||c.yontem==='darbe')?'kanli-giysi':['bogma','suda-bogma','asma','itme'].includes(c.yontem)?'tirmik':null;
+      if(alt&&!izler.some(i=>i.cinayet===c.id&&i.alt===alt)){
+        const f=farkEden(A,t,t+D,[V],true);
+        if(f) kanit.push(dolayli({alt,kisi:A,...(alt==='kanli-giysi'?{ortu:d.kisi(A).ortu}:{}),fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:alt==='tirmik'?'kurban-tirmaladi':'katilin-giysisi'}}).id);
+      }
+    }
     if(!kanit.length) katilIzi(A,'katil-birakti',true);
   }
   return {izler,yanilticilar};
+}
+
+// Tamamlama: çözücünün iki bağımsız zincir bulamadığı katil için olay yerine bir iz daha bırakır
+// (dikkatsiz katil). Yalnızca katilin gerçekten taşıdığı bir eşyadan ya da örtüsünden; nesne ise o eşya
+// vakada başka hiçbir yerde geçmemeli (kaybolan eşya geri gelmez kuralı bozulmasın). En ayırt edici iz seçilir.
+// Döner: eklenen iz ya da null. vaka yerinde değişir (izler ve cinayetin iz listesi).
+export function izTamamla(vaka,cinayetId){
+  const c=vaka.cinayetler.find(x=>x.id===cinayetId); if(!c) return null;
+  const A=c.katil, k=vaka.kisiler[A];
+  const adaySay={};
+  for(const [id,x] of Object.entries(vaka.kisiler)){
+    for(const e of x.esyalar) (adaySay[esyaIzi(e).iz]??=new Set()).add(id);
+    if(ORTU_IZ[x.ortu]) (adaySay[ORTU_IZ[x.ortu]]??=new Set()).add(id);
+  }
+  const burada=vaka.izler.filter(i=>i.cinayet===c.id);
+  // Önceki turda eklenen iz zincir kurmadıysa bu kez dolaylı iz denenir.
+  if(burada.some(i=>i.gercek.tamamlama&&i.tur==='fiziksel')){const dz=dolayliTamamla(vaka,c); if(dz) return dz;}
+  const kullanildi=e=>vaka.izler.some(i=>i.sahip===A&&i.esya===e)||vaka.olaylar.some(o=>o.sahip===A&&o.esya===e)||vaka.cinayetler.some(x=>x.silah&&x.silah.sahip===A&&x.silah.esya===e)||vaka.cinayetler.some(x=>x.kacanTanik&&x.kacanTanik.kisi===A&&x.kacanTanik.esya===e);
+  const l=[];
+  for(const e of k.esyalar){
+    const x=esyaIzi(e);
+    if((c.silah&&c.silah.sahip===A&&c.silah.esya===e)||burada.some(i=>i.anahtar===x.iz)) continue;
+    if((x.tur==='nesne'||ESYA[e]?.silah)&&kullanildi(e)) continue; // silah olabilen eşya da başka yerde geçmemeli
+    l.push({esya:e,ortu:null,anahtar:x.iz,iztur:x.tur});
+  }
+  if(ORTU_IZ[k.ortu]&&!burada.some(i=>i.anahtar===ORTU_IZ[k.ortu])) l.push({esya:null,ortu:k.ortu,anahtar:ORTU_IZ[k.ortu],iztur:'lif'});
+  if(!l.length) return dolayliTamamla(vaka,c);
+  l.sort((a,b)=>adaySay[a.anahtar].size-adaySay[b.anahtar].size||(a.anahtar<b.anahtar?-1:1));
+  const s=l[0];
+  const n=Math.max(0,...vaka.izler.map(i=>Number(i.id.slice(1))))+1;
+  const iz={tur:'fiziksel',alt:'esya',anahtar:s.anahtar,iztur:s.iztur,esya:s.esya,ortu:s.ortu,sahip:A,adaylar:[...adaySay[s.anahtar]].sort(),
+    mekan:c.mekan,zaman:c.zaman,olay:c.id,gercek:{neden:'katil-birakti',tamamlama:true},id:'i'+n,cinayet:c.id,yaniltici:false};
+  vaka.izler.push(iz); c.izler.push(iz.id);
+  return iz;
+}
+
+// Bırakacak eşyası kalmamış katil: ertesi gün giysisindeki kanı ya da yüzündeki tırmığı onu korumayacak biri görür.
+function dolayliTamamla(vaka,c){
+  const A=c.katil, D=vaka.ayar.dilimler.length, T=vaka.ayar.gunSayisi*D;
+  const alt=(c.yontem==='bicak'||c.yontem==='darbe')?'kanli-giysi':['bogma','suda-bogma','asma','itme'].includes(c.yontem)?'tirmik':null;
+  if(!alt||vaka.izler.some(i=>i.cinayet===c.id&&i.alt===alt&&i.kisi===A)) return null;
+  const KORUYAN=['es','ebeveyn','cocuk','sevgili','sever','korur','dost','borclu','korkar','ortak'];
+  const rel=(a,b)=>vaka.iliskiler.filter(i=>i.kimden===a&&i.kime===b).map(i=>i.tur);
+  const sahne=(m,u)=>vaka.cinayetler.some(x=>x.mekan===m&&x.zaman===u);
+  for(let u=c.zaman+1;u<=Math.min(c.zaman+D,T-1);u++){
+    const mk=vaka.cizelge[A][u]; if(mk==null) return null;
+    if(sahne(mk,u)) continue;
+    const h=Object.keys(vaka.cizelge).sort().find(k=>k!==A&&k!==c.kurban&&vaka.cizelge[k][u]===mk&&!rel(k,A).some(r=>KORUYAN.includes(r)));
+    if(!h) continue;
+    const n=Math.max(0,...vaka.izler.map(i=>Number(i.id.slice(1))))+1;
+    const iz={tur:'dolayli',cinayet:c.id,alt,kisi:A,...(alt==='kanli-giysi'?{ortu:vaka.kisiler[A].ortu}:{}),fark_eden:h,zaman:u,mekan:mk,olay:c.id,
+      gercek:{neden:alt==='tirmik'?'kurban-tirmaladi':'katilin-giysisi',tamamlama:true},id:'i'+n,yaniltici:false};
+    vaka.izler.push(iz); c.izler.push(iz.id);
+    return iz;
+  }
+  return null;
 }

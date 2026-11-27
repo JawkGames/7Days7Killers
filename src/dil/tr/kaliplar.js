@@ -932,7 +932,7 @@ export default {
     ],
     ofkeli:[
       'Benim değil! Bana yamamaya kalkmayın!',
-      'Ne benimi? Hiç görmedim!',
+      'Benim mi? Hiç görmedim!',
     ],
     gururlu:[
       'Benim böyle şeyim olmaz.',

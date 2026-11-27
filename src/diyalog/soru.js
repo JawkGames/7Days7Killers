@@ -79,12 +79,17 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
   const supheliler=Object.entries(defter.isaretler).filter(([,v])=>v==='supheli').map(([k])=>k);
   const evHalki=Object.keys(kamu.kisiler).filter(x=>x!==K&&kamu.kisiler[x].ev===Kev);
 
-  // Yüzleştirme: oyuncunun yakaladığı çelişkiler; konuşanlara sorulur.
+  // Yüzleştirme: oyuncunun yakaladığı çelişkiler; konuşanlara sorulur. Aynı konu bir kişiye bir kez sorulur.
+  const konuAnahtari=k=>JSON.stringify(k.konu);
+  const yuzlesilen=new Set(defter.ifadeler.filter(f=>f.kisi===K&&f.soru.tur==='yuzlesme')
+    .map(f=>defter.celiskiler.find(k=>k.id===f.soru.celiski)).filter(Boolean).map(konuAnahtari));
   for(const k of defter.celiskiler){
+    if(yuzlesilen.has(konuAnahtari(k))) continue;
     const fa=ifadeBul(defter,k.a), fb=ifadeBul(defter,k.b);
     if(!fa||!fb||(fa.kisi!==K&&fb.kisi!==K)) continue;
     const kendi=fa.kisi===K?fa:fb, diger=kendi===fa?fb:fa;
     const soru={id:'yuzlesme:'+k.id,tur:'yuzlesme',celiski:k.id};
+    yuzlesilen.add(konuAnahtari(k));
     const kon=k.konu;
     if(diger.kisi===K){ ekle(soru,'yuzlesme-kendi',{},100); continue; }
     const d=kd(diger.kisi);

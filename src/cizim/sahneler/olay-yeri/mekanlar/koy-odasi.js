@@ -354,8 +354,8 @@ export default {
   kamera:{odak:860, yukseklik:142, egim:.19},
   isik,
   yuvalar:{
-    'zemin-on':   {duzlem:'zemin', konum:[-20,0,238], yuzey:'toprak', alan:16},
-    'zemin-orta': {duzlem:'zemin', konum:[-70,0,468], yuzey:'toprak', alan:8},
+    'zemin-on':   {duzlem:'zemin', konum:[-20,0,238], yuzey:'toprak', alan:16, aci:1.5},
+    'zemin-orta': {duzlem:'zemin', konum:[-70,0,468], yuzey:'toprak', alan:8, aci:1.5},
     'zemin-kose': {duzlem:'zemin', konum:[142,0,350], yuzey:'toprak', alan:6},
     'ocak-onu':   {duzlem:'zemin', konum:[86,0,432], yuzey:'toprak', alan:7},
     'duvar':      {duzlem:'arka', konum:[-66,166,ARKA], yuzey:'siva', alan:4},

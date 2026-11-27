@@ -6,7 +6,7 @@ import {TAU,rgba} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
 import {silindir,cokgen3,hat3,yol3,golgele,tabana,aydinlik} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
-import {duzlemde,duzlemYol,tasOrgu,karanlik,atmosfer,leke,tara,titrek,MUREKKEP} from '../mekan-yardim.js';
+import {duzlemde,duzlemYol,tasOrgu,karanlik,atmosfer,leke,titrek,MUREKKEP} from '../mekan-yardim.js';
 import {kutuDoku,tahtaYuzey,tasDoseme,torna,daire3,kenarIsigi,duzlemCizgi,minder} from './koy-odasi.js';
 
 const TAS=[184,172,144], TAS2=[160,150,128], DOSEME=[156,148,128], AHSAP=[100,82,60], DEMIR=[40,38,36], TOPRAK=[150,110,80];
@@ -95,8 +95,8 @@ export default {
   kamera:{odak:820, yukseklik:155, egim:.14},
   isik,
   yuvalar:{
-    'zemin-on':     {duzlem:'zemin', konum:[-60,0,268], yuzey:'tas', alan:18},
-    'zemin-orta':   {duzlem:'zemin', konum:[-60,0,560], yuzey:'tas', alan:10},
+    'zemin-on':     {duzlem:'zemin', konum:[-60,0,268], yuzey:'tas', alan:18, aci:1.5},
+    'zemin-orta':   {duzlem:'zemin', konum:[-60,0,560], yuzey:'tas', alan:10, aci:1.5},
     'zemin-kose':   {duzlem:'zemin', konum:[-300,0,600], yuzey:'tas', alan:8},
     'esik':         {duzlem:'zemin', konum:[-272,4,ON+4], yuzey:'tas', alan:6},
     'duvar':        {duzlem:'arka', konum:[332,66,MER.z[0]], yuzey:'tas', alan:4, uygunsuz:['saat']},

@@ -142,8 +142,8 @@ export function agac(P,isik,X,Z,{tur='fistik',boy=360,en=420,y=0,yogun=3000,tohu
     for(let k=0;k<3;k++){c.strokeStyle=rgba(k?S(golgele(GOV,1.3)):GOV,k?.25:1); c.lineWidth=Math.max(.8,w*o*(k?.35:1)); c.lineCap='round'; c.beginPath(); c.moveTo(b[0]-(k?w*.2*o:0),b[1]); c.quadraticCurveTo(m[0]-(k?w*.2*o:0),m[1],u[0],u[1]); c.stroke();}
   }
   // taç: yumrular (üstten alta), her yumrunun üstü ışık alır, altı koyu
-  const yum=[], ny=tur==='zeytin'?38:34;
-  for(let i=0;i<ny;i++){const a=R()*TAU, d=Math.pow(R(),.5)*.82; yum.push({x:ky*.5+Math.cos(a)*rx*d, y:cy+Math.sin(a)*ry*d*.85+ry*.05, r:Math.min(rx,ry)*(.2+R()*.2)});}
+  const rb=Math.max(Math.min(rx,ry)*.13,16/o), ny=Math.min(170,Math.max(26,(rx*ry*2.6)/(rb*rb)|0)), yum=[];
+  for(let i=0;i<ny;i++){const a=R()*TAU, d=Math.pow(R(),.5)*.82; yum.push({x:ky*.5+Math.cos(a)*rx*d, y:cy+Math.sin(a)*ry*d*.85+ry*.05, r:Math.max(rb*(.75+R()*.6),Math.min(rx,ry)*.1)});}
   yum.sort((p,q)=>q.y-p.y);
   const sekil=m=>{const n=[]; for(let i=0;i<14;i++){const a=i/14*TAU, w=m.r*(.62+R()*.6); n.push(pt(m.x+Math.cos(a)*w*1.15,m.y+Math.sin(a)*w*.92));} return n;};
   const bicim=yum.map(sekil);
@@ -163,11 +163,6 @@ export function agac(P,isik,X,Z,{tur='fistik',boy=360,en=420,y=0,yogun=3000,tohu
     c.save(); c.beginPath(); for(const n of bicim) yolB(n); c.clip();
     for(let i=0;i<260;i++){const q=pt(ky*.5+(R()-.5)*rx*2,cy+(R()-.5)*ry*2), u=Math.max(.8,Math.min(3,6*o)); c.fillStyle=rgba(R()<.55?tacKoyu:tacAcik,.25+R()*.25); c.beginPath(); c.ellipse(q[0],q[1],u,u*.6,R()*3,0,TAU); c.fill();}
     c.restore();
-  }
-  // tacın alt yarısında, yaprak boşluklarından görünen koyu dal parçaları
-  for(let i=0;i<6;i++){
-    const a=(R()-.5)*2.2, b=pt(ky*.6+Math.sin(a)*rx*.2,cy-ry*.35), u=pt(ky*.5+Math.sin(a)*rx*(.5+R()*.35),cy+ry*(R()-.2)*.6);
-    titrek(()=>{c.moveTo(b[0],b[1]); c.quadraticCurveTo((b[0]+u[0])/2,(b[1]+u[1])/2-6*o*10,u[0],u[1]);},S([40,36,30]),.55,Math.max(.8,4*o),(R()*1e5)|0,1,.5);
   }
   // tacın altı koyu (gök yukarıdan aydınlatır), kenarlar kırık mürekkeple belli belirsiz
   c.save(); c.beginPath(); for(const n of bicim) yolB(n); c.clip(); const ab=pt(ky*.5,cy-ry*.85); leke(ab[0],ab[1],rx*1.1*o,ry*.5*o,tacKoyu,.6); c.restore();
@@ -268,7 +263,6 @@ export function kaya(P,isik,X,Z,{en=120,boy=60,derin=90,renk=[178,172,152],y=0,t
     const say=new Map(), key=(a,b)=>{const k1=a.join(','), k2=b.join(','); return k1<k2?k1+'|'+k2:k2+'|'+k1;};
     for(const g of gor) for(let i=0;i<g.q.length;i++){const a=g.q[i], b=g.q[(i+1)%g.q.length], k=key(a,b); say.set(k,(say.get(k)||{n:0,a,b})); say.get(k).n++;}
     for(const [,v] of say) if(v.n===1&&(v.a[1]>y+.5||v.b[1]>y+.5)) hat3(P,[v.a,v.b],mur,cizgi,1.2,tohum+(v.a[0]|0),1,.8);
-    const a=P.n(X-en*.5,y,Z), b=P.n(X+en*.5,y,Z); c.strokeStyle='rgba(0,0,0,.35)'; c.lineWidth=2; c.beginPath(); c.moveTo(a[0],a[1]); c.lineTo(b[0],b[1]); c.stroke();
   }
   return {tepe};
 }
@@ -348,7 +342,7 @@ export function cali(P,isik,X,Z,{en=90,boy=60,y=0,yogun=3000,tohum=1,renk=[78,80
   c.save(); c.clip();
   leke(s[0]-en*.15*o,s[1]-boy*.75*o,en*.4*o,boy*.35*o,S(golgele(renk,1.6)),.55);
   leke(s[0],s[1],en*.6*o,boy*.35*o,[0,0,0],.5);
-  for(let i=0;i<70;i++){const x=s[0]+(R()-.5)*en*o, yy=s[1]-R()*boy*o; c.fillStyle=rgba(R()<.5?S(golgele(renk,.4)):S(golgele(renk,1.5)),.5); c.fillRect(x,yy,Math.max(.8,2.5*o*3),Math.max(.6,1.6*o*3));}
+  for(let i=0;i<90;i++){const x=s[0]+(R()-.5)*en*o, yy=s[1]-R()*boy*o, u=Math.max(.7,Math.min(2.6,4*o)); c.fillStyle=rgba(R()<.5?S(golgele(renk,.4)):S(golgele(renk,1.5)),.45); c.beginPath(); c.ellipse(x,yy,u,u*.6,R()*3,0,TAU); c.fill();}
   c.restore();
   for(let i=0;i<16;i++){const t=R()*Math.PI, b=[s[0]-Math.cos(t)*en*.35*o,s[1]-Math.sin(t)*boy*.6*o], l=(12+R()*22)*o, a=-t+Math.PI+(R()-.5)*.7;
     titrek(()=>{let px=b[0], py=b[1]; c.moveTo(px,py); for(let k=0;k<4;k++){px+=Math.cos(a+(k%2?.5:-.5))*l*.3; py-=Math.abs(Math.sin(a+(k%2?.5:-.5)))*l*.3; c.lineTo(px,py);}},mur,.6,.9,tohum+i,1,.5);}

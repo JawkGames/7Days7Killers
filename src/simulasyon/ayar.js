@@ -23,7 +23,9 @@ export const SIM_AYAR=Object.freeze({
   cekirdekSayisi:2, // her vakaya karışan olay çekirdeği sayısı (varsa)
   enAzSebep:.6, // bundan zayıf sebep (katil|kurban ağırlığı) cinayete yetmez
   enAzBag:2, // katiller arasında en az bu kadar bağ kurulmaya çalışılır
-  azamiDeneme:40, // kurulamayan vaka bu kadar kez türetilmiş tohumla yeniden denenir
+  azamiDeneme:40,
+  tamamlamaTuru:3, // çözücünün zincir bulamadığı katile ek iz bırakma turu (0: kapalı)
+  kalite:null, // kalite eleği ayarı (cozucu/kalite.js KALITE_AYAR'ın üstüne yazılır); elek:false eleği kapatır // kurulamayan vaka bu kadar kez türetilmiş tohumla yeniden denenir
   oranlar:Object.freeze({
     santaj:.3, // yeni katil, sırrını bilen eski bir katil tarafından zorlanır
     ortaklik:.22, // bir katil başka bir katilin cinayetinde yardımcı olur
@@ -41,10 +43,10 @@ export const SIM_AYAR=Object.freeze({
     tasla:.4, // silahsız: taşla, odunla vurma ağırlığı
     calintiBirakma:.7, // çalıntı silahı olay yerinde bırakma (suçu başkasına atmak için)
     gorme:Object.freeze({gece:.3,sabah:.75,ogle:.75,ikindi:.65,aksam:.5}), // komşu mekândan görme olasılığı
-    yuzTanima:Object.freeze({gece:.15,sabah:1,ogle:1,ikindi:.9,aksam:.5}), // gören yüzü seçer mi, yoksa yalnızca silüet mi
+    yuzTanima:Object.freeze({gece:.3,sabah:1,ogle:1,ikindi:.9,aksam:.65}), // gören yüzü seçer mi, yoksa yalnızca silüet mi
     geceYoklugu:.45,
-    kanliGiysi:.5,
-    tirmik:.5,
+    kanliGiysi:.65,
+    tirmik:.65,
   }),
 });
 

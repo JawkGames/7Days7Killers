@@ -36,8 +36,14 @@ export default {
     sirt(P,{z:15000,h:1300,renk:[150,150,138],yogun:5000,tohum:41,sisAlt:.6,cizgi:.15});
     sirt(P,{z:6500,h:520,taban:-40,renk:[132,120,100],yogun:4800,tohum:42,nokta:260,teras:6,sisAlt:.45});
     kirZemin(P,isik,{x:[-3000,3000],z:[200,6500],renk:TOPRAK,R,yogun:4800,tohum:331,cakil:220,doku:1.3});
+    // sürülmüş toprağın kesekleri: yakında iri, uzakta ince; her birinin üstü ışık, altı gölge
+    for(let i=0;i<650;i++){const Z=240+Math.pow(R(),1.8)*1600, X=(R()-.5)*(Z*1.5+300), p=P.n(X,0,Z), o=P.olcek(X,0,Z), w=(2+R()*4.5)*o, h=w*(.3+R()*.25);
+      if(p[0]<-10||p[0]>1010) continue;
+      leke(p[0]+w*.2,p[1]+h*.3,w*1.4,h*.7,[0,0,0],.35);
+      c.fillStyle=rgba(golgele(TOPRAK,.75+R()*.4),1); c.beginPath(); c.moveTo(p[0]-w,p[1]); for(let k=1;k<6;k++){const a=Math.PI+k/6*Math.PI; c.lineTo(p[0]+Math.cos(a)*w*(.6+R()*.5),p[1]+Math.sin(a)*h*(.5+R()*.9));} c.lineTo(p[0]+w,p[1]); c.closePath(); c.fill();
+      leke(p[0]-w*.3,p[1]-h*.8,w*.5,h*.35,golgele(TOPRAK,1.35),.5);}
     // sürülmüş toprak: ağaç sıralarına koşut, uzağa doğru birleşen saban izleri
-    for(let x=-700;x<=900;x+=26+R()*14){
+    for(let x=-700;x<=900;x+=60+R()*50){
       const n=[]; for(let z=250;z<=3400;z+=60) n.push(P.n(x+Math.sin(z*.004+x)*6,0,z));
       c.strokeStyle=R()<.5?'rgba(40,30,24,.08)':'rgba(220,196,170,.08)'; c.lineWidth=1+R()*2.6; c.beginPath(); n.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])); c.stroke();
     }
@@ -61,11 +67,11 @@ export default {
     isler.push({z:SINIR.O[2]+10,ciz:()=>{
       duzlemde(P,[SINIR.O[0],0,SINIR.O[2]+12],DUZLEM.zemin,()=>{leke(0,0,40,22,[0,0,0],.5);});
       for(let i=0;i<7;i++){const a=i/7*Math.PI*2, x=SINIR.O[0]+Math.cos(a)*24, z=SINIR.O[2]+12+Math.sin(a)*18; if(z<SINIR.O[2]+6) continue; kaya(P,isik,x,z,{en:16,boy:9,derin:12,renk:TAS,tohum:380+i,nA:6,nK:2,catlak:0,cizgi:.35});}
-      const T=prizma(P,isik,[[-21,0],[21,0],[22,50],[19,88],[8,98],[-10,96],[-20,84],[-22,44]],24,{O:SINIR.O,egZ:.03},[184,178,158],381,{cizgi:.75,doku:12});
+      const T=prizma(P,isik,[[-15,0],[15,0],[14,50],[13,78],[2,88],[-12,79],[-14,46]],22,{O:SINIR.O,egZ:.03},[184,178,158],381,{cizgi:.75,doku:12});
       duzlemde(P,T.O,T.D,()=>{ // badana: tepeden aşağı akmış kireç
-        c.save(); c.beginPath(); c.moveTo(-21,0); c.lineTo(21,0); c.lineTo(22,-50); c.lineTo(19,-88); c.lineTo(8,-98); c.lineTo(-10,-96); c.lineTo(-20,-84); c.lineTo(-22,-44); c.closePath(); c.clip();
-        c.fillStyle='rgba(236,232,216,.55)'; c.beginPath(); c.moveTo(-20,-90); c.lineTo(20,-90); c.lineTo(24,-74); for(let x=22;x>-24;x-=4) c.lineTo(x,-74+(R()*14)); c.closePath(); c.fill();
-        titrek(()=>{c.moveTo(-6,-40); c.lineTo(6,-40); c.moveTo(0,-46); c.lineTo(0,-34);},[40,36,30],.5,1.4,382,1,.4); // kazınmış haç işareti (sınır)
+        c.save(); c.beginPath(); c.moveTo(-15,0); c.lineTo(15,0); c.lineTo(14,-50); c.lineTo(13,-78); c.lineTo(2,-88); c.lineTo(-12,-79); c.lineTo(-14,-46); c.closePath(); c.clip();
+        c.fillStyle='rgba(236,232,216,.55)'; c.beginPath(); c.moveTo(-20,-90); c.lineTo(20,-90); c.lineTo(20,-66); for(let x=18;x>-20;x-=4) c.lineTo(x,-66+(R()*12)); c.closePath(); c.fill();
+        titrek(()=>{c.moveTo(-5,-36); c.lineTo(5,-36); c.moveTo(0,-42); c.lineTo(0,-30);},[40,36,30],.5,1.4,382,1,.4); // kazınmış haç işareti (sınır)
         leke(0,-4,22,8,[20,18,14],.35);
         c.restore();
       });

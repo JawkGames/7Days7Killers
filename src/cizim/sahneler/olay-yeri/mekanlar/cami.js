@@ -12,7 +12,7 @@ import {kutuDoku,tahtaYuzey,tasDoseme,daire3,kenarIsigi,duzlemCizgi,tasYuzey} fr
 const TAS=[186,176,150], TAS2=[166,156,134], DOSEME=[160,152,132], AHSAP=[96,76,54], PIRINC=[176,150,96];
 const ON=700, SOLD=-262;                                       // cephe yüzü, abdest duvarı
 const KAPI={x:[-138,-6], tepe:300, omuz:212, derin:44, kanat:[-112,-32], kanatY:206};
-const MIN={x:[206,326], z:[606,726], h:250, r:46};
+const MIN={x:[196,312], z:[606,722], h:236, r:50};
 const SEKI={x:[34,186], y:[0,44], z:[648,ON]};
 const MUSLUK=[430,482,534,586,638];
 const isik={konum:[1300,1150,-900], guc:1.1, menzil:5000, ortam:.34};
@@ -66,10 +66,10 @@ function minare(P,R){
   const g=[[x0,M.h,z0],[x1,M.h,z0],[x0,M.h,z1]].map(q=>golgeNoktasi(q));
   cokgen3(P,[[x0,0,z0],[x1,0,z0],g[1],g[0],g[2],[x0,0,z1]],[0,0,0],.3);
   // gövde (önce, kaidenin arkasında yükselir)
-  silindir(P,isik,cx,cz,M.r,M.h+30,900,TAS,3100,{dilim:16});
-  for(let y=M.h+60;y<900;y+=34){const h=daire3(cx,y,cz,M.r+.3,M.r+.3,16).filter(q=>P.derinlik(...q)<P.derinlik(cx,y,cz)).sort((a,b)=>P.n(...a)[0]-P.n(...b)[0]); hat3(P,h,[80,74,60],.5,1,3110+y,1,.4);}
+  silindir(P,isik,cx,cz,M.r,M.h+64,1100,TAS,3100,{dilim:12});
+  for(let y=M.h+60;y<1100;y+=34){const h=daire3(cx,y,cz,M.r+.3,M.r+.3,16).filter(q=>P.derinlik(...q)<P.derinlik(cx,y,cz)).sort((a,b)=>P.n(...a)[0]-P.n(...b)[0]); hat3(P,h,[80,74,60],.5,1,3110+y,1,.4);}
   // pabuç: kaideden gövdeye geçen kesik piramit
-  const ust=[[x0,M.h,z0],[x1,M.h,z0],[x1,M.h,z1],[x0,M.h,z1]], pb=[[cx-M.r,M.h+30,cz-M.r],[cx+M.r,M.h+30,cz-M.r],[cx+M.r,M.h+30,cz+M.r],[cx-M.r,M.h+30,cz+M.r]];
+  const ust=[[x0,M.h,z0],[x1,M.h,z0],[x1,M.h,z1],[x0,M.h,z1]], pb=[[cx-M.r,M.h+64,cz-M.r],[cx+M.r,M.h+64,cz-M.r],[cx+M.r,M.h+64,cz+M.r],[cx-M.r,M.h+64,cz+M.r]];
   for(const [a,b] of [[0,1],[3,0]]){const q=[ust[a],ust[b],pb[b],pb[a]]; const m=q.reduce((s,p)=>[s[0]+p[0]/4,s[1]+p[1]/4,s[2]+p[2]/4],[0,0,0]); cokgen3(P,q,golgele(TAS,aydinlik(isik,m,a===0?[0,.6,-.8]:[-.8,.6,0]))); hat3(P,q,MUREKKEP,.5,1,3120+a,1,.6,true);}
   // kaide: makineye bakan ve sol yüz, kesme taş
   tasOrgu(P,isik,[0,0,z0],DUZLEM.arka,[x0,x1,-M.h,0],TAS,R,{sira:32,harc:[120,112,96],duzensiz:.05});
@@ -93,12 +93,12 @@ function abdest(P,R){
   c.save(); c.beginPath(); yol3(P,su); c.clip(); for(const z of MUSLUK){const s=P.n(X+16,17,z), o=P.olcek(X,17,z); leke(s[0],s[1],8*o,3*o,[230,230,220],.5);} c.restore();
   // musluklar: duvardan çıkan pirinç boru, aşağı kıvrık ağız, kelebek kol
   for(const [i,z] of MUSLUK.entries()){
-    const y=74, b=[X,y,z], u=[X+11,y,z], a=[X+12,y-6,z];
-    hat3(P,[b,u],golgele(PIRINC,.55),1,4*P.olcek(...u)/2,3210+i,1,.2); hat3(P,[u,a],golgele(PIRINC,.5),1,3.4*P.olcek(...u)/2,3220+i,1,.2);
-    hat3(P,[[X+4,y+1,z],[X+11,y+1,z]],[240,220,170],.5,1,3230+i,1,.2); // pirinç parıltısı
-    hat3(P,[[X+7,y+2,z-5],[X+7,y+5,z+5]],golgele(PIRINC,.6),1,2*P.olcek(...u)/2,3240+i,1,.2);
-    duzlemde(P,[X,0,0],DUZLEM.sol,()=>{c.fillStyle='rgba(20,18,14,.8)'; c.beginPath(); c.ellipse(z,-y,4,4,0,0,TAU); c.fill();}); // duvardaki göbek
-    hat3(P,[a,[X+12,18,z]],[220,224,214],.35,1,3250+i,1,.2); // damlayan su
+    const y=74, b=[X,y,z], u=[X+18,y,z], a=[X+20,y-9,z];
+    hat3(P,[b,u],golgele(PIRINC,.5),1,4.4*P.olcek(...u),3210+i,1,.2); hat3(P,[u,a],golgele(PIRINC,.45),1,3.6*P.olcek(...u),3220+i,1,.2);
+    hat3(P,[[X+4,y+1.6,z],[X+17,y+1.6,z]],[240,220,170],.6,1.2*P.olcek(...u),3230+i,1,.2); // pirinç parıltısı
+    hat3(P,[[X+10,y+2,z-6],[X+10,y+6,z+6]],golgele(PIRINC,.55),1,2*P.olcek(...u),3240+i,1,.2);
+    duzlemde(P,[X,0,0],DUZLEM.sol,()=>{c.fillStyle='rgba(20,18,14,.8)'; c.beginPath(); c.ellipse(z,-y,6,6,0,0,TAU); c.fill(); leke(z,-y+30,8,30,[10,12,10],.35);}); // duvardaki göbek ve ıslak iz
+    hat3(P,[a,[X+20,18,z]],[220,224,214],.4,1,3250+i,1,.2); // damlayan su
     // oturak taşı
     kutuDoku(P,isik,[X+52,X+82],[0,30],[z-15,z+15],TAS2,3260+i,{doku:'tas',kenar:.5});
   }
@@ -110,11 +110,11 @@ function abdest(P,R){
 
 export default {
   id:'cami',
-  kamera:{odak:820, yukseklik:155, egim:.14},
+  kamera:{odak:820, yukseklik:155, egim:.1},
   isik,
   yuvalar:{
-    'zemin-on':    {duzlem:'zemin', konum:[34,0,286], yuzey:'tas', alan:18},
-    'zemin-orta':  {duzlem:'zemin', konum:[92,0,560], yuzey:'tas', alan:10},
+    'zemin-on':    {duzlem:'zemin', konum:[34,0,286], yuzey:'tas', alan:18, aci:1.5},
+    'zemin-orta':  {duzlem:'zemin', konum:[92,0,560], yuzey:'tas', alan:10, aci:1.5},
     'zemin-kose':  {duzlem:'zemin', konum:[236,0,500], yuzey:'tas', alan:8},
     'esik':        {duzlem:'zemin', konum:[-72,13,ON-18], yuzey:'tas', alan:6},
     'duvar':       {duzlem:'arka', konum:[-196,150,ON], yuzey:'tas', alan:4, uygunsuz:['saat']},
@@ -137,16 +137,15 @@ export default {
     for(let i=2;i<kn.length-3;i+=2){const q=[kn[i],kn[i+2],kd[i+2],kd[i]]; c.beginPath(); duzlemCizgi(P,[0,0,ON],DUZLEM.arka,q); c.closePath(); c.fillStyle=rgba(golgele(i%4?TAS:[120,112,96],aydinlik(isik,[0,250,ON],[0,0,-1])),1); c.fill(); c.strokeStyle='rgba(60,54,44,.6)'; c.lineWidth=.8; c.stroke();}
     titrek(()=>duzlemYol(P,[0,0,ON],DUZLEM.arka,kn,false),MUREKKEP,.8,1.4,3301,2,1.2);
     titrek(()=>duzlemYol(P,[0,0,ON],DUZLEM.arka,kd,false),MUREKKEP,.5,1,3302,2,1.2);
-    const cer=[[K.x[0]-34,0],[K.x[0]-34,-K.tepe-44],[K.x[1]+34,-K.tepe-44],[K.x[1]+34,0]];
-    titrek(()=>duzlemYol(P,[0,0,ON],DUZLEM.arka,cer,false),MUREKKEP,.55,1.2,3303,2,1);
-    titrek(()=>duzlemYol(P,[0,0,ON],DUZLEM.arka,cer.map(([x,y])=>[x+(x<0?6:-6)*(x<K.x[0]?1:-1),y+(y<0?6:0)]),false),MUREKKEP,.35,1,3304,2,1);
+    // taç kapının dikdörtgen çerçeve silmesi: cepheden hafif taşan taş bant
+    for(const [x0,x1,y0,y1] of [[K.x[0]-36,K.x[0]-24,0,K.tepe+44],[K.x[1]+24,K.x[1]+36,0,K.tepe+44],[K.x[0]-36,K.x[1]+36,K.tepe+32,K.tepe+44]]) kutuDoku(P,isik,[x0,x1],[y0,y1],[ON-5,ON],golgele(TAS,1.04),3303+x0+y0,{doku:'tas',kenar:.35,ust:false,cizgi:.45});
     // cephe pencereleri: demir parmaklıklı, içi karanlık, üstte sivri alınlık
     for(const x of[-236,110]){
       const q=[[x-30,112,ON],[x+30,112,ON],[x+30,212,ON],[x-30,212,ON]]; cokgen3(P,q,[22,22,20]);
       for(let i=1;i<5;i++) hat3(P,[[x-30+i*12,112,ON+4],[x-30+i*12,212,ON+4]],[46,44,40],1,1.8,3310+x+i,1,.2);
       for(const y of[145,180]) hat3(P,[[x-30,y,ON+4],[x+30,y,ON+4]],[46,44,40],1,1.6,3320+x+y,1,.2);
       kutuDoku(P,isik,[x-36,x+36],[104,112],[ON-8,ON],TAS,3330+x,{doku:'tas',kenar:.5}); hat3(P,q,MUREKKEP,.6,1.1,3340+x,2,1,true);
-      const al=[[x-30,224],[x,-0],[x+30,224]].map(([a,b])=>[a,-(b||262)]); titrek(()=>duzlemYol(P,[0,0,ON],DUZLEM.arka,al,false),MUREKKEP,.5,1.1,3350+x,2,1);
+      kutuDoku(P,isik,[x-36,x+36],[212,222],[ON-6,ON],TAS,3350+x,{doku:'tas',kenar:.4,ust:false});
     }
     // avlu
     tasDoseme(P,isik,[-620,620],[200,ON],DOSEME,R,{boy:48,derz:[92,84,68]});
@@ -160,13 +159,6 @@ export default {
     tasYuzey(P,isik,[0,SEKI.y[1],0],DUZLEM.ust,[SEKI.x[0],SEKI.x[1],-SEKI.z[1],-SEKI.z[0]],golgele(TAS,1.02),R,{adim:20});
     kenarIsigi(P,[SEKI.x[0],SEKI.y[1],SEKI.z[0]],[SEKI.x[1],SEKI.y[1],SEKI.z[0]],R,{alfa:.5});
     minare(P,R);
-    // sağ önde çınar gövdesi (kadrajın sağını ve üstünü keser), kabuk lekeli; gölgesi yere
-    { const X=330, Z=290; cokgen3(P,[[X-40,0,Z],[X+30,0,Z-20],golgeNoktasi([X+30,700,Z-20]),golgeNoktasi([X-40,700,Z])],[0,0,0],.25);
-      silindir(P,{...isik,ortam:.3},X,Z,38,0,900,[110,104,90],3500,{dilim:20});
-      const s0=P.n(X-38,0,Z), s1=P.n(X+38,600,Z); c.save(); c.beginPath(); c.rect(s0[0]-30,0,s1[0]-s0[0]+60,s0[1]+10); c.clip();
-      for(let i=0;i<40;i++){const y=R()*500, a=-1.2+R()*2, q=P.n(X+Math.sin(a)*38,y,Z-Math.cos(a)*38), o=P.olcek(X,y,Z); leke(q[0],q[1],(8+R()*14)*o,(5+R()*12)*o,R()<.5?[200,196,176]:[30,28,24],.35);}
-      c.restore();
-      for(let i=0;i<5;i++) hat3(P,[[X-38+i*3,0,Z-10],[X-36+i*3,700,Z-10]],MUREKKEP,.25,1,3510+i,1,.6); }
   },
   ustCiz(P,r){
     atmosfer(r,{tarama:.08,leke:.07});

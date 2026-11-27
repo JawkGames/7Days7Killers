@@ -11,8 +11,8 @@ import {coz} from './coz.js';
 
 export const KALITE_AYAR=Object.freeze({
   enAzZincir:2,
-  enAzSorgu:8, // bundan az sorguyla çözülen vaka çok kolaydır
-  tekTanikEnCok:4, // tek bir tanığın tek ifadesiyle çözülen cinayet sayısı bunu aşarsa vaka çok kolaydır
+  enAzSorgu:4, // bundan az sorguyla (iki bağımsız zincirle) çözülen vaka çok kolaydır
+  tekTanikEnCok:4, // tek bir tanığın tek ifadesiyle çözülebilen cinayet sayısı bunu aşarsa vaka çok kolaydır
 });
 
 // Döner: {gecti, nedenler:[...], zorluk, katiller, yanilticilar, celiskiler, enAzSorgu, cozum}
@@ -37,6 +37,8 @@ export function kaliteRaporu(vaka,ayar={}){
     const sc=cozC[y.cinayet], curutme=[];
     let tamam=true;
     for(const P of y.isaret){
+      // Başka bir cinayetin katiliyse yanıltıcı iz oyuncuyu yine bir katile götürür: zararsız.
+      if(rol(P)==='katil'&&sc.supheliler.some(s=>s.kisi===P)){curutme.push({kisi:P,yol:[{tur:'baska-cinayetin-katili'}]}); continue;}
       if(sc.supheliler.some(s=>s.kisi===P)){tamam=false; curutme.push({kisi:P,yol:null}); continue;}
       const l=sc.aciklamalar[P];
       if(l===undefined){curutme.push({kisi:P,yol:[{tur:'gorunmedi'}]}); continue;} // iz oyuncuya ulaşmadı (fark eden sustu)

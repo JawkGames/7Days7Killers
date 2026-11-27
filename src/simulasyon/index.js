@@ -11,7 +11,8 @@ import {haritaKur} from './harita.js';
 import {sebepAdaylari,rolleriSec} from './roller.js';
 import {rutinKur} from './cizelge.js';
 import {cinayetleriYerlestir} from './cinayet.js';
-import {izleriKur} from './izler.js';
+import {izleriKur,izTamamla} from './izler.js';
+import {kaliteRaporu,kaliteOzeti} from './cozucu/kalite.js';
 import {cekirdekSec} from './cekirdek.js';
 import {onemliIfadeler} from './yalan.js';
 
@@ -71,6 +72,19 @@ function kur(tohum,deneme,koy,ayar){
     cizelge:cz.yer,neden:cz.neden,
     ifadeler:[],
   };
-  vaka.ifadeler=onemliIfadeler(vaka);
-  return JSON.parse(JSON.stringify(vaka)); // düz veri olduğunu garanti eder (undefined alan kalmaz)
+  // Tamamlama: çözücü bir katile iki bağımsız zincir bulamazsa olay yerine o katilin bir izi daha eklenir
+  // (en çok ayar.tamamlamaTuru tur). Sonra kalite eleği vakanın tamamına bakar.
+  let v=vaka, rapor=null;
+  for(let tur=0;tur<=ayar.tamamlamaTuru;tur++){
+    rapor=kaliteRaporu(v,ayar.kalite);
+    if(tur===ayar.tamamlamaTuru) break;
+    const eksik=rapor.katiller.filter(k=>k.zincirSayisi<(ayar.kalite?.enAzZincir??2));
+    let eklendi=0;
+    for(const k of eksik) if(izTamamla(v,k.cinayet)) eklendi++;
+    if(!eklendi) break;
+    v={...v,izler:[...v.izler]}; // yeni nesne: ifade motorunun önbelleği eski izleri tutmasın
+  }
+  v.kalite=kaliteOzeti(rapor);
+  v.ifadeler=onemliIfadeler(v);
+  return JSON.parse(JSON.stringify(v)); // düz veri olduğunu garanti eder (undefined alan kalmaz)
 }

@@ -1,17 +1,19 @@
 // Demirci dükkânı: solda közü sönmemiş ocak ve isli davlumbaz, yanında deri körük; ortada kütük üstünde örs;
-// sağda arka duvarda çivilere asılı aletler. Tek ışık: ocaktaki köz. Her şeyin sol yanı aydınlık, sağa uzun gölge.
+// sağda arka duvarda çivilere asılı aletler. Tek ışık: makinenin arkasında, sokağa tümden açık dükkân ağzından giren
+// gün ışığı (önden ve biraz yukarıdan); gölgeler duvarlara doğru düşer. Ocaktaki köz yalnızca sıcak bir parıltı verir.
 import {c} from '../../../teknik/tuval.js';
 import {TAU,rgba} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
 import {kutu,silindir,cokgen3,hat3,yol3,aydinlik,golgele} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
-import {duzlemde,tasOrgu,sivaDuvar,zemin,karanlik,atmosfer,leke,tara,MUREKKEP} from '../mekan-yardim.js';
+import {duzlemde,tasOrgu,sivaDuvar,zemin,karanlik,atmosfer,leke,MUREKKEP} from '../mekan-yardim.js';
+import {isikDusmesi,yuzDoku} from './halil-evi.js';
 
-const TAS=[112,104,90], SIVA=[96,90,78], TOPRAK=[70,64,54], AHSAP=[96,80,60], DEMIR=[70,70,68], DERI=[78,62,46];
+const ISLI=[100,94,84], TAS=[128,120,104], SIVA=[132,124,108], TOPRAK=[100,92,78], AHSAP=[112,94,70], DEMIR=[92,92,90], DERI=[118,94,68];
 const ARKA=480, SOL=-300, SAG=300;
 const OCAK={x:[-246,-62], y:[0,72], z:[388,ARKA]}, KOZ=[-152,74,432];
 const ORS={x:95, z:330, r:24, h:58};
-const isik={konum:[KOZ[0],KOZ[1]+30,KOZ[2]-20], guc:1.7, menzil:260, ortam:.2};
+const isik={konum:[70,200,30], guc:1.45, menzil:560, ortam:.3};
 
 // arka duvarda çiviye asılı alet (yerel düzlem: çivi 0,0; y aşağı). Alet ışığı soldan alır, gölgesi sağa düşer.
 function asili(P,X,Y,ciz,t){
@@ -40,11 +42,13 @@ export default {
     const R=rng(7731), O=OCAK;
     c.fillStyle='#090a08'; c.fillRect(0,0,1000,750);
     // duvarlar: kerpiç üstü sıva, isle kararmış; ocağın üstü kapkara
-    sivaDuvar(P,isik,[0,0,ARKA],DUZLEM.arka,[SOL,SAG,-330,0],SIVA,R,{is:.5});
-    duzlemde(P,[0,0,ARKA],DUZLEM.arka,()=>{leke(-150,-200,170,160,[0,0,0],.75); leke(-60,-260,260,120,[0,0,0],.5); for(let i=0;i<10;i++) leke((R()-.5)*560,-R()*300,30+R()*80,40+R()*90,[0,0,0],.12+R()*.15);});
-    sivaDuvar(P,isik,[SOL,0,0],DUZLEM.sol,[100,ARKA,-330,0],SIVA,R,{is:.5});
-    sivaDuvar(P,isik,[SAG,0,0],DUZLEM.sag,[-ARKA,-100,-330,0],SIVA,R,{is:.5});
+    sivaDuvar(P,isik,[0,0,ARKA],DUZLEM.arka,[SOL,SAG,-330,0],SIVA,R,{is:.3});
+    duzlemde(P,[0,0,ARKA],DUZLEM.arka,()=>{leke(-150,-230,150,130,[0,0,0],.55); leke(-60,-280,240,90,[0,0,0],.35); for(let i=0;i<10;i++) leke((R()-.5)*560,-R()*300,30+R()*80,40+R()*90,[0,0,0],.12+R()*.15);});
+    sivaDuvar(P,isik,[SOL,0,0],DUZLEM.sol,[100,ARKA,-330,0],SIVA,R,{is:.35});
+    sivaDuvar(P,isik,[SAG,0,0],DUZLEM.sag,[-ARKA,-100,-330,0],SIVA,R,{is:.35});
     zemin(P,isik,[SOL,SAG],[150,ARKA],TOPRAK,R,{tohum:810,doku:1.3});
+    // dükkân ağzından giren ışık: önde güçlü, derine doğru söner (kenarı yumuşak)
+    isikDusmesi(P,[[-330,0,170],[330,0,170],[300,0,430],[-300,0,430]],[40,0,190],[0,0,440],.7);
     // kömür tozu ve tufal (dövülen demirden dökülen pul): örsün çevresinde parlak kırıntı
     duzlemde(P,[ORS.x,0,ORS.z],DUZLEM.zemin,()=>{leke(0,0,90,60,[0,0,0],.45); for(let i=0;i<90;i++){const a=R()*TAU, u=20+R()*70; c.fillStyle=R()<.3?'rgba(170,166,150,.5)':'rgba(10,10,10,.7)'; c.fillRect(Math.cos(a)*u,Math.sin(a)*u*.8,1+R()*1.6,1+R()*1.2);}});
     for(const q of[[SOL,ARKA,SAG,ARKA],[SOL,150,SOL,ARKA],[SAG,150,SAG,ARKA]]){const s0=P.n(q[0],0,q[1]), s1=P.n(q[2],0,q[3]); c.strokeStyle='rgba(0,0,0,.6)'; c.lineWidth=8; c.beginPath(); c.moveTo(s0[0],s0[1]); c.lineTo(s1[0],s1[1]); c.stroke();}
@@ -60,8 +64,8 @@ export default {
     for(let i=0;i<5;i++){const x=10+i*7+R()*3; hat3(P,[[x,0,ARKA-6],[x+8+R()*4,120+R()*30,ARKA-1]],DEMIR,.9,2.2,920+i,1,.5);}
     // ocak: taş seki, üstünde köz çukuru
     kutu(P,isik,O.x,O.y,O.z,TAS,930);
-    tasOrgu(P,{...isik,ortam:.3},[0,0,O.z[0]],DUZLEM.arka,[O.x[0],O.x[1],-O.y[1],0],TAS,R,{sira:18,harc:[18,16,14]});
-    tasOrgu(P,{...isik,ortam:.3},[O.x[1],0,0],DUZLEM.sag,[-O.z[1],-O.z[0],-O.y[1],0],TAS,R,{sira:18,harc:[18,16,14]});
+    tasOrgu(P,{...isik,ortam:.22,guc:1},[0,0,O.z[0]],DUZLEM.arka,[O.x[0],O.x[1],-O.y[1],0],ISLI,R,{sira:18,harc:[44,40,34],duzensiz:.4});
+    tasOrgu(P,{...isik,ortam:.2,guc:.9},[O.x[1],0,0],DUZLEM.sag,[-O.z[1],-O.z[0],-O.y[1],0],ISLI,R,{sira:18,harc:[40,36,30],duzensiz:.4});
     cokgen3(P,[[O.x[0],O.y[1],O.z[0]],[O.x[1],O.y[1],O.z[0]],[O.x[1],O.y[1],O.z[1]],[O.x[0],O.y[1],O.z[1]]],[64,58,50]);
     duzlemde(P,[KOZ[0],O.y[1],KOZ[2]],DUZLEM.ust,()=>{
       c.fillStyle='rgb(14,12,10)'; c.beginPath(); c.ellipse(0,0,34,26,0,0,TAU); c.fill();
@@ -70,16 +74,21 @@ export default {
         c.fillStyle=`rgb(${20+sic*150|0},${18+sic*110|0},${14+sic*60|0})`; c.beginPath(); c.moveTo(x-s,y); c.lineTo(x-s*.2,y-s*.8); c.lineTo(x+s,y-s*.2); c.lineTo(x+s*.4,y+s*.7); c.closePath(); c.fill();}
       leke(0,0,12,9,[255,246,210],.6);
     });
-    // davlumbaz: isli sıva, aşağısı köz ışığını alır
-    const dv=[[O.x[0]-8,150,O.z[0]-14],[O.x[1]+8,150,O.z[0]-14],[O.x[1]-30,300,ARKA-30],[O.x[0]+30,300,ARKA-30]];
-    const dvSag=[[O.x[1]+8,150,O.z[0]-14],[O.x[1]+8,150,ARKA],[O.x[1]-30,300,ARKA],[O.x[1]-30,300,ARKA-30]];
-    cokgen3(P,dvSag,[34,30,26]); hat3(P,dvSag,MUREKKEP,.6,1.3,942,2,1.2,true);
-    cokgen3(P,dv,[46,42,36]);
-    c.save(); c.beginPath(); yol3(P,dv); c.clip(); const da=P.n(KOZ[0],150,O.z[0]-14);
-    const dg=c.createLinearGradient(0,da[1],0,0); dg.addColorStop(0,'rgba(170,140,100,.55)'); dg.addColorStop(.5,'rgba(60,50,40,.2)'); dg.addColorStop(1,'rgba(0,0,0,.5)'); c.fillStyle=dg; c.fillRect(0,0,1000,da[1]+5);
-    tara(0,0,1000,da[1]+10,1.2,5,MUREKKEP,.35,940,1); for(let i=0;i<8;i++) leke(R()*600,R()*da[1],40+R()*80,20+R()*50,[0,0,0],.15); c.restore();
-    cokgen3(P,[[O.x[0]-8,150,O.z[0]-14],[O.x[1]+8,150,O.z[0]-14],[O.x[1]+8,142,O.z[0]-14],[O.x[0]-8,142,O.z[0]-14]],[90,80,64]);
-    hat3(P,dv,MUREKKEP,.7,1.5,941,2,1.4,true);
+    // davlumbaz: ocağın üstünde sıvalı yaşmak; alt kenarında ağaç hatıl, yukarı doğru isle kararır, bacaya daralır
+    const dv=[[O.x[0]-6,152,O.z[0]-10],[O.x[1]+6,152,O.z[0]-10],[O.x[1]-34,262,ARKA-26],[O.x[0]+34,262,ARKA-26]];
+    const dvSag=[[O.x[1]+6,152,O.z[0]-10],[O.x[1]+6,152,ARKA],[O.x[1]-34,262,ARKA],[O.x[1]-34,262,ARKA-26]];
+    cokgen3(P,dvSag,golgele(SIVA,.42)); yuzDoku(P,dvSag,R,{sik:4,alfa:.3,lek:2}); hat3(P,dvSag,MUREKKEP,.6,1.3,942,2,1.2,true);
+    cokgen3(P,dv,golgele(SIVA,.85));
+    c.save(); c.beginPath(); yol3(P,dv); c.clip(); const da=P.n(KOZ[0],152,O.z[0]-10), du=P.n(KOZ[0],262,ARKA-26);
+    const dg=c.createLinearGradient(0,da[1],0,du[1]); dg.addColorStop(0,'rgba(0,0,0,0)'); dg.addColorStop(.55,'rgba(0,0,0,.25)'); dg.addColorStop(1,'rgba(0,0,0,.6)'); c.fillStyle=dg; c.fillRect(0,0,1000,750);
+    leke(da[0],da[1]-6,90,18,[220,170,110],.25); // alttan köz ışığı
+    for(let i=0;i<9;i++){const x=O.x[0]+10+R()*(O.x[1]-O.x[0]-20), s0=P.n(x,160,O.z[0]-10); leke(s0[0],s0[1]-40-R()*60,6+R()*10,50+R()*50,[0,0,0],.12+R()*.12);} // is akıntısı
+    c.restore();
+    yuzDoku(P,[dv[0],dv[1],dv[2],dv[3]],R,{sik:3,alfa:.18,lek:4});
+    for(let i=0;i<3;i++){let x=O.x[0]+30+R()*120, y=240; const n=[]; for(let k=0;k<5;k++){n.push([x,y,O.z[0]-10+(y-152)/110*(ARKA-26-O.z[0]+10)]); x+=(R()-.5)*10; y-=12+R()*8;} hat3(P,n,MUREKKEP,.45,1,944+i,1,.6);} // çatlak
+    kutu(P,isik,[O.x[0]-10,O.x[1]+10],[144,154],[O.z[0]-14,O.z[0]-6],AHSAP,943,{cizgi:.7}); // hatıl
+    yuzDoku(P,[[O.x[0]-10,144,O.z[0]-14],[O.x[1]+10,144,O.z[0]-14],[O.x[1]+10,154,O.z[0]-14],[O.x[0]-10,154,O.z[0]-14]],R,{sik:3,alfa:.4,lek:1});
+    hat3(P,dv,MUREKKEP,.75,1.5,941,2,1.4,true);
     // körük: ocağın sağında sehpa üstünde; deri kıvrımlı, üst tahtası kalkık, ucu ocağa girer
     const KX=[-40,70], KZ=[420,466], ky0=42;
     for(const x of[-30,58]) for(const z of[KZ[0]+4,KZ[1]-4]) kutu(P,isik,[x-3,x+3],[0,ky0],[z-3,z+3],AHSAP,950+x+z,{cizgi:.35});
@@ -87,12 +96,12 @@ export default {
     const ust=[[KX[0],ky0+8,KZ[0]+6],[KX[1],ky0+50,KZ[0]],[KX[1],ky0+50,KZ[1]],[KX[0],ky0+8,KZ[1]-6]];
     // deri: üst ve alt tahta arasında dışa şişen kıvrımlar (her kıvrımın sırtı ışık alır)
     const kat=5, govde=[alt[0],alt[1],ust[1],ust[0]];
-    cokgen3(P,govde,golgele(DERI,.42));
+    cokgen3(P,govde,golgele(DERI,.36));
     c.save(); c.beginPath(); yol3(P,govde); c.clip(); const kd=P.n(KX[0]+10,ky0+10,KZ[0]); leke(kd[0],kd[1],40,30,golgele(DERI,1.2),.4); leke(kd[0]+120,kd[1]-20,90,50,[0,0,0],.45); c.restore();
     for(let i=0;i<kat;i++){ // kıvrım sırtları ve araları
       const f=(i+.5)/kat, x=KX[0]+(KX[1]-KX[0])*f, h=8+42*f, x2=KX[0]+(KX[1]-KX[0])*(i+1)/kat;
-      hat3(P,[[x,ky0+1,KZ[0]-1],[x-2,ky0+h*.5,KZ[0]-6*f-2],[x,ky0+h-1,KZ[0]-1]],golgele(DERI,1.5),.75,2,960+i,1,.5);
-      hat3(P,[[x2,ky0+1,KZ[0]],[x2-1,ky0+(8+42*(i+1)/kat)*.5,KZ[0]-1],[x2,ky0+8+42*(i+1)/kat-1,KZ[0]]],[8,6,4],.8,1.4,965+i,1,.5);
+      hat3(P,[[x,ky0+1,KZ[0]-1],[x-2,ky0+h*.5,KZ[0]-6*f-2],[x,ky0+h-1,KZ[0]-1]],golgele(DERI,1.6),.9,3.2,960+i,1,.4);
+      hat3(P,[[x2,ky0+1,KZ[0]],[x2-1,ky0+(8+42*(i+1)/kat)*.5,KZ[0]-1],[x2,ky0+8+42*(i+1)/kat-1,KZ[0]]],[8,6,4],.9,2.2,965+i,1,.5);
     }
     cokgen3(P,ust,golgele(AHSAP,aydinlik(isik,[15,ky0+30,443],[-.4,.9,0])));
     hat3(P,ust,MUREKKEP,.7,1.2,970,2,1,true); hat3(P,govde,MUREKKEP,.75,1.3,971,2,1,true);
@@ -102,6 +111,8 @@ export default {
     for(let i=0;i<60;i++){const x=-262+R()*70, z=332+R()*50, h=Math.max(0,22-Math.hypot(x+228,z-356)*.5)*R(), s=P.n(x,h,z), o=P.olcek(x,h,z), rr=(2+R()*3)*o;
       c.fillStyle=`rgb(${16+R()*24|0},${16+R()*22|0},${16+R()*18|0})`; c.beginPath(); c.moveTo(s[0]-rr,s[1]); c.lineTo(s[0]-rr*.3,s[1]-rr*.8); c.lineTo(s[0]+rr,s[1]-rr*.3); c.lineTo(s[0]+rr*.5,s[1]+rr*.6); c.closePath(); c.fill();
       if(R()<.4){c.fillStyle='rgba(150,140,120,.35)'; c.fillRect(s[0]-rr*.4,s[1]-rr*.5,rr*.5,1);}}
+    // yere düşmüş yarım nallar ve çivi
+    duzlemde(P,[112,0,252],DUZLEM.zemin,()=>{for(const [x,y,a] of[[0,0,.6],[16,8,2.6],[-10,14,4.4]]){c.save(); c.translate(x,y); c.rotate(a); leke(1,1,9,7,[0,0,0],.5); c.strokeStyle='rgb(62,60,56)'; c.lineWidth=2.6; c.beginPath(); c.arc(0,0,6,Math.PI*.15,Math.PI*1.85); c.stroke(); c.strokeStyle='rgba(210,206,190,.5)'; c.lineWidth=.6; c.beginPath(); c.arc(0,0,7,Math.PI*1.1,Math.PI*1.6); c.stroke(); c.restore();}});
     // örs kütüğü ve örs
     { const s=P.n(ORS.x,0,ORS.z), L=P.n(ORS.x+200,0,ORS.z+80); leke((s[0]+L[0])/2,(s[1]+L[1])/2,110,22,[0,0,0],.6); } // sağa uzun gölge
     silindir(P,isik,ORS.x,ORS.z,ORS.r,0,ORS.h,AHSAP,980,{ustRenk:[110,96,74]});

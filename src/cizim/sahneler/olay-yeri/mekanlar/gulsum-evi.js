@@ -4,7 +4,7 @@
 import {c} from '../../../teknik/tuval.js';
 import {TAU,rgba} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
-import {kutu,cokgen3,hat3,yol3,golgele,tabana} from '../kalem.js';
+import {kutu,cokgen3,hat3,golgele,tabana} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,zemin,karanlik,atmosfer,leke,titrek,MUREKKEP} from '../mekan-yardim.js';
 import {RENK_EV,odaDuvarlari,odaKenarlari,tavanCiz,bosluk,duvarBoslugu,isikDusmesi,huzme,yuzDoku,tabanGolgesi,
@@ -159,13 +159,6 @@ export default {
     titrek(sep,MUREKKEP,.8,.9,5195,2,.5);
     titrek(()=>{c.moveTo(-10,-24); c.bezierCurveTo(-28,-20,-30,-6,-36,2);},[120,52,44],.85,1,5196,1,.2);
     c.restore();
-    // sol duvar köşesinde süpürge
-    // çalı süpürgesi: bağlı sap yukarıda, çalılar yere yayılır (karaltı + çizgiler)
-    const sb=[[SOL+8,96,ARKA-60],[SOL+16,96,ARKA-66],[SOL+44,0,ARKA-92],[SOL+10,0,ARKA-50]]; cokgen3(P,sb,[120,104,72]);
-    tabana(); c.save(); c.beginPath(); yol3(P,sb); c.clip(); const sm=P.n(SOL+24,40,ARKA-70); leke(sm[0]+10,sm[1],30,90,[0,0,0],.4); c.restore();
-    for(let i=0;i<12;i++) hat3(P,[[SOL+12,92,ARKA-63],[SOL+10+i*3,0,ARKA-50-i*3.6]],[50,40,24],.55,.8,5199+i,1,.4);
-    hat3(P,sb,MUREKKEP,.7,1.1,5198,2,.6,true);
-    for(const y of[80,88]) hat3(P,[[SOL+8,y,ARKA-60],[SOL+19,y,ARKA-67]],[40,30,20],.9,2.2,5210+y,1,.2);
   },
   ustCiz(P,r){
     atmosfer(r,{tarama:.08,leke:.08});

@@ -85,10 +85,10 @@ export function zamanSozu(t,sorguGunu,{dilimler=DILIMLER,rng}={}){
   return sec(tablo[satir],rng).replace('{n}',sayiSozu(n));
 }
 
-// Defterde mutlak zaman: "2. gün, gece".
+// Defterde mutlak zaman: "2. gün, gece". Noktadan sonra bölünmez boşluk: kalıp motoru "2. Gün" diye büyütmesin.
 export function zamanDefter(t,{dilimler=DILIMLER}={}){
   const {gun,dilim}=zamanParcala(t,dilimler);
-  return `${gun}. gün, ${dilimAdi(dilim)}`;
+  return `${gun}.\u00a0gün, ${dilimAdi(dilim)}`;
 }
 
 // Gün başlığı: "Birinci gün", "Yedinci gün".

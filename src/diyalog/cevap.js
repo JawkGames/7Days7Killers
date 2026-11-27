@@ -308,10 +308,10 @@ function yuzlesmeCevabi(c){
   const v=c.vaka;
   // Kendi ifadesi motorun sorabildiği bir olguya dayanıyorsa yeniden sor; yoksa (dolaylı, ilişki) doğru saymaz, direnir.
   const f=kendi?.olgu?ifade(v,c.kisi,kendi.olgu,{gun:c.gun}):null;
-  const tekrar=kendi?.iddialar||[];
   if(!f||f.tavir==='dogru'||f.tavir==='abarti'||f.tavir==='bilmez'){
     let metin=c.kur('yuzlesme-israr-dogru',{diger:digerAd});
-    const iddialar=[...tekrar];
+    // Aynı sözü yinelemek yeni önerme değildir (yeniden yazılırsa aynı çelişki sonsuza dek çoğalır).
+    const iddialar=[];
     // Kendi yeri soruluyorsa yanında olan birini tanık gösterir.
     if(kendi?.olgu?.tur==='konum'&&kendi.olgu.kisi===c.kisi){
       const t=kendi.olgu.zaman, P=v.cizelge[c.kisi][t];
@@ -355,7 +355,7 @@ function yuzlesmeCevabi(c){
       metin:c.kur('yuzlesme-itiraf-esya',{esya:izAdi(iz,c.dil)})+' '+a.metin});
   }
   // Katil, suç ortağı, örten: direnir.
-  return sonuc(c,{olgu:o,tavir:'yalan',kural:f.kural,gerginlik:g,iddialar:tekrar,metin:c.kur('yuzlesme-israr-yalan',{diger:digerAd})});
+  return sonuc(c,{olgu:o,tavir:'yalan',kural:f.kural,gerginlik:g,iddialar:[],metin:c.kur('yuzlesme-israr-yalan',{diger:digerAd})});
 }
 
 /* ---------------- Selam ---------------- */

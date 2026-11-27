@@ -61,8 +61,14 @@ export function badanaDuvar(P,isik,O,D,[x0,x1,y0,y1],renk,R,{is=0,yamalar=[],cat
   for(const [cx,cy,w,h] of yamalar){
     const kenar=Array.from({length:13},(_,k)=>{const t=k/13*Math.PI*2, f=.62+R()*.42; return [cx+Math.cos(t)*w*f,cy+Math.sin(t)*h*f];});
     c.save(); tabana(); c.beginPath(); duzlemYol(P,O,D,kenar); c.clip();
-    tasOrgu(P,isik,O,D,[cx-w,cx+w,cy-h,cy+h],golgele(renk,.78),R,{sira:12,harc:[30,26,22],duzensiz:.5});
-    c.restore(); tabana(); titrek(()=>duzlemYol(P,O,D,kenar),MUREKKEP,.55,1.1,(R()*1e5)|0,2,1);
+    tasOrgu(P,isik,O,D,[cx-w,cx+w,cy-h,cy+h],golgele(renk,.9),R,{sira:12,harc:golgele(renk,.42),duzensiz:.5});
+    // derinlik: sıvanın kalınlığı üst kenarda gölge bırakır; yama duvarın genel ışığına yaklaştırılır
+    const ms=P.n(...dn(cx,cy)), mo=P.olcek(...dn(cx,cy));
+    leke(ms[0],ms[1],w*mo*1.1,h*mo*1.1,golgele(renk,aydinlik(isik,dn(cx,cy),nn)),.35);
+    leke(ms[0],ms[1]-h*mo*.7,w*mo*.9,h*mo*.35,[0,0,0],.35);
+    c.restore(); tabana();
+    c.save(); c.translate(0,1.2); titrek(()=>duzlemYol(P,O,D,kenar),golgele(renk,1.6),.5,1.4,(R()*1e5)|0,1,.5); c.restore();
+    titrek(()=>duzlemYol(P,O,D,kenar),MUREKKEP,.5,.9,(R()*1e5)|0,2,1);
   }
 }
 
@@ -434,7 +440,7 @@ export default {
   isik,
   yuvalar:{
     'zemin-on':   {duzlem:'zemin', konum:[70,0,238], yuzey:'toprak', alan:16},
-    'zemin-orta': {duzlem:'zemin', konum:[-118,0,414], yuzey:'toprak', alan:8},
+    'zemin-orta': {duzlem:'zemin', konum:[-96,0,374], yuzey:'toprak', alan:7},
     'zemin-kose': {duzlem:'zemin', konum:[-196,0,300], yuzey:'toprak', alan:5},
     'esik':       {duzlem:'zemin', konum:[-198,0,ARKA-12], yuzey:'tas', alan:4},
     'duvar':      {duzlem:'arka', konum:[8,126,ARKA], yuzey:'siva', alan:6},
@@ -507,10 +513,7 @@ export default {
     // dağılmış saman: bölmenin önünden makineye doğru seyrelir
     for(let i=0;i<220;i++){const x=40+R()*(SAG-40), z=200+R()*(B.z[0]-200)*(.4+R()*.6), s=P.n(x,0,z), o=P.olcek(x,0,z), a=R()*Math.PI, u=(4+R()*9)*o;
       tabana(); c.strokeStyle=`rgba(${160+R()*50|0},${144+R()*40|0},${96+R()*30|0},${.15+R()*.3})`; c.lineWidth=.8; c.beginPath(); c.moveTo(s[0],s[1]); c.lineTo(s[0]+Math.cos(a)*u,s[1]+Math.sin(a)*u*.4); c.stroke();}
-    // sağ önde odun kütüğü (balta takozu), dibinde nallar
-    tabanGolgesi(P,isik,118,162,248,288,.6);
-    silindir(P,isik,140,268,22,0,40,AHSAP,8280,{ustRenk:[150,130,100]});
-    duzlemde(P,[140,40,268],DUZLEM.ust,()=>{for(let i=1;i<5;i++){c.strokeStyle='rgba(40,30,20,.45)'; c.lineWidth=.7; c.beginPath(); c.arc(1,0,i*4.5,0,TAU); c.stroke();} titrek(()=>{c.moveTo(-18,-4); c.lineTo(10,6);},MUREKKEP,.6,1,8281,1,.3);});
+    // ahır önünde dökülmüş nallar
     duzlemde(P,[92,0,300],DUZLEM.zemin,()=>{for(const [x,y,a] of[[0,0,.4],[14,10,2.2],[-8,16,4]]){c.save(); c.translate(x,y); c.rotate(a); leke(1,1,9,7,[0,0,0],.5); c.strokeStyle='rgb(58,56,52)'; c.lineWidth=2.6; c.beginPath(); c.arc(0,0,6,Math.PI*.15,Math.PI*1.85); c.stroke(); c.strokeStyle='rgba(200,196,180,.5)'; c.lineWidth=.6; c.beginPath(); c.arc(0,0,7,Math.PI*1.1,Math.PI*1.6); c.stroke(); c.restore();}});
     // önde: urgan yumağı ve sürüklenmiş ucu
     const u=P.n(-150,0,236), uo=P.olcek(-150,0,236);

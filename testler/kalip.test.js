@@ -7,7 +7,8 @@ import {MIZACLAR} from '../src/icerik/kur.js';
 import terimler from '../src/dil/tr/terimler.js';
 import kisiler from '../src/dil/tr/kisiler.js';
 
-const ORNEK={kim:kisiAdi('Kör Halil'),yer:mekanAdi('Su değirmeni'),zaman:'o gece',esya:'boynuz saplı kama',sahip:kisiAdi('Muhtarın Kızı')};
+const EK={kimler:{...kisiAdi('Hoca'),metin:'Kör Halil ve Hoca'},ortu:'aba',ses:'bir bağırtı',iliski:"Kör Halil'le aramız iyi değildi",diger:kisiAdi('Hoca')};
+const ORNEK={kim:kisiAdi('Kör Halil'),yer:mekanAdi('Su değirmeni'),zaman:'o gece',esya:'boynuz saplı kama',sahip:kisiAdi('Muhtarın Kızı'),...EK};
 
 describe('kalıp doldurma',()=>{
   it.each([
@@ -114,7 +115,10 @@ describe('kalıp kümesi (kaliplar.js)',()=>{
     const r=rng(11);
     let n=0;
     for(let i=0;i<400;i++){
-      const d={kim:adlar[i%adlar.length],sahip:adlar[(i*7)%adlar.length],yer:yerler[i%yerler.length],esya:esyalar[i%esyalar.length],zaman:['o gece','yatsıdan sonra','sabah ezanında'][i%3]};
+      const ortuler=Object.values(terimler.ortu);
+      const d={kim:adlar[i%adlar.length],sahip:adlar[(i*7)%adlar.length],yer:yerler[i%yerler.length],esya:esyalar[i%esyalar.length],zaman:['o gece','yatsıdan sonra','sabah ezanında'][i%3],
+        kimler:{...adlar[(i*3)%adlar.length],metin:adlar[(i*5)%adlar.length].metin+' ve '+adlar[(i*3)%adlar.length].metin},ortu:ortuler[i%ortuler.length],ses:['bir bağırtı','bir silah sesi'][i%2],
+        iliski:"Kör Halil'le aramız iyi değildi",diger:adlar[(i*11)%adlar.length]};
       for(const tur of Object.values(KALIPLAR)) for(const m of Object.keys(tur)) if(m!=='degiskenler') for(const k of tur[m]){
         const s=doldur(k,d,r);
         expect(s).not.toMatch(/[{}[\]|]| {2}/);

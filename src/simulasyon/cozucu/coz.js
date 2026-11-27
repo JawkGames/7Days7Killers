@@ -93,10 +93,22 @@ export function coz(g){
     // Olay yerinde yüzünden görülme (suçlayıcı, inanılır).
     const yerinde=X=>iddialar(X).filter(c=>c.at===m);
 
+    // Tanığın açıklaması (mazeretten bağımsız): olay yerinde olduğunu kendisi söylüyor ve orada başka birini/bir sesi
+    // anlatıyor; ya da biri giysisinin yırtıldığını gördü (saldırıya uğramış).
+    const tanikAciklama={};
+    for(const X of ids){
+      if(!canli(X)) continue;
+      const gb=v.gorulen[X], l=[];
+      if(kendiYeri(X)===m&&gb&&gb.cevap==='soyledi'&&gb.soylenen.deger.some(e=>(e.kisi&&e.kisi!==X)||e.kesinlik==='siluet'||e.ses))
+        l.push({tur:'tanik-anlatimi',kaynaklar:[X],ifadeler:[v.kendi[X].id,gb.id]});
+      for(const d of v.fark) if(d.kayit.alt==='yirtik-giysi'&&d.kayit.kisi===X&&d.kaynak!==X)
+        l.push({tur:'saldiriya-ugradi',kaynaklar:[d.kaynak],ifadeler:[d.ifade]});
+      if(l.length) tanikAciklama[X]=l;
+    }
     // Doğrudan işaretler (tek kişiyi gösteren suçlayıcı sözler).
     const dogrudan={}; // X -> [{tur, kaynaklar, ifadeler, izler}]
     const dogrudanEkle=(X,p)=>(dogrudan[X]??=[]).push(p);
-    for(const X of ids) if(canli(X)) for(const c of yerinde(X)){
+    for(const X of ids) if(canli(X)) for(const c of [...new Map(yerinde(X).map(c=>[c.kaynak,c])).values()]){
       const suc=v.suclama.find(s=>s.kaynak===c.kaynak&&s.kisi===X);
       const ky=kendiYeri(X);
       if(suc) dogrudanEkle(X,{tur:'tanik',alt:'suclama',kaynaklar:[c.kaynak],ifadeler:[c.ifade,suc.ifade],izler:[]});
@@ -108,7 +120,7 @@ export function coz(g){
       if(!canli(X)||d.kaynak===X) continue;
       if(e.alt==='kanli-giysi'&&yara&&KANLI_YARA.includes(yara.anahtar)) dogrudanEkle(X,{tur:'dolayli',alt:e.alt,kaynaklar:[d.kaynak],ifadeler:[d.ifade],izler:[]});
       if(e.alt==='tirmik'&&yara&&TIRMIK_YARA.includes(yara.anahtar)) dogrudanEkle(X,{tur:'dolayli',alt:e.alt,kaynaklar:[d.kaynak],ifadeler:[d.ifade],izler:[]});
-      if(e.alt==='eksik-esya'&&e.anahtar) for(const iz of izByAnahtar(e.anahtar)) if(iz.adaylar.includes(X))
+      if(e.alt==='eksik-esya'&&e.anahtar&&!tanikAciklama[X]) for(const iz of izByAnahtar(e.anahtar)) if(iz.adaylar.includes(X))
         dogrudanEkle(X,{tur:'dolayli',alt:e.alt,kaynaklar:[d.kaynak,'iz:'+iz.id],ifadeler:[d.ifade],izler:[iz.id]});
     }
 
@@ -119,10 +131,12 @@ export function coz(g){
       const l=iddialar(X), ky=kendiYeri(X);
       let en=null;
       for(const y of [...new Set(l.filter(c=>c.at&&c.at!==m).map(c=>c.at))].sort()){
-        const ok=l.filter(c=>c.at===y), karsi=l.filter(c=>c.degil===y||(c.at&&c.at!==y));
+        // Doğrulayan oradaydı demeli: "o evdeydi" diyen kendisi başka yerdeyse sözü mazeret sayılmaz.
+        const ok=l.filter(c=>c.at===y&&(c.gordu||kendiYeri(c.kaynak)==null||kendiYeri(c.kaynak)===y)), karsi=l.filter(c=>c.degil===y||(c.at&&c.at!==y));
+        if(!ok.length) continue;
         const red=karsi.length||(ky&&ky!==y)||dogrudan[X];
         if(red){(curuyen[X]??=[]).push({yer:y,onaylayan:ok,karsi,dogrudan:!!dogrudan[X]}); continue;}
-        const aday={yer:y,kaynaklar:[...new Set(ok.map(c=>c.kaynak))].sort(),ifadeler:ok.map(c=>c.ifade),guc:new Set(ok.map(c=>c.kaynak)).size>=2?'saglam':'zayif'};
+        const aday={yer:y,kaynaklar:[...new Set(ok.map(c=>c.kaynak))].sort(),ifadeler:ok.map(c=>c.ifade),guc:new Set(ok.filter(c=>!(g.aile[X]||[]).includes(c.kaynak)).map(c=>c.kaynak)).size>=2?'saglam':'zayif'}; // yakınının sözü sağlam sayılmaz
         if(!en||(aday.guc==='saglam'&&en.guc!=='saglam')||aday.kaynaklar.length>en.kaynaklar.length) en=aday;
       }
       if(en) mazeretler[X]=en;
@@ -152,12 +166,7 @@ export function coz(g){
       if(!canli(X)) continue;
       const mz=mazeretler[X];
       if(mz) aciklamaEkle(X,{tur:'mazeret',guc:mz.guc,yer:mz.yer,kaynaklar:mz.kaynaklar,ifadeler:mz.ifadeler});
-      // Tanığın anlatımı: olay yerinde olduğunu kendisi söylüyor ve orada başka birini/bir sesi anlatıyor.
-      const gb=v.gorulen[X];
-      if(kendiYeri(X)===m&&gb&&gb.cevap==='soyledi'&&gb.soylenen.deger.some(e=>(e.kisi&&e.kisi!==X)||e.kesinlik==='siluet'||e.ses))
-        aciklamaEkle(X,{tur:'tanik-anlatimi',kaynaklar:[X],ifadeler:[v.kendi[X].id,gb.id]});
-      for(const d of v.fark) if(d.kayit.alt==='yirtik-giysi'&&d.kayit.kisi===X&&d.kaynak!==X)
-        aciklamaEkle(X,{tur:'saldiriya-ugradi',kaynaklar:[d.kaynak],ifadeler:[d.ifade]});
+      for(const a of tanikAciklama[X]||[]) aciklamaEkle(X,a);
     }
     // İzin açıklaması: aleti cinayetten önce çalınmış (sahibi kendisi söyledi).
     const calinti=(X,iz)=>v.fark.filter(d=>d.kaynak===X&&d.kayit.alt==='eksik-alet'&&d.kayit.kisi===X&&d.kayit.zaman<t&&d.kayit.anahtar===iz.anahtar);
@@ -172,33 +181,35 @@ export function coz(g){
           const cl=calinti(X,f.izler.find(i=>i.id===izId));
           if(cl.length) return {X,acik:{tur:'calinti',kaynaklar:[X],ifadeler:cl.map(d=>d.ifade)}};
         }
-        const ta=(aciklama[X]||[]).find(a=>a.tur==='tanik-anlatimi'||a.tur==='saldiriya-ugradi');
+        const ta=(tanikAciklama[X]||[])[0];
         if(ta&&!dogrudan[X]) return {X,acik:ta};
         const mz=mazeretler[X];
         if(mz) return {X,acik:{tur:'mazeret',guc:mz.guc,kaynaklar:mz.kaynaklar,ifadeler:mz.ifadeler}};
         return {X,acik:null};
       });
+      // İz, sahibi olabilecek birinin anlatımıyla açıklanıyorsa (orada tanıktı, aleti çalınmıştı) kimseyi göstermez.
+      if(isaret==='iz'&&durum.some(d=>d.acik&&d.acik.tur!=='mazeret')) return {durum,sec:null,not:'aciklandi'};
       const acik=durum.filter(d=>!d.acik), zayif=durum.filter(d=>d.acik&&d.acik.tur==='mazeret'&&d.acik.guc==='zayif');
+      // İzi bırakabilecek tek kişi: tek kişinin sözüne dayanan mazeret izin karşısında durmaz.
+      if(durum.length===1&&zayif.length===1&&isaret==='iz') return {durum,sec:zayif[0].X,not:'zayif-mazeret'};
       let sec=null, not=null;
       if(acik.length===1) sec=acik[0].X;
-      else if(!acik.length&&zayif.length===1&&durum.length>1){sec=zayif[0].X; not='zayif-mazeret';}
+      else if(!acik.length&&zayif.length===1&&durum.length>1){sec=zayif[0].X; not='zayif-mazeret';} // ötekilerin mazereti sağlam, onunki tek kişinin sözü
       return {durum,sec,not};
     };
     const zincirEkle=(z)=>{z.id=f.cinayet+'z'+(zincirler.length+1); zincirler.push(z);};
     // Doğrudan zincirler.
     for(const [X,l] of Object.entries(dogrudan)) for(const p of l){
-      // Düşürdüğü eşya olay yerinde, ama olay yerinde olduğunu kendisi anlatıyor ya da saldırıya uğradığı görülmüş: tanıktır.
-      if(p.alt==='eksik-esya'&&(aciklama[X]||[]).some(a=>a.tur==='tanik-anlatimi'||a.tur==='saldiriya-ugradi')) continue;
       zincirEkle({kisi:X,tur:p.tur,alt:p.alt,kaynaklar:p.kaynaklar.map(k=>k.startsWith('iz:')?k:'k:'+k),ifadeler:p.ifadeler,izler:p.izler,eleme:[]});
     }
     // Fiziksel izler.
     for(const iz of f.izler){
       if(!iz.adaylar.length||iz.alt==='kurban-esyasi') continue;
       const e=elemeli(iz.adaylar,'iz',iz.id);
-      isaretler.push({tur:'iz',iz:iz.id,anahtar:iz.anahtar,adaylar:[...iz.adaylar],durum:e.durum.map(d=>({kisi:d.X,aciklama:d.acik?d.acik.tur:null}))});
+      isaretler.push({tur:'iz',iz:iz.id,anahtar:iz.anahtar,adaylar:[...iz.adaylar],durum:e.durum.map(d=>({kisi:d.X,aciklama:d.acik?d.acik.tur:null,acikTam:d.acik}))});
       if(e.sec){
         const eleme=e.durum.filter(d=>d.X!==e.sec);
-        zincirEkle({kisi:e.sec,tur:'iz',alt:iz.alt,not:e.not,kaynaklar:['iz:'+iz.id,...eleme.flatMap(d=>d.acik.kaynaklar.map(k=>'k:'+k))],
+        zincirEkle({isaret:'iz:'+iz.id,sabitKaynak:['iz:'+iz.id],kisi:e.sec,tur:'iz',alt:iz.alt,not:e.not,kaynaklar:['iz:'+iz.id,...eleme.flatMap(d=>d.acik.kaynaklar.map(k=>'k:'+k))],
           ifadeler:eleme.flatMap(d=>d.acik.ifadeler),izler:[iz.id],eleme:eleme.map(d=>({kisi:d.X,tur:d.acik.tur,kaynaklar:d.acik.kaynaklar}))});
       }
     }
@@ -209,12 +220,30 @@ export function coz(g){
     for(const s of siluetler.values()){
       const S=ids.filter(X=>K[X].ortu===s.ortu&&X!==s.kaynak);
       const e=elemeli(S,'siluet',null);
-      isaretler.push({tur:'siluet',ortu:s.ortu,kaynak:s.kaynak,adaylar:S,durum:e.durum.map(d=>({kisi:d.X,aciklama:d.acik?d.acik.tur:null}))});
+      isaretler.push({tur:'siluet',ortu:s.ortu,kaynak:s.kaynak,ifade:s.ifade,adaylar:S,durum:e.durum.map(d=>({kisi:d.X,aciklama:d.acik?d.acik.tur:null,acikTam:d.acik}))});
       if(e.sec){
         const eleme=e.durum.filter(d=>d.X!==e.sec);
-        zincirEkle({kisi:e.sec,tur:'siluet',alt:s.ortu,not:e.not,kaynaklar:['k:'+s.kaynak,...eleme.flatMap(d=>d.acik.kaynaklar.map(k=>'k:'+k))],
+        zincirEkle({isaret:'k:'+s.kaynak+'|'+s.ortu,sabitKaynak:['k:'+s.kaynak],kisi:e.sec,tur:'siluet',alt:s.ortu,not:e.not,kaynaklar:['k:'+s.kaynak,...eleme.flatMap(d=>d.acik.kaynaklar.map(k=>'k:'+k))],
           ifadeler:[s.ifade,...eleme.flatMap(d=>d.acik.ifadeler)],izler:[],eleme:eleme.map(d=>({kisi:d.X,tur:d.acik.tur,kaynaklar:d.acik.kaynaklar}))});
       }
+    }
+    // Kesişim: iki ayrı işaretin açıklanamayan adayları tek kişide buluşuyorsa (palto lifi ∩ konaktan getirilen tüfek).
+    // Varsayım: ikisini de aynı kişi bıraktı. Yanlışsa (biri yanıltıcıysa) bu bir masuma zincir kurar; elek bunu yakalar.
+    const tekli=new Set(zincirler.filter(z=>z.tur==='iz'||z.tur==='siluet').map(z=>z.isaret));
+    const coklu=isaretler.filter(i=>(i.tur==='iz'||i.tur==='siluet')&&!tekli.has(i.tur==='iz'?'iz:'+i.iz:'k:'+i.kaynak+'|'+i.ortu));
+    const kaynakOf=i=>i.tur==='iz'?'iz:'+i.iz:'k:'+i.kaynak;
+    for(let a=0;a<coklu.length;a++) for(let b=a+1;b<coklu.length;b++){
+      const p=coklu[a], q=coklu[b];
+      if(kaynakOf(p)===kaynakOf(q)) continue;
+      const qset=new Set(q.durum.map(d=>d.kisi));
+      const ortak=p.durum.filter(d=>qset.has(d.kisi));
+      const acik=ortak.filter(d=>!d.aciklama);
+      if(acik.length!==1||ortak.length===p.durum.length&&ortak.length===q.durum.length) continue;
+      const X=acik[0].kisi, eleme=ortak.filter(d=>d.kisi!==X).map(d=>d.acikTam);
+      zincirEkle({sabitKaynak:[kaynakOf(p),kaynakOf(q)],kisi:X,tur:'kesisim',alt:[p.anahtar||p.ortu,q.anahtar||q.ortu].join('+'),
+        kaynaklar:[kaynakOf(p),kaynakOf(q),...eleme.flatMap(e=>e.kaynaklar.map(k=>'k:'+k))],
+        ifadeler:[...(p.ifade?[p.ifade]:[]),...(q.ifade?[q.ifade]:[]),...eleme.flatMap(e=>e.ifadeler)],
+        izler:[p.iz,q.iz].filter(Boolean),eleme:ortak.filter(d=>d.kisi!==X).map(d=>({kisi:d.kisi,tur:d.aciklama,kaynaklar:d.acikTam.kaynaklar}))});
     }
     // Yokluk (gece evinde değildi): zayıf işaret, tek başına zincir kurmaz.
     for(const X of ids){
@@ -228,6 +257,9 @@ export function coz(g){
     // Şüpheliler: zinciri olanlar; bağımsız zincir sayısına göre.
     const kisiZinciri={};
     for(const z of zincirler){
+      const elemeKaynagi=new Set(z.eleme.flatMap(e=>(e.kaynaklar||[]).map(k=>'k:'+k)));
+      z.sabit=[...new Set((z.sabitKaynak||z.kaynaklar.filter(k=>!elemeKaynagi.has(k))).filter(k=>k!=='k:'+z.kisi))].sort();
+      delete z.sabitKaynak;
       z.kaynaklar=[...new Set(z.kaynaklar.filter(k=>k!=='k:'+z.kisi))].sort();
       z.ifadeler=[...new Set(z.ifadeler)];
       (kisiZinciri[z.kisi]??=[]).push(z);
@@ -263,8 +295,15 @@ export function coz(g){
   for(const c of cinayetler){
     const ana=c.supheliler[0];
     if(!ana){plan.push({cinayet:c.cinayet,zincir:null}); continue;}
+    // Emin olmak için iki bağımsız zincir (yoksa bir): kaynakları ayrık en ucuz çift.
     const zs=c.zincirler.filter(z=>z.kisi===ana.kisi).sort((a,b)=>maliyet(a.ifadeler)-maliyet(b.ifadeler)||a.ifadeler.length-b.ifadeler.length||(a.id<b.id?-1:1));
-    ekleSecim(zs[0].ifadeler,zs[0].izler);
+    let sec=[zs[0]], enIyi=Infinity;
+    for(let i=0;i<zs.length;i++) for(let j=i+1;j<zs.length;j++){
+      if(bagimsizlar([zs[i],zs[j]]).length<2) continue;
+      const m=maliyet([...zs[i].ifadeler,...zs[j].ifadeler])*100+zs[i].ifadeler.length+zs[j].ifadeler.length;
+      if(m<enIyi){enIyi=m; sec=[zs[i],zs[j]];}
+    }
+    for(const z of sec) ekleSecim(z.ifadeler,z.izler);
     const aciklanan=[];
     // Doğrudan işaret edilen (tek kişiyi gösteren) ama zinciri olmayanların en ucuz açıklaması.
     for(const i of c.isaretler){
@@ -276,19 +315,19 @@ export function coz(g){
       const a=[...l].sort((x,y)=>maliyet(x.ifadeler)-maliyet(y.ifadeler)||x.ifadeler.length-y.ifadeler.length)[0];
       ekleSecim(a.ifadeler); aciklanan.push({kisi:tek[0],tur:a.tur});
     }
-    plan.push({cinayet:c.cinayet,zincir:zs[0].id,kisi:ana.kisi,aciklanan});
+    plan.push({cinayet:c.cinayet,zincir:sec[0].id,zincirler:sec.map(z=>z.id),kisi:ana.kisi,aciklanan,
+      tekTanik:zs.some(z=>z.tur==='tanik'&&z.kaynaklar.length===1&&!z.eleme.length)});
   }
   const takvim=sorguTakvimi([...secilen].map(id=>ifadeById[id]),G,hak);
-  const tekTanik=plan.filter(p=>{
-    const z=p.zincir&&cinayetler.find(c=>c.cinayet===p.cinayet).zincirler.find(z=>z.id===p.zincir);
-    return z&&z.tur==='tanik'&&z.kaynaklar.length===1&&!z.eleme.length;
-  }).length;
+  const tekTanik=plan.filter(p=>p.tekTanik).length;
+  const zincirOf=(c,id)=>cinayetler.find(x=>x.cinayet===c).zincirler.find(z=>z.id===id);
+  const eleme=plan.reduce((s,p)=>s+(p.zincirler||[]).reduce((a,id)=>a+zincirOf(p.cinayet,id).eleme.length,0),0);
 
   return {
     cinayetler, celiskiler,
     failler:[...new Set(cinayetler.flatMap(c=>c.supheliler.slice(0,1).map(s=>s.kisi)))].sort(),
     enAzSorgu:{sorgu:takvim.oturumlar.length,sigar:takvim.sigar,gunler:takvim.gunler,oturumlar:takvim.oturumlar,
-      adim:secilen.size+secilenIz.size+plan.reduce((s,p)=>{const c=cinayetler.find(c=>c.cinayet===p.cinayet), z=p.zincir&&c.zincirler.find(z=>z.id===p.zincir); return s+(z?z.eleme.length:0);},0),
+      adim:secilen.size+secilenIz.size+eleme,
       ifade:secilen.size,iz:secilenIz.size,tekTanik,plan},
     ifadeler:ifadeById,
     istatistik:{soru:ifadeler.length},
@@ -297,11 +336,24 @@ export function coz(g){
 
 // Bağımsız zincirler: kaynak kümeleri ayrık en çok zinciri açgözlü seçer (küçük kaynak kümesi önce).
 export function bagimsizlar(zincirler){
-  const l=[...zincirler].sort((a,b)=>a.kaynaklar.length-b.kaynaklar.length||(a.id<b.id?-1:1));
+  // Zincirin sabit kaynakları (işaretin kendisi) ve her eleme için seçenekli kaynaklar (mazereti doğrulayanlardan
+  // biri yeter). Açgözlü: az kaynaklı zincir önce; her elemeye henüz kullanılmamış bir doğrulayan aranır.
+  const sabitOf=z=>z.sabit||z.kaynaklar;
+  const l=[...zincirler].sort((a,b)=>sabitOf(a).length+a.eleme.length-sabitOf(b).length-b.eleme.length||(a.id<b.id?-1:1));
   const kullanilan=new Set(), sec=[];
   for(const z of l){
-    if(z.kaynaklar.some(k=>kullanilan.has(k))) continue;
-    sec.push(z); for(const k of z.kaynaklar) kullanilan.add(k);
+    const sabit=sabitOf(z);
+    if(sabit.some(k=>kullanilan.has(k))) continue;
+    const yeni=new Set(sabit), secim=[];
+    let olur=true;
+    for(const e of z.eleme){
+      const k=(e.kaynaklar||[]).map(x=>'k:'+x).find(x=>!kullanilan.has(x)&&x!=='k:'+z.kisi&&!sabit.includes(x));
+      const kendi=(e.kaynaklar||[]).includes(z.kisi);
+      if(!k&&!kendi){olur=false; break;}
+      if(k){yeni.add(k); secim.push(k);}
+    }
+    if(!olur) continue;
+    sec.push(z); for(const k of yeni) kullanilan.add(k);
   }
   return sec;
 }
