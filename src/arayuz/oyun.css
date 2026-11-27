@@ -82,8 +82,9 @@ button{font:inherit}
 .foto-baslik{display:inline-block;margin:0;padding:6px 12px;background:rgba(6,6,5,.72);color:var(--yazi);font-size:15px;letter-spacing:.02em}
 .foto-alan{flex:1;min-height:120px}
 .foto-alt{pointer-events:auto;display:flex;flex-direction:column;gap:8px;align-items:center;background:linear-gradient(to top,rgba(4,4,3,.9) 60%,rgba(4,4,3,0));padding:18px 4px 0;margin:0 -12px;padding-left:12px;padding-right:12px}
-.foto-ileti{margin:0;min-height:1.4em;text-align:center;color:var(--lamba);font-size:16px;max-width:760px}
-.foto-bulunan{margin:0;text-align:center;font-size:14px;color:var(--soluk);max-width:760px}
+.foto-ileti{margin:0;min-height:2.8em;display:flex;align-items:flex-end;justify-content:center;text-align:center;color:var(--lamba);font-size:16px;max-width:760px}
+.foto-bulunan{margin:0;text-align:center;font-size:14px;color:var(--soluk);max-width:760px;min-height:1.45em}
+.foto-alt>.foto-bulunan{min-height:2.9em}
 .foto-bulunan b{color:var(--yazi);font-weight:400}
 
 /* ---- çağırma ---- */
@@ -201,6 +202,10 @@ button.defter-satir.secili{background:rgba(226,194,122,.35)}
   .foto-baslik{font-size:13px}
 }
 @media (max-height:520px){
+  .defter{overflow:auto;overscroll-behavior:contain}
+  .defter-liste{flex:none;overflow:visible}
+  .yan-kagit{max-height:70px}
+  .defter-sekmeler .sekme{min-height:40px}
   .sorular{max-height:28vh}
   .katman{padding-top:52px}
 }

@@ -203,7 +203,8 @@ export function oyunArayuzuKur(){
     const baslik=el('p',{sinif:'foto-baslik'});
     const alan=el('div',{sinif:'foto-alan'});
     const nav=el('div',{sinif:'dugme-sira'});
-    const alt=el('div',{sinif:'foto-alt'},ileti,bulunan,nav);
+    const anaSira=el('div',{sinif:'dugme-sira'});
+    const alt=el('div',{sinif:'foto-alt'},ileti,bulunan,nav,anaSira);
     katman.replaceChildren(el('div',{sinif:'foto-ust'},baslik),alan,alt);
 
     const bulunanlar=()=>new Set(d.defter.izler.map(x=>x.iz));
@@ -229,14 +230,16 @@ export function oyunArayuzuKur(){
       const ileri=l.find(s=>s.eylem.tur==='ilerle');
       const tumBulundu=c&&satir.every(id=>bul.has(id));
       if(tumBulundu&&ileti.dataset.ozel!=='1') ileti.textContent=OY.akis.fotografBitti;
+      const gec=yon=>()=>{ui.foto=(ui.foto+yon+liste.length)%liste.length; G.sifirla(); ileti.dataset.ozel=''; ileti.textContent=M('foto.ipucu'); kaydetSessiz(); panel(); sahne.yenile();};
+      const ok=(yazi,etiket,fn)=>{const b=dugme(yazi,fn,'ortala'); b.setAttribute('aria-label',etiket); return b;};
       nav.replaceChildren(...[
-        liste.length>1?dugme(M('foto.onceki'),()=>{ui.foto=(ui.foto-1+liste.length)%liste.length; G.sifirla(); ileti.dataset.ozel=''; ileti.textContent=M('foto.ipucu'); kaydetSessiz(); panel(); sahne.yenile();}):null,
+        liste.length>1?ok('‹',M('foto.onceki'),gec(-1)):null,
         liste.length>1?el('span',{sinif:'foto-bulunan',yazi:M('foto.sira',{i:ui.foto+1,n:liste.length})}):null,
-        liste.length>1?dugme(M('foto.sonraki'),()=>{ui.foto=(ui.foto+1)%liste.length; G.sifirla(); ileti.dataset.ozel=''; ileti.textContent=M('foto.ipucu'); kaydetSessiz(); panel(); sahne.yenile();}):null,
+        liste.length>1?ok('›',M('foto.sonraki'),gec(1)):null,
         dugme(G.durum.zoom>1?M('foto.uzaklas'):M('foto.yakinlas'),()=>{G.yakinlastir(G.durum.zoom>1?1:2.2); panel(); sahne.yenile();}),
         ...yedek.map(s=>dugme(s.etiket,()=>incele(s.eylem.iz))),
-        ...digerDugmeler(l,['incele','ilerle']),
-        ileri?dugme(ileri.etiket,()=>{const r=uygulaKaydet(ileri.eylem); karart(()=>ekranGoster(r.goster));},'ana'):null].filter(Boolean));
+        ...digerDugmeler(l,['incele','ilerle'])].filter(Boolean));
+      anaSira.replaceChildren(...[ileri?dugme(ileri.etiket,()=>{const r=uygulaKaydet(ileri.eylem); karart(()=>ekranGoster(r.goster));},'ana ortala'):null].filter(Boolean));
     }
     function incele(id){
       const bul=bulunanlar();

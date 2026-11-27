@@ -21,7 +21,9 @@
 
 import {doldur} from './kalip.js';
 import {zamanSozu} from '../dil/tr/zaman.js';
-import {DIL_TR,rngAl,kisiDeger,mekanDeger} from './adlar.js';
+import {DIL_TR,rngAl,kisiDeger,mekanDeger,ortuYazi} from './adlar.js';
+
+const ortuSoz=(o,dil)=>ortuYazi(o,dil);
 import {soruldu,ifadeBul,anilanlar,ogrenilenSirlar} from './defter.js';
 
 const sirala=(a,b)=>b.oncelik-a.oncelik||(a.id<b.id?-1:a.id>b.id?1:0);
@@ -144,6 +146,17 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
       if(X===K||!kamu.canli(X,t)||cin?.kurban===X) continue;
       const pay=evHalki.includes(X)?6:supheliler.includes(X)?4:0;
       ekle({id:'baskasi:'+X+':'+t,tur:'baskasi',kisi:X,zaman:t},'baskasi',{kim:kd(X)},(cinAnlari.includes(t)?56:46)+pay-cinAnlari.indexOf(t)*4);
+    }
+  }
+
+  // Silüet: K'nin anlattığı "şu giysili biri" için o giysiyi giyenler tek tek sorulur (isim vermeyen tanık adı ancak böyle söyler).
+  for(const f of defter.ifadeler){
+    if(f.kisi!==K) continue;
+    for(const i of f.iddialar||[]){
+      if(i.tur!=='siluet'||!i.ortu||i.zaman>=S) continue;
+      const giyen=Object.keys(kamu.kisiler).filter(X=>X!==K&&kamu.kisiler[X].ortu===i.ortu&&kamu.canli(X,i.zaman)).sort();
+      const ortu=ortuSoz(i.ortu,dil);
+      for(const X of giyen) ekle({id:'baskasi:'+X+':'+i.zaman,tur:'baskasi',kisi:X,zaman:i.zaman},'baskasi-siluet',{kim:kd(X),ortu},70-giyen.length);
     }
   }
 

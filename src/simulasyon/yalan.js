@@ -203,6 +203,7 @@ export function ifadeMotoru(vaka){
     return kisi===k?kendiTavri(k,o):baskaTavri(k,kisi,o);
   }
 
+  const isimVermez=(k,c)=>![c.katil,c.yardimci,c.ortan,c.zorlayan].includes(k)&&!tanikIzleri.some(i=>i.cinayet===c.id&&i.tanik===k&&i.alt==='olay-tanigi');
   // Dedikoducu silüete isim koyar: aynı örtüyü giyenlerden hasmını ya da ilkini.
   const tahmin=(k,ortu,t)=>{
     const l=ids.filter(x=>x!==k&&K[x].ortu===ortu&&vaka.cizelge[x][t]!=null);
@@ -228,6 +229,9 @@ export function ifadeMotoru(vaka){
     if(!b) return cevap('bilmez',null,null,null,g);
     const {kisi,aleyhte}=konu(o);
     const {tavir,kural}=tavirBul(k,o,kisi,aleyhte);
+    // İsim vermez: katili olay yerinin dışından gören, "kim öldürdü?" sorusuna ad vermez (öldürdüğünü görmedi);
+    // gördüğü yer tek tek sorulursa söyler. Olay yerindeki göz tanığı ile suça karışanlar bu kurala girmez.
+    if(o.tur==='fail'&&tavir==='dogru'&&isimVermez(k,cinById[o.cinayet])) return cevap('susar','isim-vermez',b,null,g);
     if(tavir==='susar') return cevap('susar',kural,b,null,g);
     if(tavir==='dogru') return cevap('dogru',kural,b,b,g);
     if(tavir==='abarti'){
@@ -261,7 +265,9 @@ export function ifadeMotoru(vaka){
         :e.kesinlik==='siluet'?(!konumSucu(e.kisi,t)?{tavir:'dogru',kural:null}:mz==='korkak'?{tavir:'susar',kural:'korkak'}:mz==='dedikoducu'?{tavir:'abarti',kural:'dedikoducu'}:{tavir:'dogru',kural:null})
         :tavirBul(k,o,e.kisi,konumSucu(e.kisi,t));
       if(SIDDET[tavir]>SIDDET[en]){en=tavir; kural=kr;}
-      if(tavir==='dogru') soylenen.push(e);
+      // İsim vermez: komşu yerden birini olay yerine giderken gören, genel soruda adını vermez ("abalı biri");
+      // o kişi tek tek sorulursa söyler (konum). Hasmı ya da dedikoducu ise (abartı) adını söyler.
+      if(tavir==='dogru') soylenen.push(e.kisi&&e.kesinlik==='yuz'&&e.mekan!==vaka.cizelge[k][t]?{kisi:e.kisi,mekan:e.mekan,kesinlik:'siluet',ortu:K[e.kisi].ortu,isimsiz:true}:e);
       else if(tavir==='abarti'){
         const ek=e.kesinlik==='siluet'?{tur:'kesinlik',tahmin:tahmin(k,e.ortu,t)}:{tur:'ek-ayrinti'};
         soylenen.push({...e,abarti:ek});

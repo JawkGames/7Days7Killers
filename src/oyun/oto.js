@@ -38,13 +38,20 @@ export function cikarim(b,d){
   const kendiYeri=(k,t)=>{for(const f of ifadeler) if(f.kisi===k) for(const i of f.iddialar||[]) if(i.tur==='konum'&&i.kisi===k&&i.zaman===t) return i.mekan; return null;};
   const tedbirler=df.tedbirler||[], gozlem=df.gozlemler||[];
   const goruldu=(cid,dongu)=>gozlem.some(g=>g.cinayet===cid&&g.dongu===dongu);
+  // Temel zaman çizgisi: döngüsünde ilk tedbirden önce işlenmiş cinayetler (Rewind'de tedbirsiz aynen tekrarlanır).
+  const cinBul=id=>df.cinayetler.find(c=>c.id===id);
+  const ilkTedbir=L=>Math.min(Infinity,...tedbirler.filter(t=>t.dongu===L).map(t=>mudahalePenceresi(K.ayar,t.gun)[0]));
+  const temel=new Set(gozlem.filter(g=>{const c=cinBul(g.cinayet); return c&&c.zaman<ilkTedbir(g.dongu);}).map(g=>g.cinayet));
+  // L döngüsü an'a kadar temel çizgiden şaşmadı mı? (önceki tedbirler bir şeyi değiştirmediyse sınama geçerlidir)
+  const sasmadi=(L,an)=>[...temel].every(id=>cinBul(id).zaman>=an||goruldu(id,L))&&gozlem.filter(g=>g.dongu===L).every(g=>temel.has(g.cinayet)||cinBul(g.cinayet).zaman>=an);
   // Alıkoyma testi: X alıkonduğu gece beklenen cinayet yine olduysa X o cinayetin katili değildir; olmadıysa güçlü şüphe.
   const testler=[];
   for(const t of tedbirler){
     if(t.tur!=='alikoy') continue;
     const [ilk,son]=mudahalePenceresi(K.ayar,t.gun);
+    if(!sasmadi(t.dongu,ilk)) continue;
     for(const c of df.cinayetler){
-      if(c.zaman<ilk||c.zaman>son||c.kurban===t.kisi||c.dongu>=t.dongu) continue;
+      if(!temel.has(c.id)||c.zaman<ilk||c.zaman>son||c.kurban===t.kisi||c.dongu>=t.dongu) continue;
       // Sonuç ancak fotoğrafın geleceği gün geçtiyse bilinir.
       const gecti=d.zaman.dongu>t.dongu||(d.zaman.dongu===t.dongu&&d.zaman.gun>=c.fotografGunu);
       if(!gecti) continue;
@@ -110,11 +117,11 @@ export function cikarim(b,d){
     // Karakolda alıkonan o gece kimseyi öldüremez.
     for(const tb of tedbirler) if(tb.tur==='alikoy'&&goruldu(c.id,tb.dongu)){const [a,z]=mudahalePenceresi(K.ayar,tb.gun); if(t>=a&&t<=z) ekle(tb.kisi,-25);}
     for(const f of ifadeler) if(f.tepki&&f.soru.zaman===t) ekle(f.kisi,f.tepki.gerginlik*.4);
-    sonuc.push({id:c.id,kurban:c.kurban,zaman:t,mekan:m,dongu:c.dongu,fotografGunu:c.fotografGunu,puan:p});
+    sonuc.push({id:c.id,kurban:c.kurban,zaman:t,mekan:m,dongu:c.dongu,fotografGunu:c.fotografGunu,temel:temel.has(c.id),puan:p});
     for(const [x,n] of Object.entries(p)) if(n>0) genel[x]=(genel[x]||0)+n;
   }
   for(const k of kurbanlar) delete genel[k];
-  return {cinayetler:sonuc,genel,testler};
+  return {cinayetler:sonuc,genel,testler,sasmadi};
 }
 
 // Eski arayüz: kişi başına toplam şüphe (araçlar ve testler için).
@@ -123,7 +130,8 @@ export const supheHesapla=(b,d)=>cikarim(b,d).genel;
 // Hüküm: ilk döngüde görülen her cinayete en güçlü şüpheli (bir kişi bir kez), kalan yerler genel şüpheyle.
 export function hukumSec(b,d){
   const c=cikarim(b,d), aday=new Set(hukumAdaylari(b,d)), n=d.zaman.kural.finalSecimSayisi;
-  const ilk=c.cinayetler.filter(x=>x.dongu===1);
+  let ilk=c.cinayetler.filter(x=>x.temel);
+  if(ilk.length<n) ilk=[...ilk,...c.cinayetler.filter(x=>!x.temel)];
   const ciftler=[];
   for(const x of ilk) for(const [k,p] of Object.entries(x.puan)) if(aday.has(k)&&p>0) ciftler.push({cinayet:x.id,kisi:k,p});
   ciftler.sort((a,b)=>b.p-a.p||(a.kisi<b.kisi?-1:1));
@@ -195,7 +203,8 @@ function tedbirSec(b,d){
   const yasayan=new Set(hukumAdaylari(b,d));
   const sinandi=new Set(c.testler.map(t=>t.kisi+'|'+t.cinayet));
   const alikonan=new Set((d.defter.tedbirler||[]).filter(t=>t.tur==='alikoy').map(t=>t.kisi+'|'+t.gun));
-  const beklenen=c.cinayetler.filter(x=>x.dongu<z.dongu&&x.zaman>=ilk&&x.zaman<=son&&x.dongu===1);
+  if(z.dongu>1&&!c.sasmadi(z.dongu,ilk)) return null; // zaman çizgisi önceki döngüden şaştı: sınama artık güvenilmez
+  const beklenen=c.cinayetler.filter(x=>x.temel&&x.dongu<z.dongu&&x.zaman>=ilk&&x.zaman<=son);
   for(const x of beklenen){
     const l=Object.entries(x.puan).filter(([k,p])=>p>0&&yasayan.has(k)&&!sinandi.has(k+'|'+x.id)&&!alikonan.has(k+'|'+z.gun)).sort((a,b2)=>b2[1]-a[1]);
     if(l.length) return {tur:'tedbir',tedbir:'alikoy',kisi:l[0][0]};

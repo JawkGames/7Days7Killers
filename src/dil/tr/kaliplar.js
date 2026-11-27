@@ -2179,6 +2179,11 @@ export const SORU_KALIPLARI={
     '{zaman} {kim:i} gördün mü?',
     '{kim} {zaman} neredeydi?',
   ],
+  'baskasi-siluet':[
+    '{zaman} gördüğün o {ortu} giyen, {kim} olabilir mi?',
+    '{zaman} {ortu} giyen birini görmüşsün. O, {kim} olabilir mi?',
+    '{zaman} {kim:i} gördün mü? {ortu} giyen oydu belki.',
+  ],
   'iz-kimin':[
     'Bu {esya} kimin olabilir?',
     'Şu {esya:i} tanıyor musun?',

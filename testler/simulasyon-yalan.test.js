@@ -49,7 +49,12 @@ describe('yalan kuralları (elle kurulmuş vaka)',()=>{
     expect(fail('g')).toMatchObject({tavir:'susar',kural:'dostluk'});
     expect(fail('h')).toMatchObject({tavir:'abarti',kural:'husumet'});
   });
-  it('ilgisiz tanık doğruyu söyler',()=>{expect(fail('f')).toMatchObject({tavir:'dogru',soylenen:{deger:'a'},gercek:'a'});});
+  it('ilgisiz tanık "kim öldürdü"ye ad vermez ama yerini doğru söyler',()=>{
+    expect(fail('f')).toMatchObject({tavir:'susar',kural:'isim-vermez',gercek:'a'});
+    expect(ifade(v,'f',{tur:'konum',kisi:'a',zaman:0})).toMatchObject({tavir:'dogru',soylenen:{deger:'m1'}});
+    const g=ifade(v,'f',{tur:'gorulen',zaman:0}).soylenen.deger.find(x=>x.kisi==='a');
+    expect(g).toMatchObject({kesinlik:'siluet',ortu:'aba'});
+  });
   it('bilmeyen bilmez',()=>{
     const w={...v,izler:v.izler.filter(i=>i.tanik!=='f')};
     expect(ifade(w,'f',{tur:'fail',cinayet:'c1'})).toMatchObject({tavir:'bilmez',bilgi:null});
@@ -96,7 +101,10 @@ describe('yalan kuralları (üretilen vakalarda)',()=>{
   it('ifadeler tutarlı: doğru = bildiği, yalan ≠ bildiği, bilmez = bilgisiz',()=>{
     for(const v of vakalar) for(const f of v.ifadeler){
       expect(['dogru','yalan','susar','abarti','bilmez']).toContain(f.tavir);
-      if(f.tavir==='dogru') expect(f.soylenen).toEqual(f.bilgi);
+      // Gördüklerinde doğru söyleyen, komşu yerden gördüğünün adını vermeyebilir (isim vermez): kişi ve yer aynıdır.
+      const yerler=l=>l.map(e=>[e.kisi,e.mekan,e.ses]);
+      if(f.tavir==='dogru'&&f.olgu.tur==='gorulen') expect(yerler(f.soylenen.deger)).toEqual(yerler(f.bilgi.deger));
+      else if(f.tavir==='dogru') expect(f.soylenen).toEqual(f.bilgi);
       if(f.tavir==='bilmez') expect(f.bilgi).toBeNull();
       // "Gördüklerin" sorusunda susmak bir kişiyi listeden çıkarmaktır; geri kalanı söylenir.
       if(f.tavir==='susar'&&f.olgu.tur!=='gorulen') expect(f.soylenen).toBeNull();
