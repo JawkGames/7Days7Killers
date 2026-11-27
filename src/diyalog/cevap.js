@@ -290,7 +290,7 @@ function iliskiCevabi(c){
   if(!soylenen.length) return sonuc(c,{tavir,gerginlik,iddialar:[{tur:'iliski',kisi:c.kisi,hedef:X,iliskiler:['iyi']}],metin:c.kur('iliski-iyi',{kim})});
   const tur=soylenen[0], tablo=c.dil.oyun.iliskiSoz[tur];
   const cins=v.kisiler[X].cinsiyet;
-  const yuklem=typeof tablo==='string'?tablo:tablo[cins]??tablo.E;
+  const yuklem=typeof tablo==='string'||Array.isArray(tablo)?tablo:tablo[cins]??tablo.E;
   const iliski=doldur(sec(Array.isArray(yuklem)?yuklem:[yuklem],c.r),{kim});
   return sonuc(c,{tavir,gerginlik,iddialar:[{tur:'iliski',kisi:c.kisi,hedef:X,iliskiler:[tur]}],metin:c.kur('iliski',{kim,iliski})});
 }

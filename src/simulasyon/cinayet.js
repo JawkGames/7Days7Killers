@@ -26,14 +26,15 @@ function yontemSecenekleri(d,A,V,Y,m,t,elde,cz){
       const x=ESYA[e];
       if(!x||!x.silah||x.silah==='zehir'||!elde(O,e,t)) continue;
       // Sahibinin yanında o an (yakını olmayan) en az iki kişi yoksa mazereti doğrulanamaz, çalıntı silah çürütülemez: seyrek.
-      const yanindakiler=cz&&cz.yer[O][t]?cz.orada(cz.yer[O][t],t).filter(h=>h!==O&&h!==A&&!d.rel(h,O).some(r=>['es','ebeveyn','cocuk'].includes(r))).length:0;
+      const gizli=k=>/^(sir|ortaklik|hirsizlik|ot-alma|cinayet|yoldan|ses-duydu)/.test(cz?.neden[k][t]||'');
+      const yanindakiler=cz&&cz.yer[O][t]&&!gizli(O)?cz.orada(cz.yer[O][t],t).filter(h=>h!==O&&h!==A&&!gizli(h)&&!d.rel(h,O).some(r=>['es','ebeveyn','cocuk'].includes(r))).length:0;
       const yalniz=yanindakiler>=2?1:.05;
       const cerceve=yalniz*(d.rel(A,O).includes('hasim')?2.5:1)*(d.rel(O,V).some(t=>['hasim','borclu','korkar'].includes(t))?1.5:1);
       calinti.push({yontem:x.silah,silah:{esya:e,sahip:O,calinti:true},f:cerceve});
     }
   }
   const taban=ka.mizac==='kurnaz'?o.calintiSilahKurnaz:o.calintiSilah, top=calinti.reduce((s,c)=>s+c.f,0);
-  for(const c of calinti) l.push({...c,w:taban*c.f/top});
+  for(const c of calinti) l.push({...c,w:taban*c.f/Math.max(1,calinti.length)*calinti.length/Math.max(top,calinti.length)});
   // Yerin aleti: olay yerinde duran (dirgen, kürek, değirmen demiri) ya da katilin kendi evinden/iş yerinden getirdiği (balta, av tüfeği).
   const g=guc(d,A,V);
   for(const a of mekanAletleri(m,d.mekanTuru(m))) if(elde(m,a.alet,t))

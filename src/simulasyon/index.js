@@ -21,16 +21,28 @@ export {sebepAdaylari} from './roller.js';
 export {cekirdekDogrula} from './cekirdek.js';
 export {vakaDenetle} from './denetim.js';
 export {SIM_AYAR,ayarKur} from './ayar.js';
+export {kaliteRaporu,KALITE_AYAR} from './cozucu/kalite.js';
+export {oyuncuGorunumu} from './cozucu/gorunum.js';
+export {coz} from './cozucu/coz.js';
 
 export function vakaUret(tohum,koy,ayarEk={}){
   const ayar=ayarKur(ayarEk);
   if(tohum==null||(typeof tohum!=='number'&&typeof tohum!=='string')) throw new TypeError('vakaUret: tohum sayı ya da metin olmalı');
   if(!koy||!koy.kisiler||!koy.mekanlar) throw new TypeError('vakaUret: koy nesnesi eksik');
-  let son=null;
+  // Kurulamayan (UretimHatasi) ya da kalite eleğinden geçemeyen deneme, türetilmiş akışla yeniden denenir.
+  // Elekten geçen ilk deneme döner; hiçbiri geçmezse en az kusurlu olan (vaka.kalite.gecti === false).
+  let son=null, en=null, elenen=[];
+  const kusur=v=>v.kalite.nedenler.length;
   for(let deneme=0;deneme<ayar.azamiDeneme;deneme++){
-    try{return kur(tohum,deneme,koy,ayar);}
-    catch(e){if(!(e instanceof UretimHatasi)) throw e; son=e;}
+    let v;
+    try{v=kur(tohum,deneme,koy,ayar);}
+    catch(e){if(!(e instanceof UretimHatasi)) throw e; son=e; continue;}
+    if(ayar.elek===false||v.kalite.gecti){v.kalite.elenenDenemeler=elenen; return v;}
+    elenen.push({deneme,nedenler:v.kalite.nedenler});
+    if(!en||kusur(v)<kusur(en)) en=v;
+    if(elenen.length>=ayar.elekDeneme) break;
   }
+  if(en){en.kalite.elenenDenemeler=elenen; return en;}
   throw new Error(`vakaUret: ${ayar.azamiDeneme} denemede vaka kurulamadı (${son&&son.message})`);
 }
 

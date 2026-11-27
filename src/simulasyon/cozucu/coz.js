@@ -133,7 +133,8 @@ export function coz(g){
       for(const y of [...new Set(l.filter(c=>c.at&&c.at!==m).map(c=>c.at))].sort()){
         // Doğrulayan oradaydı demeli: "o evdeydi" diyen kendisi başka yerdeyse sözü mazeret sayılmaz.
         const ok=l.filter(c=>c.at===y&&(c.gordu||kendiYeri(c.kaynak)==null||kendiYeri(c.kaynak)===y)), karsi=l.filter(c=>c.degil===y||(c.at&&c.at!==y));
-        if(!ok.length) continue;
+        // Yalnızca yakınlarının (eş, ana-baba, çocuk) doğruladığı mazeret mazeret sayılmaz: seven korur.
+        if(!ok.some(c=>!(g.aile[X]||[]).includes(c.kaynak))) continue;
         const red=karsi.length||(ky&&ky!==y)||dogrudan[X];
         if(red){(curuyen[X]??=[]).push({yer:y,onaylayan:ok,karsi,dogrudan:!!dogrudan[X]}); continue;}
         const aday={yer:y,kaynaklar:[...new Set(ok.map(c=>c.kaynak))].sort(),ifadeler:ok.map(c=>c.ifade),guc:new Set(ok.filter(c=>!(g.aile[X]||[]).includes(c.kaynak)).map(c=>c.kaynak)).size>=2?'saglam':'zayif'}; // yakınının sözü sağlam sayılmaz

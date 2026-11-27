@@ -45,7 +45,7 @@ function cikinti(P,X,Z){
 
 export default {
   id:'sinir-patikasi',
-  kamera:{odak:780, yukseklik:160, egim:.08},
+  kamera:{odak:780, yukseklik:160, egim:.13},
   isik,
   yuvalar:{
     'zemin-on':  {duzlem:'zemin', konum:[-80,0,290], yuzey:'toprak', alan:12},

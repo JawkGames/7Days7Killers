@@ -11,7 +11,7 @@ import {coz} from './coz.js';
 
 export const KALITE_AYAR=Object.freeze({
   enAzZincir:2,
-  enAzSorgu:4, // bundan az sorguyla (iki bağımsız zincirle) çözülen vaka çok kolaydır
+  enAzSorgu:3, // bundan az sorguyla (iki bağımsız zincirle) çözülen vaka çok kolaydır
   tekTanikEnCok:4, // tek bir tanığın tek ifadesiyle çözülebilen cinayet sayısı bunu aşarsa vaka çok kolaydır
 });
 

@@ -14,7 +14,7 @@ const ARKA=500, SOL=-250, SAG=250, TAVAN=250;
 const PEN={x:[-226,-150], y:[128,194]};
 const TUF={x:[-128,-6], z:[474,ARKA]};
 const KAPI={x:[96,186], ust:196};
-const MASA={x:[66,214], y:[0,78], z:[292,372]};
+const MASA={x:[112,252], y:[0,78], z:[292,372]};
 const isik={konum:[-188,168,470], guc:1.65, menzil:430, ortam:.36};
 const GUNES=[.3,-.72,-1];
 
@@ -71,7 +71,7 @@ function demirKapi(P,R){
 function masa(P,R){
   const [x0,x1]=MASA.x, [,y1]=MASA.y, [z0,z1]=MASA.z;
   // sandalye (masanın arkasında; arkalık görünür)
-  const sx=150, sz=z1+34;
+  const sx=190, sz=z1+34;
   for(const x of[sx-20,sx+16]) kutuDoku(P,isik,[x,x+4],[0,96],[sz+18,sz+22],golgele(AHSAP,.85),5200+x,{doku:'tahta',en:4,yonOn:'v',kenar:0});
   kutuDoku(P,isik,[sx-20,sx+20],[44,48],[sz-14,sz+20],golgele(AHSAP,.9),5202,{doku:'tahta',en:8});
   for(const y of[66,86]) kutuDoku(P,isik,[sx-20,sx+20],[y,y+6],[sz+18,sz+21],golgele(AHSAP,.9),5203+y,{doku:'tahta',en:6,kenar:.3});
@@ -109,9 +109,9 @@ export default {
     'zemin-orta':    {duzlem:'zemin', konum:[24,0,436], yuzey:'tas', alan:7, aci:1.5},
     'zemin-kose':    {duzlem:'zemin', konum:[-204,0,470], yuzey:'tas', alan:6},
     'tufeklik-dibi': {duzlem:'zemin', konum:[-70,0,456], yuzey:'tas', alan:5},
-    'esik':          {duzlem:'zemin', konum:[140,4,494], yuzey:'tas', alan:4},
+    'esik':          {duzlem:'zemin', konum:[116,4,494], yuzey:'tas', alan:4},
     'duvar':         {duzlem:'arka', konum:[42,150,ARKA], yuzey:'siva', alan:4},
-    'masa-ustu':     {duzlem:'ust', konum:[178,MASA.y[1],330], yuzey:'tahta', alan:4, uygunsuz:['un']},
+    'masa-ustu':     {duzlem:'ust', konum:[124,MASA.y[1],318], yuzey:'tahta', alan:4, uygunsuz:['un']},
     'beden':         {duzlem:'zemin', konum:[-92,0,342], aci:.22, ortu:'cul'}
   },
   ciz(P,r){

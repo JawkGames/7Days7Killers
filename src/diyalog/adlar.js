@@ -86,5 +86,6 @@ export function izAdi(iz,dil=DIL_TR){
 export function izGorunus(iz,dil=DIL_TR){
   const O=dil.oyun.iz.gorunus;
   if(iz.alt==='yara') return O.yara;
+  if(iz.alt==='kurban-esyasi'||iz.alt==='silah') return O.nesne;
   return O[iz.iztur]??O.nesne;
 }

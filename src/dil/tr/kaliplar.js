@@ -22,7 +22,7 @@ export default {
     genel:[
       '{zaman} {yer:de+dim}, beyim.',
       '{zaman} [ben |]{yer:de+dim}. [Soran olursa söylerler.|Bilen bilir.]',
-      'Müfettiş bey, {zaman} {yer:de+dim}, bir yere çıkmadım.',
+      'Müfettiş bey, {zaman} {yer:de+dim}. Sorabilirsiniz.',
     ],
     korkak:[
       'Ben mi? {yer:de+dim}... herhalde.',

@@ -25,7 +25,9 @@ export const SIM_AYAR=Object.freeze({
   enAzBag:2, // katiller arasında en az bu kadar bağ kurulmaya çalışılır
   azamiDeneme:40,
   tamamlamaTuru:3, // çözücünün zincir bulamadığı katile ek iz bırakma turu (0: kapalı)
-  kalite:null, // kalite eleği ayarı (cozucu/kalite.js KALITE_AYAR'ın üstüne yazılır); elek:false eleği kapatır // kurulamayan vaka bu kadar kez türetilmiş tohumla yeniden denenir
+  kalite:null, // kalite eleği ayarı (cozucu/kalite.js KALITE_AYAR'ın üstüne yazılır)
+  elek:true, // false: elekten geçmeyen vaka da ilk denemede döner (vaka.kalite yine yazılır)
+  elekDeneme:12, // elekten geçemeyen en çok bu kadar deneme; sonra en az kusurlusu döner // kurulamayan vaka bu kadar kez türetilmiş tohumla yeniden denenir
   oranlar:Object.freeze({
     santaj:.3, // yeni katil, sırrını bilen eski bir katil tarafından zorlanır
     ortaklik:.22, // bir katil başka bir katilin cinayetinde yardımcı olur

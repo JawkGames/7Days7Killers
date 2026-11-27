@@ -12,7 +12,7 @@ import {kutuDoku,tahtaYuzey,tasDoseme,daire3,kenarIsigi,duzlemCizgi,tasYuzey} fr
 const TAS=[186,176,150], TAS2=[166,156,134], DOSEME=[160,152,132], AHSAP=[96,76,54], PIRINC=[176,150,96];
 const ON=700, SOLD=-262;                                       // cephe yüzü, abdest duvarı
 const KAPI={x:[-138,-6], tepe:300, omuz:212, derin:44, kanat:[-112,-32], kanatY:206};
-const MIN={x:[196,312], z:[606,722], h:236, r:50};
+const MIN={x:[196,312], z:[606,722], h:236, r:34};
 const SEKI={x:[34,186], y:[0,44], z:[648,ON]};
 const MUSLUK=[430,482,534,586,638];
 const isik={konum:[1300,1150,-900], guc:1.1, menzil:5000, ortam:.34};
@@ -66,16 +66,16 @@ function minare(P,R){
   const g=[[x0,M.h,z0],[x1,M.h,z0],[x0,M.h,z1]].map(q=>golgeNoktasi(q));
   cokgen3(P,[[x0,0,z0],[x1,0,z0],g[1],g[0],g[2],[x0,0,z1]],[0,0,0],.3);
   // gövde (önce, kaidenin arkasında yükselir)
-  silindir(P,isik,cx,cz,M.r,M.h+64,1100,TAS,3100,{dilim:12});
+  silindir(P,isik,cx,cz,M.r,M.h+64,1100,TAS,3100,{dilim:10});
   for(let y=M.h+60;y<1100;y+=34){const h=daire3(cx,y,cz,M.r+.3,M.r+.3,16).filter(q=>P.derinlik(...q)<P.derinlik(cx,y,cz)).sort((a,b)=>P.n(...a)[0]-P.n(...b)[0]); hat3(P,h,[80,74,60],.5,1,3110+y,1,.4);}
   // pabuç: kaideden gövdeye geçen kesik piramit
   const ust=[[x0,M.h,z0],[x1,M.h,z0],[x1,M.h,z1],[x0,M.h,z1]], pb=[[cx-M.r,M.h+64,cz-M.r],[cx+M.r,M.h+64,cz-M.r],[cx+M.r,M.h+64,cz+M.r],[cx-M.r,M.h+64,cz+M.r]];
   for(const [a,b] of [[0,1],[3,0]]){const q=[ust[a],ust[b],pb[b],pb[a]]; const m=q.reduce((s,p)=>[s[0]+p[0]/4,s[1]+p[1]/4,s[2]+p[2]/4],[0,0,0]); cokgen3(P,q,golgele(TAS,aydinlik(isik,m,a===0?[0,.6,-.8]:[-.8,.6,0]))); hat3(P,q,MUREKKEP,.5,1,3120+a,1,.6,true);}
   // kaide: makineye bakan ve sol yüz, kesme taş
-  tasOrgu(P,isik,[0,0,z0],DUZLEM.arka,[x0,x1,-M.h,0],TAS,R,{sira:32,harc:[120,112,96],duzensiz:.05});
+  tasOrgu(P,{...isik,ortam:.4},[0,0,z0],DUZLEM.arka,[x0,x1,-M.h,0],[200,190,162],R,{sira:24,harc:[86,80,66],duzensiz:.05});
   if(x0>0){c.save(); c.beginPath(); yol3(P,[[x0,0,z0],[x0,0,z1],[x0,M.h,z1],[x0,M.h,z0]]); c.clip(); tasOrgu(P,isik,[x0,0,0],DUZLEM.sag,[-z1,-z0,-M.h,0],TAS2,R,{sira:32,harc:[100,94,80],duzensiz:.05}); c.restore();}
-  hat3(P,[[x0,0,z1],[x0,0,z0],[x0,M.h,z0],[x0,M.h,z1]],MUREKKEP,.6,1.2,3130,2,1); hat3(P,[[x0,M.h,z0],[x1,M.h,z0]],MUREKKEP,.6,1.2,3131,2,1);
-  kutuDoku(P,isik,[x0-4,x1+4],[M.h-10,M.h],[z0-4,z1],TAS,3132,{doku:'tas',kenar:.5}); // silme
+  hat3(P,[[x0,0,z1],[x0,0,z0],[x0,M.h,z0],[x0,M.h,z1]],MUREKKEP,.7,1.4,3130,2,1); hat3(P,[[x0,M.h,z0],[x1,M.h,z0],[x1,0,z0]],MUREKKEP,.7,1.4,3131,2,1);
+  kutuDoku(P,isik,[x0-2,x1+2],[M.h-6,M.h],[z0-2,z1],golgele(TAS,1.05),3132,{doku:'tas',kenar:.5}); // silme
   // minare kapısı
   const kp=[[cx-15,0,z0],[cx-15,140,z0],[cx,156,z0],[cx+15,140,z0],[cx+15,0,z0]];
   cokgen3(P,kp,[38,30,22]); tahtaYuzey(P,{...isik,ortam:.25},[0,0,z0+.5],DUZLEM.arka,[cx-14,cx+14,-140,0],golgele(AHSAP,.7),R,{en:7,yon:'v'}); hat3(P,kp,MUREKKEP,.7,1.2,3133,2,1,true);
