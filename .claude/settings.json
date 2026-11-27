@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash araclar/canva-indir.sh *)"
+      "Bash(bash araclar/canva-indir.sh *)",
+      "mcp__Canva"
     ]
   }
 }
