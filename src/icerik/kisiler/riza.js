@@ -3,8 +3,8 @@ export default {
   ev:'karakol', is:'karakol', ortu:'kaput',
   esyalar:['jandarma-tufegi','pirinc-duduk'],
   sirlar:[
-    {id:'sinir-payi', tur:'rusvet', kimler:['halil']},
-    {id:'aksoy-kursunu', tur:'eski-olum', kimler:['gulsum','halil']}
+    {id:'sinir-payi', tur:'rusvet', rol:'fail', kimler:['halil']},
+    {id:'aksoy-kursunu', tur:'eski-olum', rol:'fail', kimler:['gulsum','halil']}
   ],
   iliskiler:[
     {kim:'halil', tur:'ortak'},

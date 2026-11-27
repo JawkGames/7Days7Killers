@@ -3,8 +3,8 @@ export default {
   ev:'ebe-evi', is:null, ortu:'entari',
   esyalar:['ot-torbasi','gobek-makasi'],
   sirlar:[
-    {id:'cemilin-dogumu', tur:'soy', kimler:['cemil','zeliha','mahmut']},
-    {id:'ot-defteri', tur:'zehir', kimler:['fadime','kazim']}
+    {id:'cemilin-dogumu', tur:'soy', rol:'fail', kimler:['cemil','zeliha','mahmut']},
+    {id:'ot-defteri', tur:'zehir', rol:'fail', kimler:['fadime','kazim']}
   ],
   iliskiler:[
     {kim:'sultan', tur:'dost'}

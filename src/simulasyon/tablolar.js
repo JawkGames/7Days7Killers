@@ -39,7 +39,7 @@ export const ESYA={
   'kirbac':{iz:'kirbac',tur:'nesne',silah:'bogma',yer:'is'},
   'el-feneri':{iz:'gaz-damlasi',tur:'leke'},
   'unlu-carik':{iz:'unlu-ayak-izi',tur:'ayak-izi'},
-  'raki-sisesi':{iz:'raki-sisesi',tur:'nesne'},
+  'raki-sisesi':{iz:'raki-sisesi',tur:'nesne',silah:'darbe',yer:'is'}, // sarhoş değirmencinin şişesi
   'gumus-saat':{iz:'cep-saati',tur:'nesne'},
   'kehribar-tespih':{iz:'tespih-tanesi',tur:'nesne'},
   'mor-yemeni':{iz:'mor-oya',tur:'lif'},
@@ -59,12 +59,34 @@ export const ESYA={
 };
 export const esyaIzi=e=>ESYA[e]||{iz:e,tur:'nesne'};
 
+// Mekânda duran aletler: köylünün kendi eşyası değildir, yerin malıdır.
+//   Cinayet o mekânda işlenirse orada bulunan herkes aleti kapabilir (izi kimseyi göstermez).
+//   evHalki:true ise katil aleti kendi evinden/iş yerinden de getirebilir; o zaman olay yerinde kalan alet
+//   o mekânın halkını gösterir (konaktan getirilen av tüfeği konak halkını, evden getirilen balta ev halkını).
+//   Anahtar mekân kimliği ya da '*<tür>' (o türdeki her mekân).
+export const MEKAN_ALETI={
+  'aga-konagi':[{alet:'av-tufegi',iz:'av-kovani',yontem:'tufek',evHalki:true}],
+  'degirmen':[{alet:'degirmen-demiri',iz:'demir-cubuk',yontem:'darbe'}],
+  'harman-yeri':[{alet:'dirgen',iz:'dirgen',yontem:'bicak'},{alet:'urgan',iz:'urgan',yontem:'asma'}],
+  'fistiklik':[{alet:'bag-bicagi',iz:'bag-bicagi',yontem:'bicak'}],
+  'bag-evi':[{alet:'kazma',iz:'kazma',yontem:'darbe'}],
+  'mezarlik':[{alet:'mezarci-kuregi',iz:'kurek',yontem:'darbe'}],
+  'agil':[{alet:'urgan',iz:'urgan',yontem:'asma',evHalki:true}],
+  'bakkal':[{alet:'sican-otu',iz:'sican-otu',yontem:'zehir',evHalki:true}],
+  'magara':[{alet:'sungu',iz:'sungu',yontem:'bicak',evHalki:true}],
+  'demirci-dukkani':[{alet:'demir-masa',iz:'masa',yontem:'darbe'}],
+  '*ev':[{alet:'balta',iz:'balta',yontem:'darbe',evHalki:true,w:.5}], // odun baltası: her evde var, bu yüzden daha seyrek
+};
+export const mekanAletleri=(m,tur)=>[...(MEKAN_ALETI[m]||[]),...(MEKAN_ALETI['*'+tur]||[])];
+// Yüksekten itilecek yerler (yar, mağara ağzı, değirmen çarkı) ve kurbanın asılabileceği yerler.
+export const YUKSEK_MEKANLAR=['magara','sinir-patikasi','degirmen'];
+
 // Örtü (alt gövdeyi gizleyen giysi) → takılıp kalan lif. Aynı örtüyü giyen herkes adaydır.
 // Gece tanığı yüzü değil örtüyü görür; bu yüzden örtü hem iz hem silüettir.
 export const ORTU_IZ={aba:'aba-tiftigi',entari:'entari-parcasi',palto:'palto-kumasi',cubbe:'cubbe-kumasi',kaput:'kaput-yunu',onluk:'onluk-ipligi',kepenek:'kece-tuyu'};
 
 // Yöntem → cesette görülen yara izi anahtarı.
-export const YONTEM_YARA={bicak:'bicak-yarasi',darbe:'ezik-yara',bogma:'bogaz-morlugu',zehir:'zehir-kopugu',tufek:'kursun-yarasi','suda-bogma':'islak-ceset'};
+export const YONTEM_YARA={bicak:'bicak-yarasi',darbe:'ezik-yara',bogma:'bogaz-morlugu',zehir:'zehir-kopugu',tufek:'kursun-yarasi','suda-bogma':'islak-ceset',itme:'dusme-yarasi',asma:'ip-izi'};
 export const YONTEMLER=Object.keys(YONTEM_YARA);
 export const SU_MEKANLARI=['degirmen','cesme']; // suda boğma yalnızca buralarda
 
@@ -101,12 +123,10 @@ export const SIR_SAHIP={
   'santaj':{sebep:'santaj',agirlik:.8},
   'ihbar':{sebep:'susturma',agirlik:.3},
 };
-// Sırrın sahibine göre anlamı. Veri dosyası sırra `rol` yazarsa o kullanılır; yazmazsa bu tablo, o da yoksa 'fail'.
+// Sırrın sahibine göre anlamı kişi verisindedir (sir.rol, src/icerik/kur.js SIR_ROLLERI):
 //   fail: sahibi işin içinde, kimler onu açabilir (susturma)
 //   tanik: sahibi yalnızca gördü/duydu (kimleri susturmak için öldürmez; hasmı ya da korktuğuysa intikam)
 //   magdur: sahibi işten zarar gördü (kimlerden yakını olmayanlara karşı intikam)
-// GEÇİCİ: bu bilgi kişi verisine (sir.rol) taşınmalı; burada yalnızca bugünkü köy için duruyor.
-export const SIR_ROLU={'degirmen-gecesi':'tanik','yangin-tanigi':'tanik','eski-kimlik':'magdur'};
 
 // B) Kurban sırrın SAHİBİ, katil adayı sırrın kimlerinde: kurbanın bildiği ya da yaptığı şey adayı tehdit eder.
 //    tehdit:true ise aday ancak kendi tehlikeli bir sırrı o bilgiyle kesişiyorsa tehdit altındadır.

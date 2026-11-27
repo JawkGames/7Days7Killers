@@ -3,8 +3,8 @@ export default {
   ev:'muhtar-evi', is:null, ortu:'entari',
   esyalar:['mor-yemeni','cevizli-sandik-anahtari'],
   sirlar:[
-    {id:'sakli-mektuplar', tur:'bilgi', kimler:['elif','nihat']},
-    {id:'gulsum-iftirasi', tur:'iftira', kimler:['gulsum']}
+    {id:'sakli-mektuplar', tur:'bilgi', rol:'fail', kimler:['elif','nihat']},
+    {id:'gulsum-iftirasi', tur:'iftira', rol:'fail', kimler:['gulsum']}
   ],
   iliskiler:[
     {kim:'elif', tur:'ebeveyn'},

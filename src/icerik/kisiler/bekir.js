@@ -3,8 +3,8 @@ export default {
   ev:'demirci-dukkani', is:'demirci-dukkani', ortu:'onluk',
   esyalar:['demirci-cekici','deri-onluk'],
   sirlar:[
-    {id:'sakli-ogul', tur:'firar', kimler:['yusuf','abdullah']},
-    {id:'ters-nal', tur:'kacakcilik', kimler:['halil']}
+    {id:'sakli-ogul', tur:'firar', rol:'fail', kimler:['yusuf','abdullah']},
+    {id:'ters-nal', tur:'kacakcilik', rol:'fail', kimler:['halil']}
   ],
   iliskiler:[
     {kim:'yusuf', tur:'ebeveyn'}

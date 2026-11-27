@@ -3,8 +3,8 @@ export default {
   ev:'bakkal', is:'bakkal', ortu:'onluk',
   esyalar:['veresiye-defteri','kopya-kalemi'],
   sirlar:[
-    {id:'ikinci-defter', tur:'tefecilik', kimler:['zeliha','ismail','kazim']},
-    {id:'tezgah-alti', tur:'kacakcilik', kimler:['halil','dursun']}
+    {id:'ikinci-defter', tur:'tefecilik', rol:'fail', kimler:['zeliha','ismail','kazim']},
+    {id:'tezgah-alti', tur:'kacakcilik', rol:'fail', kimler:['halil','dursun']}
   ],
   iliskiler:[],
   kayip:{tur:'yalniz', mekan:'bakkal', bekleyenler:[]}

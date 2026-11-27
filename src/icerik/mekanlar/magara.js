@@ -1,1 +1,1 @@
-export default {id:'magara', tur:'kir'};
+export default {id:'magara', tur:'kir', komsular:['agil', 'sinir-patikasi']};

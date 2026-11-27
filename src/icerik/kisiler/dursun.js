@@ -3,8 +3,8 @@ export default {
   ev:'muhtar-evi', is:'koy-odasi', ortu:'palto',
   esyalar:['muhtar-muhru','kasket'],
   sirlar:[
-    {id:'karne-yolsuzlugu', tur:'yolsuzluk', kimler:['arif']},
-    {id:'sinir-tasi', tur:'gasp', kimler:['mahmut']}
+    {id:'karne-yolsuzlugu', tur:'yolsuzluk', rol:'fail', kimler:['arif']},
+    {id:'sinir-tasi', tur:'gasp', rol:'fail', kimler:['mahmut']}
   ],
   iliskiler:[
     {kim:'naciye', tur:'es'},

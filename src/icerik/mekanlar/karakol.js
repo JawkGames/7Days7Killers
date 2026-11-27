@@ -1,1 +1,1 @@
-export default {id:'karakol', tur:'is'};
+export default {id:'karakol', tur:'is', komsular:['demirci-dukkani', 'okul', 'sinir-patikasi']};

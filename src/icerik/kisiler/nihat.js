@@ -3,8 +3,8 @@ export default {
   ev:'okul', is:'okul', ortu:'palto',
   esyalar:['dolma-kalem','tel-gozluk'],
   sirlar:[
-    {id:'elif-mektuplari', tur:'yasak-ask', kimler:['elif']},
-    {id:'ihbar-dilekcesi', tur:'ihbar', kimler:['dursun','arif']}
+    {id:'elif-mektuplari', tur:'yasak-ask', rol:'fail', kimler:['elif']},
+    {id:'ihbar-dilekcesi', tur:'ihbar', rol:'fail', kimler:['dursun','arif']}
   ],
   iliskiler:[
     {kim:'bekir', tur:'dost'}

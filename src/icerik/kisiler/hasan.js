@@ -3,8 +3,8 @@ export default {
   ev:'agil', is:'agil', ortu:'kepenek',
   esyalar:['kepenek','kaval'],
   sirlar:[
-    {id:'elif-sevdasi', tur:'yasak-ask', kimler:['elif']},
-    {id:'kayip-koyunlar', tur:'hirsizlik', kimler:['yusuf','mahmut']}
+    {id:'elif-sevdasi', tur:'yasak-ask', rol:'fail', kimler:['elif']},
+    {id:'kayip-koyunlar', tur:'hirsizlik', rol:'fail', kimler:['yusuf','mahmut']}
   ],
   iliskiler:[
     {kim:'elif', tur:'sever'}

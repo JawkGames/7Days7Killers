@@ -3,8 +3,8 @@ export default {
   ev:'cami', is:null, ortu:'aba',
   esyalar:['boyun-cingiragi','teneke-masrapa'],
   sirlar:[
-    {id:'gece-gezmesi', tur:'bilgi', kimler:[]},
-    {id:'eski-kimlik', tur:'eski-yangin', kimler:['sultan','mahmut']}
+    {id:'gece-gezmesi', tur:'bilgi', rol:'tanik', kimler:[]},
+    {id:'eski-kimlik', tur:'eski-yangin', rol:'magdur', kimler:['sultan','mahmut']}
   ],
   iliskiler:[
     {kim:'sultan', tur:'dost'}

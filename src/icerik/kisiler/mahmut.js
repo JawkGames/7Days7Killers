@@ -3,8 +3,8 @@ export default {
   ev:'aga-konagi', is:'koy-odasi', ortu:'aba',
   esyalar:['gumus-saat','kehribar-tespih'],
   sirlar:[
-    {id:'tarla-gaspi', tur:'gasp', kimler:['sultan','kadir']},
-    {id:'vasiyet', tur:'miras', kimler:['cemil','dursun']}
+    {id:'tarla-gaspi', tur:'gasp', rol:'fail', kimler:['sultan','kadir']},
+    {id:'vasiyet', tur:'miras', rol:'fail', kimler:['cemil','dursun']}
   ],
   iliskiler:[
     {kim:'zeliha', tur:'es'},

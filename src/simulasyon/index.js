@@ -62,7 +62,7 @@ function kur(tohum,deneme,koy,ayar){
     cekirdekler:cekirdekler.map(c=>c.id),
     kisiler,
     iliskiler:d.ids.flatMap(a=>d.iliskiler[a].map(i=>({kimden:a,kime:i.kime,tur:i.tur}))),
-    sirlar:d.sirlar.map(s=>({sahip:s.sahip,id:s.id,tur:s.tur,kimler:[...s.kimler]})),
+    sirlar:d.sirlar.map(s=>({sahip:s.sahip,id:s.id,tur:s.tur,rol:s.rol,kimler:[...s.kimler]})),
     harita:d.harita,
     katiller:cinayetler.map(c=>({kisi:c.katil,cinayet:c.id,yardimEttigi:cinayetler.find(x=>x.yardimci===c.katil)?.id??null})),
     cinayetler,

@@ -3,8 +3,8 @@ export default {
   ev:'aga-konagi', is:'fistiklik', ortu:'aba',
   esyalar:['kirbac','el-feneri'],
   sirlar:[
-    {id:'yangin', tur:'eski-yangin', kimler:['mahmut','sultan']},
-    {id:'ambar-hirsizligi', tur:'hirsizlik', kimler:['suleyman','mahmut']}
+    {id:'yangin', tur:'eski-yangin', rol:'fail', kimler:['mahmut','sultan']},
+    {id:'ambar-hirsizligi', tur:'hirsizlik', rol:'fail', kimler:['suleyman','mahmut']}
   ],
   iliskiler:[
     {kim:'suleyman', tur:'ortak'}

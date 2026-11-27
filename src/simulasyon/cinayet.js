@@ -2,7 +2,7 @@
 // (alet hırsızlığı, ot alma), olay yerine düşen kaçan tanık ve cesedin bulunması.
 // Her yerleştirme kilitlenir; sonraki cinayetler öncekilerin olgularını bozamaz.
 
-import {ESYA,MIZAC_KENDI_SILAH,SU_MEKANLARI} from './tablolar.js';
+import {ESYA,MIZAC_KENDI_SILAH,SU_MEKANLARI,YUKSEK_MEKANLAR,mekanAletleri} from './tablolar.js';
 import {UretimHatasi} from './zar.js';
 
 const guc=(d,A,V)=>{const a=d.kisi(A), v=d.kisi(V); return a.yas>=65||(a.cinsiyet==='K'&&v.cinsiyet==='E')?.3:1;};
@@ -30,9 +30,16 @@ function yontemSecenekleri(d,A,V,Y,m,t,elde){
   }
   const taban=ka.mizac==='kurnaz'?o.calintiSilahKurnaz:o.calintiSilah, top=calinti.reduce((s,c)=>s+c.f,0);
   for(const c of calinti) l.push({...c,w:taban*c.f/top});
-  l.push({yontem:'bogma',silah:null,w:.8*guc(d,A,V)});
-  l.push({yontem:'darbe',silah:null,w:.7}); // taş, odun
-  if(SU_MEKANLARI.includes(m)) l.push({yontem:'suda-bogma',silah:null,w:1.5*guc(d,A,V)});
+  // Yerin aleti: olay yerinde duran (dirgen, kürek, değirmen demiri) ya da katilin kendi evinden/iş yerinden getirdiği (balta, av tüfeği).
+  const g=guc(d,A,V);
+  for(const a of mekanAletleri(m,d.mekanTuru(m))) if(elde(m,a.alet,t))
+    l.push({yontem:a.yontem,silah:{esya:a.alet,sahip:null,calinti:false,mekanAleti:m,getirildi:false},w:o.aletYerinde*(a.w??1)*(a.yontem==='asma'?g:1)});
+  for(const p of new Set([ka.ev,ka.is].filter(x=>x&&x!==m))) for(const a of mekanAletleri(p,d.mekanTuru(p))) if(a.evHalki&&elde(p,a.alet,t))
+    l.push({yontem:a.yontem,silah:{esya:a.alet,sahip:null,calinti:false,mekanAleti:p,getirildi:true},w:o.aletGetirme*(a.w??1)*(a.yontem==='asma'?g:1)});
+  l.push({yontem:'bogma',silah:null,w:o.elleBogma*g});
+  l.push({yontem:'darbe',silah:null,w:o.tasla}); // taş, odun
+  if(SU_MEKANLARI.includes(m)) l.push({yontem:'suda-bogma',silah:null,w:1.5*g});
+  if(YUKSEK_MEKANLAR.includes(m)) l.push({yontem:'itme',silah:null,w:1.2*g});
   return l;
 }
 
@@ -151,9 +158,9 @@ export function cinayetleriYerlestir(d,z,cz,roller){
     if(onOlay) olaylar.push(onOlay);
     let silah=null;
     if(y.silah){
-      const p=y.silah.calinti?o.calintiBirakma:o.silahBirakma*(d.kisi(A).mizac==='ofkeli'?1.5:1);
-      silah={...y.silah,birakildi:z.olasilik(p),olay:onOlay?onOlay.id:null};
-      const st=durum(silah.sahip,silah.esya);
+      const p=y.silah.calinti?o.calintiBirakma:y.silah.mekanAleti?o.aletBirakma:o.silahBirakma*(d.kisi(A).mizac==='ofkeli'?1.5:1);
+      silah={mekanAleti:null,...y.silah,birakildi:z.olasilik(p),olay:onOlay?onOlay.id:null};
+      const st=durum(silah.sahip??silah.mekanAleti,silah.esya);
       // Zehirde "bırakılan" otun kalıntısıdır; torba sahibinde kalır.
       if(silah.calinti) st.kayip=onOlay.zaman; else if(silah.birakildi&&y.yontem!=='zehir') st.kayip=t; else st.kullanim.push(t);
     }

@@ -3,8 +3,8 @@ export default {
   ev:'aga-konagi', is:null, ortu:'palto',
   esyalar:['sedef-cakmak','koruklu-cizme'],
   sirlar:[
-    {id:'kumar-borcu', tur:'borc', kimler:['halil']},
-    {id:'gulsum-sevdasi', tur:'yasak-ask', kimler:['gulsum']}
+    {id:'kumar-borcu', tur:'borc', rol:'fail', kimler:['halil']},
+    {id:'gulsum-sevdasi', tur:'yasak-ask', rol:'fail', kimler:['gulsum']}
   ],
   iliskiler:[
     {kim:'gulsum', tur:'sevgili'},

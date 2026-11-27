@@ -11,7 +11,7 @@ export function dunyaKur(koy,ayar){
   for(const id of ids) iliskiler[id].sort((a,b)=>a.kime<b.kime?-1:a.kime>b.kime?1:a.tur<b.tur?-1:a.tur>b.tur?1:0);
   const rel=(a,b)=>iliskiler[a].filter(i=>i.kime===b).map(i=>i.tur);
   const sirlar=[];
-  for(const id of ids) for(const s of kisi(id).sirlar||[]) sirlar.push({sahip:id,id:s.id,tur:s.tur,kimler:(s.kimler||[]).filter(k=>koy.kisiler[k])});
+  for(const id of ids) for(const s of kisi(id).sirlar||[]) sirlar.push({sahip:id,id:s.id,tur:s.tur,rol:s.rol||'fail',kimler:(s.kimler||[]).filter(k=>koy.kisiler[k])});
   const evHalki={};
   for(const id of ids)(evHalki[kisi(id).ev]??=[]).push(id);
   const mekanTuru=m=>koy.mekanlar[m]?.tur;

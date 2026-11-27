@@ -34,6 +34,11 @@ export const SIM_AYAR=Object.freeze({
     calintiSilahKurnaz:2.5, // kurnaz katilin başkasının aletini çalma ağırlığı
     calintiSilah:.6,
     silahBirakma:.25, // kendi silahını olay yerinde bırakma
+    aletYerinde:.9, // olay yerinde duran aleti (dirgen, kürek, değirmen demiri) kapma ağırlığı
+    aletGetirme:.45, // kendi evinden/iş yerinden alet (balta, av tüfeği, urgan) getirme ağırlığı
+    aletBirakma:.55, // yerin aletini olay yerinde bırakma
+    elleBogma:.45, // silahsız: elle boğma ağırlığı (güçsüz katilde azalır)
+    tasla:.4, // silahsız: taşla, odunla vurma ağırlığı
     calintiBirakma:.7, // çalıntı silahı olay yerinde bırakma (suçu başkasına atmak için)
     gorme:Object.freeze({gece:.3,sabah:.75,ogle:.75,ikindi:.65,aksam:.5}), // komşu mekândan görme olasılığı
     yuzTanima:Object.freeze({gece:.15,sabah:1,ogle:1,ikindi:.9,aksam:.5}), // gören yüzü seçer mi, yoksa yalnızca silüet mi

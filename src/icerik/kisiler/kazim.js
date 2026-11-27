@@ -3,8 +3,8 @@ export default {
   ev:'degirmen', is:'degirmen', ortu:'onluk',
   esyalar:['unlu-carik','raki-sisesi'],
   sirlar:[
-    {id:'ark-gecesi', tur:'eski-olum', kimler:['abdullah','hatice']},
-    {id:'hileli-olcek', tur:'hirsizlik', kimler:[]}
+    {id:'ark-gecesi', tur:'eski-olum', rol:'fail', kimler:['abdullah','hatice']},
+    {id:'hileli-olcek', tur:'hirsizlik', rol:'fail', kimler:[]}
   ],
   iliskiler:[
     {kim:'arif', tur:'borclu'}

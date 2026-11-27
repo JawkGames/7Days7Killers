@@ -46,6 +46,15 @@ function yasIziTuret(yas){
   return {kirisik:y, gozAlti:.6+y*.8, cokukYanak:.4+y*.8, kirSac:clamp((yas-42)/30,0,1), lekeler:clamp((yas-50)/25,0,1)};
 }
 
+/* yüz yapısı: yaş ve cinsiyetten türetilir, veride `yapi` ile ezilir. Varsayılan kadında kullanılmaz (eski yol).
+   cukur: göz çukurunun derinliği, dolgun: gençlik dolgunluğu (yanak, dudak, düz hat), sarkik: çene altı ve gıdı sarkması,
+   sakak: şakak çukuru, kemik: elmacık ve çene kemiğinin belirginliği, kulak: kulak büyüklüğü (yaşla büyür) */
+function yapiTuret(yas,erkek,iz){
+  const y=clamp((yas-20)/55,0,1);
+  return {cukur:.55+y*.75+(erkek?.12:0), dolgun:clamp(1-y*1.7,0,1), sarkik:clamp((yas-46)/26,0,1), sakak:clamp((yas-38)/34,0,1)*.8+iz.cokukYanak*.15,
+    kemik:clamp((erkek?.45:.2)+iz.cokukYanak*.3+y*.25,0,1), kulak:1+y*.16};
+}
+
 /* Ham veriyi rig'in kullandığı biçime çevirir: eksik alanları doldurur, renkleri diziye çevirir. */
 export function gorunusKur(v){
   v=v||{};
@@ -86,8 +95,13 @@ export function gorunusKur(v){
   // başlık ve saç neyi açıkta bırakır
   const ortuyor=baslik.tur==='yemeni'||baslik.tur==='sal';
   const kulak=!ortuyor&&sac.bicim!=='uzun'&&sac.bicim!=='dagnik';
-  return {id:v.id||'?', cinsiyet:erkek?'E':'K', yas:v.yas==null?30:v.yas, yuz, renk, yasIzi, sac, sakal, biyik, baslik, ortu, giysi,
-    omuz:v.omuz==null?1:v.omuz, kulak, ortuyor, ham:v};
+  const yas=v.yas==null?30:v.yas;
+  // ozel: yeni çizim yolu (yüz yapısı, başlık kaynaşması, kumaş kıvrımı). Varsayılan kadın eski yolla, prototiple birebir çizilir.
+  const ozel=(v.id||'?')!=='varsayilan';
+  const yapi={...yapiTuret(yas,erkek,yasIzi),...(v.yapi||{})};
+  return {id:v.id||'?', cinsiyet:erkek?'E':'K', yas, yuz, renk, yasIzi, sac, sakal, biyik, baslik, ortu, giysi,
+    omuz:v.omuz==null?1:v.omuz, kulak, ortuyor, ozel, yapi,
+    boy:v.boy==null?1:v.boy, iri:v.iri==null?1:v.iri, ham:v};
 }
 
 /* etkin görünüş: rig modülleri bunu okur (canlı bağ) */

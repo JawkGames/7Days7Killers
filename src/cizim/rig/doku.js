@@ -62,3 +62,50 @@ export function kumas(yol,kutu,o){
   c.restore();
   if(o.hat!==false) titrek(yol,PAL.murekkep,.85,1.8,s+2+k,2,2.2);
 }
+
+/* Tel kütlesi (yeni yol: sakal, bıyık, dağınık saç). lifDoldur'dan farkı: kenar kesik değil.
+   Taban boyası yolun içinde yumuşak lekelerle verilir (o.taban gücü); teller yolun içinden başlar ama kırpılmaz,
+   uçları silüetten taşar. o.yogun(x,y) 0..1: tel sıklığı (sakalın yanakta erimesi için). Diğer alanlar lifDoldur gibi. */
+export function lifKutle(yol,kutu,o){
+  const [x0,y0,x1,y1]=kutu, w=x1-x0, h=y1-y0, M=c.getTransform();
+  const P=new Path2D(); yol(P); // yol(p): yolu verilen hedefe (Path2D) çizer
+  const ic=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y)); return c.isPointInPath(P,p.x,p.y);}; // yol geçerli dönüşümle, nokta tuval biriminde
+  c.save(); c.clip(P);
+  const t=o.taban==null?.8:o.taban, yog=o.yogun||(()=>1);
+  if(o.dolu){c.fillStyle=rgba(hex(o.renk),o.dolu); c.fill(P);} // saç kütlesi: alttan dolu boya (teller kenarı örter)
+  for(let i=0;i<14;i++){const r0=rng(o.seed+300+i), x=lerp(x0,x1,r0()), y=lerp(y0,y1,r0()); leke(x,y,w*.22,h*.22,hex(o.renk),t*.5*yog(x,y));}
+  leke(x0+w*.8,y0+h*.6,w*.35,h*.5,PAL.siyah,.5*t);
+  c.restore();
+  const r=rng(o.seed); c.lineCap='round';
+  const dag=o.dag==null?.3:o.dag, kiv=o.kivrim==null?.3:o.kivrim, acik=o.acik==null?.2:o.acik, kal=o.kalin||1;
+  let n=0, deneme=0;
+  while(n<o.n&&deneme<o.n*4){
+    deneme++;
+    const x=lerp(x0,x1,r()), y=lerp(y0,y1,r()), q=r();
+    if(!ic(x,y)||q>yog(x,y)) continue;
+    n++;
+    const a=o.yon(x,y)+(r()-.5)*dag, L=o.boy*(.5+r()*.9), b=(r()-.5)*L*kiv, ac=r()<acik;
+    c.strokeStyle=ac?rgba(o.isik,.14+r()*.32):rgba(o.koyu,.3+r()*.5); c.lineWidth=kal*(.5+r()*1.3);
+    const dx=Math.cos(a)*L, dy=Math.sin(a)*L;
+    c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+dx/2-dy/L*b,y+dy/2+dx/L*b,x+dx,y+dy); c.stroke();
+  }
+  const p=o.parlak==null?1:o.parlak;
+  c.save(); c.clip(P); leke(x0+w*.28,y0+h*.3,w*.26,h*.2,o.isik,.25*p*poz.isik,-.4); c.restore();
+}
+
+/* Kumaş kıvrımı (yeni yol): her kıvrım bir bezier [x0,y0,x1,y1,x2,y2,x3,y3]; g: gölgenin düştüğü yan (+1 sağ, -1 sol).
+   Kıvrımın bir yanı koyu lekelerle çöker, öbür yanı soluk ışık alır; hat kopuk, titrek mürekkeple çekilir.
+   Kumaşın yolu kırpılmışken çağrılmalı (lekeler kumaştan taşmasın). */
+export function kivrimlar(liste,renk,seed,guc){
+  const r=rng(seed), k=poz.kaynama, gc=guc==null?1:guc, R=typeof renk==='string'?hex(renk):renk;
+  liste.forEach(([P,g,gen],i)=>{
+    gen=gen||1;
+    for(let t=.1;t<.95;t+=.16){const q=1-t, x=q*q*q*P[0]+3*q*q*t*P[2]+3*q*t*t*P[4]+t*t*t*P[6], y=q*q*q*P[1]+3*q*q*t*P[3]+3*q*t*t*P[5]+t*t*t*P[7];
+      const ince=Math.sin(t*Math.PI); // kıvrım uçlarda incelir
+      leke(x+g*10*gen,y,(9+r()*6)*gen*ince+3,(26+r()*14)*gen,PAL.siyah,(.22+r()*.14)*gc);
+      leke(x-g*8*gen,y,6*gen*ince+2,20*gen,karistir(R,'#ddd4b4',.35),.1*gc*poz.isik);}
+    c.setLineDash([36+(i*13)%30,12+(i*7)%16,60,20]);
+    titrek(()=>{c.moveTo(P[0],P[1]); c.bezierCurveTo(P[2],P[3],P[4],P[5],P[6],P[7]);},PAL.murekkep,(.34+(g>0?.12:0))*gc,1.2,seed+20+i+k,2,1.8);
+    c.setLineDash([]);
+  });
+}

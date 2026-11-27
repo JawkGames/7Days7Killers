@@ -8,8 +8,9 @@ import {TAU,hex,rgba} from '../../cekirdek/matematik.js';
 import {rng} from '../../cekirdek/rastgele.js';
 import {poz} from './poz.js';
 import {G,karistir,hexYaz} from './gorunus.js';
-import {kumas} from './doku.js';
+import {kumas,kivrimlar} from './doku.js';
 import {baslikGovde} from './baslik.js';
+import {figurDonusumu} from './yapi.js';
 
 /* omuz eşlemesi: boyun çevresi (|x|<=90) sabit kalır, dışı omuz çarpanıyla genişler */
 function omuzEsle(){
@@ -113,11 +114,31 @@ function disBoya(yol,T,k,X,desen){
   leke(X(250),940,190,260,PAL.siyah,.8);
   tara(X(-372),786,X(372),1080,.75,8,PAL.murekkep,.5,350+k,1.2);
   tara(-60,786,X(372),1080,-.6,10,PAL.murekkep,.45,351+k,1.2);
+  if(G.ozel) govdeKivrim(X,T,k);
   // alt kenar palto etek rengine eriyerek biter: ayaktayken birleşim çizgisi görünmez
   g=c.createLinearGradient(0,1130,0,1300); g.addColorStop(0,T.sis[0]); g.addColorStop(1,T.sis[1]); c.fillStyle=g; c.fillRect(X(-380),1130,X(380)-X(-380),180);
   c.restore();
 }
 
+/* yeni yol: kumaşın ağırlığı. Omuzdan göğse ve kol altına inen kıvrımlar, omuz dikişi, kol altında çöken gölge,
+   omuz başında ışık. Örtünün silüeti kırpılmışken çizilir. */
+function govdeKivrim(X,T,k){
+  const R=hex(T.ana), o=ORTU[G.ortu]||ORTU.palto, [a]=o.sil, om=X(a[4]);
+  // omuz başı ışığı ve kol altı gölgesi
+  leke(X(-250),830,80,26,karistir(R,'#d8d0b0',.4),.22*poz.isik,-.3);
+  for(const s of[-1,1]) leke(s*Math.abs(X(300)),1060,60,160,PAL.siyah,s>0?.6:.4);
+  const L=[];
+  for(const s of[-1,1]){
+    // omuz dikişi: boyundan omuz başına
+    L.push([[s*o.boyun,o.y+6,s*180,o.y+16,s*Math.abs(om)*.8,a[3]-6,s*Math.abs(om)*.96,a[5]+10],s,.6]);
+    // omuzdan göğse ve kola inen ağır kıvrımlar
+    L.push([[s*Math.abs(X(250)),850,s*Math.abs(X(280)),930,s*Math.abs(X(300)),1020,s*Math.abs(X(310)),1140],-s,1.2]);
+    L.push([[s*190,880,s*210,960,s*200,1060,s*220,1180],s,1]);
+    L.push([[s*Math.abs(X(320)),900,s*Math.abs(X(330)),980,s*Math.abs(X(345)),1060,s*Math.abs(X(350)),1200],s,.8]);
+  }
+  kivrimlar(L,R,560);
+  tara(X(170),860,X(372),1100,1.2,5,PAL.murekkep,.28,565+k,1);
+}
 // alt kenarı etek rengine erit: ayaktayken gövde ile altGovde arasında çizgi görünmesin
 export function erime(yol,T){
   c.save(); c.beginPath(); yol(); c.clip();
@@ -225,6 +246,7 @@ function kaput(k,X,T){
     kumas(yol,[s<0?-92:20,800,s<0?-20:92,852],{renk:karistir(hex(G.giysi.icRenk||'#4f4c38'),s>0?[0,0,0]:'#c8c0a0',.15),seed:431+s,tara:.6});
   }
   // kaputun geniş, kapalı yakası
+  if(G.ozel) return kaputYakaOzel(k,X,R);
   for(const s of[-1,1]){
     const yol=()=>{c.moveTo(s*92,770); c.lineTo(s*170,790); c.lineTo(s*214,880); c.lineTo(s*168,892); c.lineTo(s*200,930); c.bezierCurveTo(s*150,960,s*70,960,s*4,948); c.bezierCurveTo(s*50,900,s*88,840,s*92,770); c.closePath();};
     c.save(); c.shadowColor='rgba(0,0,0,.8)'; c.shadowBlur=18; c.shadowOffsetY=6; c.beginPath(); yol(); c.fillStyle=rgba(karistir(R,[0,0,0],s>0?.45:.1),1); c.fill(); c.restore();
@@ -232,6 +254,36 @@ function kaput(k,X,T){
     titrek(()=>{c.moveTo(s*168,892); c.lineTo(s*126,850);},PAL.murekkep,.8,1.5,445+s+k,2,2);
   }
   // iki sıra düğme ve omuz apoletleri
+  for(const s of[-1,1]) for(const y of[1000,1090]) dugme(s*70,y,7,k,'#3a3420');
+  for(const s of[-1,1]){
+    const yol=()=>{c.moveTo(s*176,796); c.lineTo(X(s*296),830); c.lineTo(X(s*290),850); c.lineTo(s*172,816); c.closePath();};
+    kumas(yol,[s<0?X(-296):172,796,s<0?-172:X(296),850],{renk:karistir(R,[0,0,0],s>0?.35:.05),seed:450+s,tara:.6});
+    dugme(s*190,808,4.5,k,'#3a3420');
+  }
+}
+/* yeni yol: kalın yün yaka. Kenarları hafif kavisli, katlanma hattı (yakanın döndüğü yer) yumuşak bir sırt,
+   alt kenarın altında kalınlık şeridi ve gölge, kenara paralel dikiş; düğme ve apolet sonra. */
+function kaputYakaOzel(k,X,R){
+  for(const s of[-1,1]){
+    const yol=()=>{c.moveTo(s*92,770); c.quadraticCurveTo(s*134,774,s*172,792); c.quadraticCurveTo(s*196,834,s*216,882); c.quadraticCurveTo(s*190,884,s*168,894);
+      c.quadraticCurveTo(s*188,908,s*202,932); c.bezierCurveTo(s*150,966,s*70,962,s*4,950); c.bezierCurveTo(s*52,900,s*86,842,s*92,770); c.closePath();};
+    // kalınlık: yakanın altında koyu, biraz aşağı kaymış ikinci kat
+    c.save(); c.translate(s*4,9); c.beginPath(); yol(); c.fillStyle=rgba(karistir(R,[0,0,0],.75),1); c.fill(); c.restore();
+    c.save(); c.beginPath(); c.rect(-400,700,800,500); yol(); c.clip('evenodd'); leke(s*120,975,150,40,PAL.siyah,.6); c.restore(); // yakanın göğse düşen gölgesi
+    kumas(yol,[s<0?-216:0,770,s<0?0:216,966],{renk:karistir(R,[0,0,0],s>0?.4:0),seed:440+s,tara:s>0?1:.5,hat:false,desen:()=>{
+      // yaka sırtı: katlanma hattında ışık, iki yanında çöküntü
+      leke(s*120,850,26,90,karistir(R,'#d8d0b0',.3),(s<0?.3:.1)*poz.isik,s*.5);
+      leke(s*160,880,30,70,PAL.siyah,.35,s*.5);
+      leke(s*60,930,60,20,PAL.siyah,.3);
+    }});
+    titrek(yol,PAL.murekkep,.85,1.8,446+s+k,2,2);
+    // kenar ışığı (yalnızca ışık yanında) ve dikiş
+    if(s<0) titrek(()=>{c.moveTo(-96,776); c.quadraticCurveTo(-134,780,-168,796); c.quadraticCurveTo(-190,834,-208,876);},karistir(R,'#e0d8b8',.4),.35*poz.isik,1.6,448+k,2,1.2);
+    c.setLineDash([5,5]);
+    titrek(()=>{c.moveTo(s*14,940); c.bezierCurveTo(s*70,950,s*140,952,s*190,926);},PAL.murekkep,.35,1,449+s+k,1,1);
+    c.setLineDash([]);
+    titrek(()=>{c.moveTo(s*168,894); c.quadraticCurveTo(s*146,872,s*124,846);},PAL.murekkep,.7,1.5,445+s+k,2,2);
+  }
   for(const s of[-1,1]) for(const y of[1000,1090]) dugme(s*70,y,7,k,'#3a3420');
   for(const s of[-1,1]){
     const yol=()=>{c.moveTo(s*176,796); c.lineTo(X(s*296),830); c.lineTo(X(s*290),850); c.lineTo(s*172,816); c.closePath();};
@@ -290,6 +342,9 @@ function kepenek(k,X,T){
 }
 
 export function govde(){
+  const D=figurDonusumu(true); govdeCiz(); if(D) c.restore();
+}
+function govdeCiz(){
   const k=poz.kaynama, X=omuzEsle(), T=ortuTon();
   c.save(); c.translate(0,-38-poz.nefes*3.2);
   const o=G.ortu;
@@ -307,6 +362,9 @@ export function govde(){
 
 const etekTon=()=>G.ortu==='entari'&&G.giysi.hirka?tonlar(G.giysi.icRenk||IC_RENK.entari):ortuTon();
 export function altGovde(){ // yere kadar inen örtü ve yanlarda sarkan eller: yalnızca ayaktayken görünür, bacak çizilmez
+  const D=figurDonusumu(true); altGovdeCiz(); if(D) c.restore();
+}
+function altGovdeCiz(){
   const k=poz.kaynama, X=omuzEsle(), T=etekTon(), R=G.renk;
   c.save(); c.translate(0,-38);
   // etek, örtünün alt kenarıyla aynı genişlikte başlar (palto: 372)

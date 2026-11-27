@@ -2,9 +2,11 @@
 // Sebepler uydurulmaz; kişilerin sırlarından ve ilişkilerinden okunur (tablolar.js).
 // Olay çekirdekleri yalnızca var olan sebebin ağırlığını artırır, yeni sebep yaratmaz.
 
-import {SIR_SAHIP,SIR_ILGILI,SIR_ROLU,ILISKI_SEBEP,MIZAC_KATIL,YAKINLIK,TEHLIKELI} from './tablolar.js';
+import {SIR_SAHIP,SIR_ILGILI,ILISKI_SEBEP,MIZAC_KATIL,YAKINLIK,TEHLIKELI} from './tablolar.js';
 import {UretimHatasi} from './zar.js';
 
+const MIZAC_US=.4; // mizacın katil seçimindeki ağırlığı (üs): büyüdükçe öfkeli ve sert kişiler daha sık katil çıkar
+const TANIK_KORKUSU=.6; // tanığın korkusu, onu susturmak isteyenin sebebinin bu katı
 const yuvarla=x=>Math.round(x*100)/100;
 const ayniKaynak=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 
@@ -31,7 +33,7 @@ export function sebepAdaylari(d){
   };
   for(const s of d.sirlar){
     const kaynak={tur:'sir',sahip:s.sahip,sir:s.id};
-    const A=SIR_SAHIP[s.tur], rol=s.rol||SIR_ROLU[s.id]||'fail';
+    const A=SIR_SAHIP[s.tur], rol=s.rol||'fail';
     if(A) for(const T of s.kimler){
       const olumsuz=d.rel(s.sahip,T).some(t=>t==='hasim'||t==='korkar');
       const olumlu=d.rel(s.sahip,T).length>0&&!olumsuz;
@@ -46,6 +48,17 @@ export function sebepAdaylari(d){
       // Cezalandırma ve ihanet ancak arada dostluk yoksa: kaçağın koyununu kesen çoban, kaçağın düşmanı değildir.
       if((B.sebep==='ceza'||B.sebep==='ihanet')&&d.rel(P,s.sahip).some(t=>!['hasim','korkar','isveren','calisan'].includes(t))) continue;
       ekle(P,s.sahip,B.sebep,B.agirlik,kaynak);
+    }
+  }
+  // D) Tanığın korkusu: sırrın tanığı (rol 'tanik'), sırrın içindekilerden biri onu susturmak isterse
+  //    önce davranabilir ("o beni susturmadan"). Değirmen gecesini duyan Hoca, patikayı gören kaçak Yusuf.
+  //    A ve B'den çıkan susturma sebeplerine bakar; bu yüzden onlardan sonra gelir.
+  for(const s of d.sirlar){
+    if(s.rol!=='tanik') continue;
+    for(const X of s.kimler){
+      const c=m.get(X+'|'+s.sahip);
+      const tehdit=c?c.sebepler.filter(x=>x.tur==='susturma').reduce((a,x)=>Math.max(a,x.agirlik),0):0;
+      if(tehdit>0) ekle(s.sahip,X,'korku',TANIK_KORKUSU*tehdit,{tur:'sir',sahip:s.sahip,sir:s.id});
     }
   }
   for(const P of d.ids) for(const i of d.iliskiler[P]){
@@ -75,6 +88,12 @@ export function sebepAdaylari(d){
       if(j.kime===P) continue;
       if(j.tur==='korkar') ekle(P,j.kime,'koruma',2,{tur:'koruma',korunan:X,iliski:'korkar'});
       else if(j.tur==='hasim') ekle(P,j.kime,'koruma',1.2,{tur:'koruma',korunan:X,iliski:'hasim'});
+    }
+    // X'i susturmak isteyen (X'in tanığı olduğu bir sırrın içindeki): baba, saklanan oğlunu gören patikacıdan korkar.
+    for(const T of d.ids){
+      if(T===P||T===X) continue;
+      const c=m.get(T+'|'+X), su=c&&c.sebepler.find(x=>x.tur==='susturma'&&x.agirlik>=2&&x.kaynak.tur==='sir');
+      if(su) ekle(P,T,'koruma',1.2,{tur:'koruma',korunan:X,sir:{sahip:su.kaynak.sahip,sir:su.kaynak.sir}});
     }
     for(const s of d.sirlar){
       if(s.sahip===P||s.sahip===X||!s.kimler.includes(X)) continue;
@@ -121,7 +140,7 @@ export function rolleriSec(d,z,ciftler,cekirdekler){
     const adaylar=d.ids.filter(P=>musait(P)&&hedefler(P).length>0);
     const P=z.agirlikli(adaylar,P=>{
       const k=d.kisi(P), top=hedefler(P).reduce((s,T)=>s+w(P+'|'+T),0);
-      return Math.pow(MIZAC_KATIL[k.mizac]??1,.6)*(k.yas>=70?.7:1)*Math.pow(top,.2);
+      return Math.pow(MIZAC_KATIL[k.mizac]??1,MIZAC_US)*(k.yas>=70?.7:1)*Math.pow(top,.2);
     });
     if(!P) throw new UretimHatasi(`yalnızca ${n} katil seçilebildi`);
     katilOlan.add(P);

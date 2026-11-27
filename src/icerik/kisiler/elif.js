@@ -3,8 +3,8 @@ export default {
   ev:'muhtar-evi', is:null, ortu:'entari',
   esyalar:['kirmizi-hirka','mektup-destesi'],
   sirlar:[
-    {id:'ogretmen-sevdasi', tur:'yasak-ask', kimler:['nihat']},
-    {id:'kacis-plani', tur:'kacis', kimler:['nihat']}
+    {id:'ogretmen-sevdasi', tur:'yasak-ask', rol:'fail', kimler:['nihat']},
+    {id:'kacis-plani', tur:'kacis', rol:'fail', kimler:['nihat']}
   ],
   iliskiler:[
     {kim:'nihat', tur:'sevgili'},

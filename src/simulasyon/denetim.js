@@ -72,11 +72,19 @@ export function vakaDenetle(v){
       if(n==='kurbanin'&&i.sahip!==c.kurban) e(`${i.id}: kurbanın eşyası kurbanın değil`);
       if(n==='zehir-kaynagi'&&(o.tur!=='ot-alma'||o.sahip!==i.sahip)) e(`${i.id}: zehir kaynağı tutarsız`);
       if(n==='yontem'&&i.kisi!==c.kurban) e(`${i.id}: yara kurbanda değil`);
-      if(i.esya&&!v.kisiler[i.sahip].esyalar.includes(i.esya)) e(`${i.id}: ${i.esya} ${i.sahip}'in eşyası değil`);
-      if(i.ortu&&v.kisiler[i.sahip].ortu!==i.ortu) e(`${i.id}: örtü ${i.sahip}'in değil`);
-      if(i.adaylar&&!i.adaylar.includes(i.sahip)) e(`${i.id}: sahibi adaylarda yok`);
+      if(i.mekanAleti){
+        if(i.sahip!=null) e(`${i.id}: yerin aletinin sahibi olmaz`);
+        if(!mekanVar(i.mekanAleti)) e(`${i.id}: aletin mekânı yok (${i.mekanAleti})`);
+        for(const k of i.adaylar||[]) if(v.kisiler[k].ev!==i.mekanAleti&&v.kisiler[k].is!==i.mekanAleti) e(`${i.id}: ${k} aletin mekânından değil`);
+      }else{
+        if(i.esya&&!v.kisiler[i.sahip].esyalar.includes(i.esya)) e(`${i.id}: ${i.esya} ${i.sahip}'in eşyası değil`);
+        if(i.ortu&&v.kisiler[i.sahip].ortu!==i.ortu) e(`${i.id}: örtü ${i.sahip}'in değil`);
+        if(i.adaylar&&!i.adaylar.includes(i.sahip)) e(`${i.id}: sahibi adaylarda yok`);
+      }
       if(!i.yaniltici&&i.sahip===c.katil&&(n==='katil-birakti'||n==='katil-silahi')) kanitli.add(c.id);
       if(!i.yaniltici&&i.alt==='yara'&&i.sahip===c.katil) kanitli.add(c.id);
+      if(!i.yaniltici&&n==='mekan-aleti'&&(i.adaylar||[]).includes(c.katil)) kanitli.add(c.id);
+      if(!i.yaniltici&&i.alt==='yara'&&i.mekanAleti&&(i.adaylar||[]).includes(c.katil)) kanitli.add(c.id);
     }else if(i.tur==='tanik'){
       const ty=cz[i.tanik][i.zaman];
       if(ty!==i.nereden) e(`${i.id}: tanık ${i.tanik} o anda ${i.nereden}'de değil`);
@@ -114,15 +122,16 @@ export function vakaDenetle(v){
   // Kaybolan eşya geri gelmez: olay yerinde kalan nesne, çalınan alet sonra başka yerde iz bırakmaz.
   const kayip=new Map();
   const kayipYaz=(a,t)=>{if(!kayip.has(a)||kayip.get(a)>t) kayip.set(a,t);};
-  for(const i of v.izler) if(i.tur==='fiziksel'&&i.esya&&i.iztur==='nesne'&&i.alt!=='kurban-esyasi') kayipYaz(i.sahip+'|'+i.esya,i.zaman);
+  const sahibi=i=>(i.sahip??i.mekanAleti)+'|'+i.esya;
+  for(const i of v.izler) if(i.tur==='fiziksel'&&i.esya&&i.iztur==='nesne'&&i.alt!=='kurban-esyasi') kayipYaz(sahibi(i),i.zaman);
   for(const o of v.olaylar) if(o.tur==='hirsizlik') kayipYaz(o.sahip+'|'+o.esya,o.zaman);
   for(const i of v.izler) if(i.tur==='fiziksel'&&i.esya){
-    const a=i.sahip+'|'+i.esya, t=kayip.get(a);
+    const a=sahibi(i), t=kayip.get(a);
     const ayni=i.alt==='silah'||i.gercek.neden==='calinti-silah'||i.alt==='yara';
     if(t!=null&&i.zaman>t&&!ayni) e(`${i.id}: ${a} ${t} anında kaybolmuştu, ${i.zaman} anında yine iz bırakıyor`);
   }
   for(const c of v.cinayetler) if(c.silah&&!c.silah.calinti){
-    const t=kayip.get(c.silah.sahip+'|'+c.silah.esya);
+    const t=kayip.get((c.silah.sahip??c.silah.mekanAleti)+'|'+c.silah.esya);
     if(t!=null&&c.zaman>t) e(`${c.id}: silah ${c.silah.esya} daha önce kaybolmuştu`);
   }
 

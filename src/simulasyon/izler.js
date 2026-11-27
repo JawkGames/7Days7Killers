@@ -2,7 +2,7 @@
 // Kural: hiçbir iz süs değildir. Her iz bir olaya (vaka.olaylar) bağlıdır ve o olayın zamanında
 // izin sahibi/tanığı/fark edeni çizelgeye göre gerçekten oradadır. Testler bunu tek tek denetler.
 
-import {ESYA,esyaIzi,ORTU_IZ,YONTEM_YARA,MIZAC_DIKKATSIZLIK} from './tablolar.js';
+import {ESYA,esyaIzi,ORTU_IZ,YONTEM_YARA,MIZAC_DIKKATSIZLIK,mekanAletleri} from './tablolar.js';
 
 const INCE=['ayak-izi','lif','kirinti','leke']; // gözle zor seçilen, "üstünden geçen" bırakabilecek izler
 
@@ -19,6 +19,10 @@ export function izleriKur(d,z,cz,sonuc){
     if(ORTU_IZ[k.ortu]) (adayIndex[ORTU_IZ[k.ortu]]??=new Set()).add(id);
   }
   const adaylar=anahtar=>[...(adayIndex[anahtar]||[])].sort();
+  // Silahın izi: kişinin eşyasıysa eşyanın izi; yerin aletiyse aletin izi. Getirilen alet o yerin halkını gösterir,
+  // olay yerinde kapılan alet kimseyi göstermez.
+  const silahIz=s=>s.mekanAleti?(mekanAletleri(s.mekanAleti,d.mekanTuru(s.mekanAleti)).find(a=>a.alet===s.esya)?.iz??s.esya):esyaIzi(s.esya).iz;
+  const silahAdaylari=s=>s.mekanAleti?(s.getirildi?d.ids.filter(k=>d.kisi(k).ev===s.mekanAleti||d.kisi(k).is===s.mekanAleti).sort():[]):adaylar(silahIz(s));
   // Kişinin bırakabileceği izler: eşyaları (silah olarak kullanılanlar hariç) ve örtüsünün lifi.
   const {elde,alinabilir,durum}=sonuc.esya;
   // t anında bırakılabilecek izler. Nesne (eşyanın kendisi) yalnızca sonra bir daha kullanılmayacaksa düşer.
@@ -56,16 +60,20 @@ export function izleriKur(d,z,cz,sonuc){
 
     // --- Fiziksel ---
     const yara={tur:'fiziksel',alt:'yara',anahtar:YONTEM_YARA[c.yontem],mekan:m,zaman:t,kisi:V,olay:c.id,gercek:{neden:'yontem',yontem:c.yontem}};
-    if(c.silah&&c.yontem==='tufek'){yara.esya=c.silah.esya; yara.sahip=c.silah.sahip; yara.adaylar=adaylar(esyaIzi(c.silah.esya).iz);}
+    if(c.silah&&c.yontem==='tufek'){
+      yara.esya=c.silah.esya; yara.sahip=c.silah.sahip; yara.adaylar=silahAdaylari(c.silah);
+      if(c.silah.mekanAleti) yara.mekanAleti=c.silah.mekanAleti;
+    }
     ekle(yara);
     let silahIzi=null;
     if(c.silah&&c.silah.birakildi){
-      const x=esyaIzi(c.silah.esya);
-      silahIzi=ekle({tur:'fiziksel',alt:'silah',anahtar:x.iz,iztur:x.tur,esya:c.silah.esya,sahip:c.silah.sahip,adaylar:adaylar(x.iz),mekan:m,zaman:t,
-        olay:c.silah.calinti?c.silah.olay:c.id,yaniltici:c.silah.calinti,gercek:{neden:c.silah.calinti?'calinti-silah':'katil-silahi'}});
-      if(!c.silah.calinti) kanit.push(silahIzi.id);
+      const x=c.silah.mekanAleti?{iz:silahIz(c.silah),tur:'nesne'}:esyaIzi(c.silah.esya);
+      silahIzi=ekle({tur:'fiziksel',alt:'silah',anahtar:x.iz,iztur:x.tur,esya:c.silah.esya,sahip:c.silah.sahip,adaylar:silahAdaylari(c.silah),
+        ...(c.silah.mekanAleti?{mekanAleti:c.silah.mekanAleti}:{}),mekan:m,zaman:t,
+        olay:c.silah.calinti?c.silah.olay:c.id,yaniltici:c.silah.calinti,gercek:{neden:c.silah.calinti?'calinti-silah':c.silah.mekanAleti?'mekan-aleti':'katil-silahi'}});
+      if(!c.silah.calinti&&silahIzi.adaylar.includes(A)) kanit.push(silahIzi.id);
     }
-    if(c.silah&&!c.silah.calinti&&c.yontem==='tufek') kanit.push(yara.id);
+    if(c.silah&&!c.silah.calinti&&c.yontem==='tufek'&&yara.adaylar.includes(A)) kanit.push(yara.id);
     let calintiY=null;
     if(c.silah&&c.silah.calinti&&(silahIzi||c.yontem==='tufek')){
       calintiY=yaniltici({izler:[...(silahIzi?[silahIzi.id]:[]),...(c.yontem==='tufek'?[yara.id]:[])],isaret:[c.silah.sahip],aciklama:'calinti-silah',olay:c.silah.olay,
@@ -180,7 +188,7 @@ export function izleriKur(d,z,cz,sonuc){
       const f=farkEden(A,t,t+D,[V]);
       if(f) kanit.push(dolayli({alt:'kanli-giysi',kisi:A,ortu:d.kisi(A).ortu,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'katilin-giysisi'}}).id);
     }
-    if((c.yontem==='bogma'||c.yontem==='suda-bogma')&&z.olasilik(o.tirmik)){
+    if(['bogma','suda-bogma','asma','itme'].includes(c.yontem)&&z.olasilik(o.tirmik)){
       const f=farkEden(A,t,t+D,[V]);
       if(f) kanit.push(dolayli({alt:'tirmik',kisi:A,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'kurban-tirmaladi'}}).id);
     }

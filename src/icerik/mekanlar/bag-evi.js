@@ -1,1 +1,1 @@
-export default {id:'bag-evi', tur:'kir'};
+export default {id:'bag-evi', tur:'kir', komsular:['degirmen', 'fistiklik', 'mezarlik']};

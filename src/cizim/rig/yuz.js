@@ -10,9 +10,11 @@ import {poz} from './poz.js';
 import {G} from './gorunus.js';
 import {onSac} from './sac.js';
 import {sakal,biyik} from './sakal.js';
-import {baslikOn} from './baslik.js';
+import {baslikOn,baslikGolge} from './baslik.js';
+import {yuzYoluOzel,yapiBoya,yapiHat,gozAki,figurDonusumu} from './yapi.js';
 
 export function yuzYolu(){
+  if(G.ozel){yuzYoluOzel(); return;}
   const Y=G.yuz, e=Y.en, m=e*Y.elmacik, j=e*Y.cene, ju=e*Y.ceneUc, b=Y.boy, u=Y.alin;
   c.moveTo(0,-200*u);
   c.bezierCurveTo(95*e,-202*u,152*e,-150*u,158*e,-50*u); c.bezierCurveTo(161*m,20*b,146*m,88*b,118*j,140*b);
@@ -30,7 +32,9 @@ export function goz(yon,fx){
   c.save(); c.translate(yon*Y.gozAralik+fx,0); c.scale(yon*Y.gozEn,Y.gozBoy);
   c.save();
   c.beginPath(); c.moveTo(-31,5); c.bezierCurveTo(U[2],U[3],U[4],U[5],U[6],U[7]); c.bezierCurveTo(16,alt,-12,alt+2,-31,5); c.closePath(); c.clip();
-  let g=c.createRadialGradient(0,2,2,0,2,36); g.addColorStop(0,'#9b9886'); g.addColorStop(.6,'#5f5d55'); g.addColorStop(1,'#26252a');
+  let g=c.createRadialGradient(0,2,2,0,2,36);
+  if(G.ozel){const [a1,a2,a3]=gozAki(); g.addColorStop(0,rgba(a1,1)); g.addColorStop(.6,rgba(a2,1)); g.addColorStop(1,rgba(a3,1));}
+  else{g.addColorStop(0,'#9b9886'); g.addColorStop(.6,'#5f5d55'); g.addColorStop(1,'#26252a');}
   c.fillStyle=g; c.fillRect(-36,-26,72,48);
   const ix=clamp(poz.gx,-1,1)*10*yon, iy=clamp(poz.gy,-1,1)*4.5-2;
   g=c.createRadialGradient(ix,iy+1,1,ix,iy,12.5); g.addColorStop(0,rgba(R.iris,1)); g.addColorStop(.62,rgba(R.irisOrta,1)); g.addColorStop(.9,rgba(R.irisKenar,1)); g.addColorStop(1,'rgba(6,7,7,1)');
@@ -70,6 +74,7 @@ export function kas(yon,fx){
 }
 function kulak(s){ // kısa saçta, kelde, kasketin altında görünür; yüzün arkasına çizilir
   const Y=G.yuz, R=G.renk, k=poz.kaynama, x=s*150*Y.en, b=Y.boy;
+  if(G.ozel) return kulakOzel(s);
   const yol=()=>{c.moveTo(x,-40); c.bezierCurveTo(x+s*30,-58,x+s*44,-14,x+s*36,24*b); c.bezierCurveTo(x+s*30,62*b,x+s*22,96*b,x+s*2,100*b); c.closePath();};
   c.beginPath(); yol(); c.fillStyle=rgba(s<0?R.tenOrta:R.tenGolge,1); c.fill();
   c.save(); c.clip();
@@ -78,6 +83,27 @@ function kulak(s){ // kısa saçta, kelde, kasketin altında görünür; yüzün
   c.restore();
   titrek(yol,PAL.murekkep,.7,1.5,560+s+k,2,1.8);
   titrek(()=>{c.moveTo(x+s*10,-18); c.bezierCurveTo(x+s*28,-30,x+s*30,10,x+s*20,40*b);},PAL.murekkep,.45,1.2,562+s+k,2,1.6);
+}
+// yeni yol: yaşla büyüyen, gölgede taranmış, kıkırdak hatları olan kulak; kafaya birleştiği yerde koyu gölge
+function kulakOzel(s){
+  const Y=G.yuz, R=G.renk, k=poz.kaynama, x=s*146*Y.en, b=Y.boy, q=G.yapi.kulak;
+  c.save(); c.translate(x,-40); c.scale(q*.84,q); c.translate(-x,40); // kulak dar: yandan değil, önden görülüyor
+  const yol=()=>{c.moveTo(x-s*4,-46); c.bezierCurveTo(x+s*26,-66,x+s*46,-30,x+s*40,10*b); c.bezierCurveTo(x+s*36,52*b,x+s*24,86*b,x+s*14,100*b);
+    c.bezierCurveTo(x+s*6,112*b,x-s*6,106*b,x-s*4,88*b); c.closePath();};
+  c.beginPath(); yol();
+  const g=c.createLinearGradient(x-s*10,-60,x+s*40,100); g.addColorStop(0,rgba(s<0?R.ten:R.tenOrta,1)); g.addColorStop(1,rgba(s<0?R.tenGolge:R.tenDerin,1));
+  c.fillStyle=g; c.fill();
+  c.save(); c.clip();
+  leke(x+s*18,20,16,40,R.tenDerin,s<0?.6:.85); // kulak çukuru
+  leke(x,30,14,70,PAL.siyah,.6); // kafaya birleşme gölgesi
+  leke(x+s*20,20,30,80,R.tenDerin,s<0?.3:.6); // kulak yüzden geride: daha karanlık
+  if(s<0) leke(x-26,-30,8,22,R.tenIsik,.28*poz.isik);
+  tara(x-60,-70,x+60,110,1.05,5,PAL.murekkep,s<0?.3:.5,566+s+k,1);
+  c.restore();
+  titrek(yol,PAL.murekkep,.8,1.6,560+s+k,2,1.8);
+  titrek(()=>{c.moveTo(x+s*6,-30); c.bezierCurveTo(x+s*30,-42,x+s*32,6,x+s*24,44*b); c.quadraticCurveTo(x+s*18,64*b,x+s*10,70*b);},PAL.murekkep,.55,1.2,562+s+k,2,1.6);
+  titrek(()=>{c.moveTo(x+s*14,0); c.quadraticCurveTo(x+s*22,24,x+s*12,40*b);},PAL.murekkep,.45,1.1,564+s+k,2,1.4);
+  c.restore();
 }
 function yasIzleri(fx,fy,mx,dy){
   const A=G.yasIzi, Y=G.yuz, e=Y.en, b=Y.boy, u=Y.alin, k=poz.kaynama, a=A.kirisik;
@@ -102,6 +128,9 @@ function yasIzleri(fx,fy,mx,dy){
 }
 
 export function kafa(){
+  const D=figurDonusumu(false); kafaCiz(); if(D) c.restore();
+}
+function kafaCiz(){
   const Y=G.yuz, R=G.renk, A=G.yasIzi, e=Y.en, b=Y.boy, u=Y.alin, ga=Y.gozAralik;
   const fx=poz.hgx*7, fy=poz.hgy*4, k=poz.kaynama, I=poz.isik;
   const dyA=agizKaymasi(), NB=Y.burunBoy, NE=Y.burunEn, ny=y=>NB===1?y:-14+(y+14)*NB;
@@ -115,8 +144,9 @@ export function kafa(){
   leke(-210*e,70*b,84*e,240*b,R.tenGolge,.6);
   leke(-40*e,-118*u,116*e,66*u,R.alinIsik,.26*I);
   leke(60*e,-128*u,150*e,54*u,R.tenDerin,.6); leke(-104*e,-150*u,70*e,50*u,R.tenDerin,.5);
+  const cu=G.ozel?clamp(.5+.38*G.yapi.cukur,.6,1.05):1; // yeni yolda göz çukuru derinliği yapıdan gelir
   for(const s of[-1,1]){
-    leke(s*ga+fx,-6+fy,62,40,R.tenDerin,s>0?.92:.84);  // çökük göz çukurları
+    leke(s*ga+fx,-6+fy,62,40,R.tenDerin,cu===1?(s>0?.92:.84):(s>0?.92:.84)*cu);  // çökük göz çukurları
     leke(s*ga+fx,22+fy,34,12,PAL.morluk,.5*A.gozAlti);
     leke(s*96*e+fx*.4,118*b,40,46,R.tenGolge,(s>0?.5:.42)*A.cokukYanak);  // çökük yanak
     leke(s*100*e+fx*.5,74*b,50,34,PAL.morluk,.16);
@@ -127,6 +157,7 @@ export function kafa(){
     for(const s of[-1,1]) leke(s*112*e,176*b,46*e,30,R.tenDerin,s>0?.6:.35);
   }
   const nx=fx*1.5, mx=fx*1.15;
+  if(G.ozel) yapiBoya(fx,fy,mx,dyA);
   leke(-4*NE+nx,ny(28)+fy,7*NE,60*NB,R.tenIsik,.34*I); leke(15*NE+nx,ny(44)+fy,12*NE,60*NB,R.tenDerin,.55);
   leke(-3*NE+nx,ny(88)+fy,13*NE,10,R.tenIsik,.3*I); leke(nx,ny(120)+fy,38*NE,13,R.tenDerin,.75);
   leke(mx,194+fy+dyA+poz.agizAc*17,38,11,R.tenDerin,.6); leke(0,246*b,160*e,44,R.tenDerin,.8);
@@ -138,7 +169,7 @@ export function kafa(){
   tara(-60,200+dyA,60,222+dyA,.1,5,PAL.murekkep,.35,505+k);
   c.restore();
   // ── hatlar
-  titrek(()=>{yuzYolu();},PAL.murekkep,.75,1.8,510+k,2,2.6);
+  if(G.ozel) yapiHat(fx,mx,dyA); else titrek(()=>{yuzYolu();},PAL.murekkep,.75,1.8,510+k,2,2.6);
   c.save(); c.translate(0,fy);
   yasIzleri(fx,fy,mx,dyA);
   // burun: tek yanı çizgi, delikler
@@ -169,9 +200,10 @@ export function kafa(){
   titrek(()=>{c.moveTo(mx+W,cy); kavis(yLb,true);},PAL.murekkep,.4,1.1,531+k,2,1.5);
   if(G.biyik.bicim!=='yok') biyik(mx);
   if(dyA!==0) c.restore();
-  titrek(()=>{c.moveTo(-34*e+mx,112); c.bezierCurveTo(-48*e+mx,130,-56*e+mx,150+dyA,-56*e+mx,170+dyA); c.moveTo(34*e+mx,112); c.bezierCurveTo(48*e+mx,130,56*e+mx,150+dyA,56*e+mx,170+dyA);},PAL.murekkep,.3,1.2,532+k,2,2.2);
+  titrek(()=>{c.moveTo(-34*e+mx,112); c.bezierCurveTo(-48*e+mx,130,-56*e+mx,150+dyA,-56*e+mx,170+dyA); c.moveTo(34*e+mx,112); c.bezierCurveTo(48*e+mx,130,56*e+mx,150+dyA,56*e+mx,170+dyA);},PAL.murekkep,G.ozel?.3*(1-.75*G.yapi.dolgun):.3,1.2,532+k,2,2.2);
   goz(-1,fx); goz(1,fx); kas(-1,fx); kas(1,fx);
   c.restore();
+  if(G.ozel) baslikGolge(); // başlığın ve saçın yüze düşen gölgesi: saçtan ve başlıktan önce
   onSac();
   baslikOn();
   // yüzün çevresinde kaotik karalamalar

@@ -8,6 +8,8 @@
 //   {tur:'fail',   cinayet}       bu cinayeti kim işledi?               gercek: katil
 //   {tur:'esya',   iz}            bu iz kimin?                          gercek: izin sahibi
 //   {tur:'sir',    sahip, sir}    bu sır doğru mu?                      gercek: true
+//   {tur:'fark',   cinayet}       o cinayetten sonra tuhaf bir şey fark ettin mi? (konuşanın fark ettiği dolaylı izler)
+//                                 gercek: [{iz, alt, kisi, esya?, ortu?, zaman, mekan}]
 // Tavırlar: dogru | yalan | susar | abarti | bilmez (bilgisi yok) | olu (sorgu günü ölmüştü)
 
 import {SEVEN,GIZLI_NEDEN_ONEKLERI} from './tablolar.js';
@@ -28,6 +30,8 @@ export function ifadeMotoru(vaka){
   const olayById=Object.fromEntries(vaka.olaylar.map(o=>[o.id,o]));
   const tanikIzleri=vaka.izler.filter(i=>i.tur==='tanik');
   const yoklukIzleri=vaka.izler.filter(i=>i.alt==='gece-yoklugu');
+  const dolayliIzler=vaka.izler.filter(i=>i.tur==='dolayli');
+  const farkKaydi=i=>({iz:i.id,alt:i.alt,kisi:i.kisi,...(i.esya?{esya:i.esya}:{}),...(i.ortu?{ortu:i.ortu}:{}),zaman:i.zaman,mekan:i.mekan});
   const sirBul=(sahip,id)=>vaka.sirlar.find(s=>s.sahip===sahip&&s.id===id);
   const katilMi=k=>vaka.cinayetler.some(c=>c.katil===k||c.yardimci===k);
 
@@ -91,6 +95,10 @@ export function ifadeMotoru(vaka){
         const s=sirBul(o.sahip,o.sir); if(!s) return null;
         return k===s.sahip||s.kimler.includes(k)?{deger:true}:null;
       }
+      case 'fark':{
+        if(!cinById[o.cinayet]) return null;
+        return {deger:dolayliIzler.filter(i=>i.cinayet===o.cinayet&&i.fark_eden===k).map(farkKaydi)};
+      }
     }
     return null;
   }
@@ -104,6 +112,7 @@ export function ifadeMotoru(vaka){
     }
     return null;
   }
+  const farkGercegi=(k,o)=>dolayliIzler.filter(i=>i.cinayet===o.cinayet&&i.fark_eden===k).map(farkKaydi);
 
   // Olgunun konusu (kimin aleyhine olabilir) ve gerçekten aleyhte mi.
   function konu(o){
@@ -153,7 +162,7 @@ export function ifadeMotoru(vaka){
   }
 
   function baskaTavri(k,Y,o){
-    const ilgiliCinayet=c=>o.tur==='fail'?o.cinayet===c.id:(o.tur==='konum'||o.tur==='gorulen')?o.zaman===c.zaman:o.tur==='esya'?izById[o.iz]?.cinayet===c.id:false;
+    const ilgiliCinayet=c=>o.tur==='fail'||o.tur==='fark'?o.cinayet===c.id:(o.tur==='konum'||o.tur==='gorulen')?o.zaman===c.zaman:o.tur==='esya'?izById[o.iz]?.cinayet===c.id:false;
     if(vaka.baglar.some(b=>b.tur==='ortme'&&b.ortan===k&&b.ortulen===Y&&vaka.cinayetler.some(c=>c.katil===Y&&ilgiliCinayet(c)))) return {tavir:'yalan',kural:'ortme'};
     for(const b of vaka.baglar){
       if(b.tur==='santaj'&&b.zorlayan===k&&b.zorlanan===Y) return {tavir:'susar',kural:'santaj'};
@@ -195,6 +204,10 @@ export function ifadeMotoru(vaka){
       const sorgu=(secenek.gun-1)*D+Math.max(0,dilimler.indexOf('sabah'));
       if(K[k].olum!=null&&K[k].olum<sorgu) return cevap('olu','olu',null,null,g);
       if(o.zaman!=null&&o.zaman>=sorgu) return cevap('bilmez','gelecek',null,null,g);
+    }
+    if(o.tur==='fark'){
+      const sorgu=secenek.gun!=null?(secenek.gun-1)*D+Math.max(0,dilimler.indexOf('sabah')):Infinity;
+      return farkIfadesi(k,o,sorgu,cevap);
     }
     const b=bilgi(k,o);
     if(o.tur==='gorulen') return gorulenIfadesi(k,o,b,cevap);
@@ -242,6 +255,26 @@ export function ifadeMotoru(vaka){
     }
     if(en==='susar'&&!soylenen.length) return cevap('susar',kural,b,null,b.deger);
     return cevap(en,kural,b,{deger:soylenen},b.deger);
+  }
+
+  // Fark ettikleri: her kayıt, konusu olan kişi (kisi) hakkında aleyhte bir olgudur; yalan kuralı kayıt kayıt işler.
+  // Sorgu gününe kadar fark edilmemiş olan söylenmez. Kendi aletinin çalındığını söylemek kimsenin aleyhine değildir.
+  // Yalan ve susma kaydı listeden çıkarır (uydurma iz yoktur); abartı kayda ek ayrıntı koyar.
+  function farkIfadesi(k,o,sorgu,cevap){
+    const tum=bilgi(k,o);
+    if(!tum) return cevap('bilmez',null,null,null,farkGercegi(k,o));
+    const b={deger:tum.deger.filter(x=>x.zaman<sorgu)};
+    const g=b.deger;
+    if(!g.length) return cevap('dogru',null,b,b,g);
+    let en='dogru', kural=null; const soylenen=[];
+    for(const e of g){
+      const {tavir,kural:kr}=e.kisi===k?{tavir:'dogru',kural:null}:tavirBul(k,o,e.kisi,true);
+      if(SIDDET[tavir]>SIDDET[en]){en=tavir; kural=kr;}
+      if(tavir==='dogru') soylenen.push(e);
+      else if(tavir==='abarti') soylenen.push({...e,abarti:{tur:'ek-ayrinti'}});
+    }
+    if(en==='susar'&&!soylenen.length) return cevap('susar',kural,b,null,g);
+    return cevap(en,kural,b,{deger:soylenen},g);
   }
 
   function gerginlik(k,o,tavir,kural){

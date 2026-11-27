@@ -3,8 +3,8 @@ export default {
   ev:'irgat-evi', is:'fistiklik', ortu:'aba',
   esyalar:['orak','yamali-carik'],
   sirlar:[
-    {id:'rehin-tarla', tur:'borc', kimler:['arif','mahmut']},
-    {id:'harman-bugdayi', tur:'hirsizlik', kimler:['kadir']}
+    {id:'rehin-tarla', tur:'borc', rol:'fail', kimler:['arif','mahmut']},
+    {id:'harman-bugdayi', tur:'hirsizlik', rol:'fail', kimler:['kadir']}
   ],
   iliskiler:[
     {kim:'emine', tur:'es'},

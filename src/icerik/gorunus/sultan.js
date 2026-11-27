@@ -9,5 +9,6 @@ export default {
   sac:{bicim:'toplu'},
   baslik:{tur:'sal', renk:'#575043'},
   ortu:'entari', giysi:{renk:'#2e2a24', icRenk:'#3a342a'},
-  omuz:.88
+  omuz:.88,
+  boy:.92, iri:.93
 };

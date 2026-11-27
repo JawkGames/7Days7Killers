@@ -5,6 +5,8 @@ export const MIZACLAR=['gururlu','sert','ofkeli','kurnaz','dedikoducu','saf','sa
 export const ORTULER=['aba','entari','palto','cubbe','kaput','onluk','kepenek']; // alt gövdeyi gizleyen giysi (bacak çizilmez)
 export const KAYIP_TURLERI=['aile','yalniz','kimsesiz','hayvan','is'];
 export const MEKAN_TURLERI=['ev','ortak','is','kir'];
+// Sırrın sahibine göre anlamı: fail (işin içinde), tanik (yalnızca gördü/duydu), magdur (zarar gördü).
+export const SIR_ROLLERI=['fail','tanik','magdur'];
 // İlişki bir kez, tek tarafın dosyasında yazılır; karşı yönü burada üretilir.
 export const SIMETRIK=['es','sozlu','sevgili','dost','hasim','ortak'];
 export const TERS={ebeveyn:'cocuk',borclu:'alacakli',isveren:'calisan',sever:'sevilen',korkar:'korkulan',korur:'korunan'};
@@ -31,6 +33,16 @@ export function dogrula(kisiListesi,mekanListesi,metinler,terimler){
   for(const m of mekanListesi){
     if(!MEKAN_TURLERI.includes(m.tur)) h.push(`${m.id}: bilinmeyen mekân türü ${m.tur}`);
     if(terimler&&!terimler.mekan[m.id]) h.push(`${m.id}: mekân adı dil dosyasında yok`);
+    // Komşuluk: bu mekândan görülen ya da duyulan mekânlar. İki yönlü yazılır.
+    if(!Array.isArray(m.komsular)||!m.komsular.length) h.push(`${m.id}: komşu mekân listesi (komsular) eksik`);
+    else{
+      if(new Set(m.komsular).size!==m.komsular.length) h.push(`${m.id}: komşu tekrar ediyor`);
+      for(const b of m.komsular){
+        if(b===m.id) h.push(`${m.id}: kendine komşu`);
+        else if(!mekan.has(b)) h.push(`${m.id}: komşu mekân yok: ${b}`);
+        else if(!(mekanListesi.find(x=>x.id===b).komsular||[]).includes(m.id)) h.push(`${m.id}: komşuluk tek yönlü: ${b} listesinde ${m.id} yok`);
+      }
+    }
   }
   for(const k of kisiListesi){
     const e=m=>h.push(`${k.id}: ${m}`);
@@ -44,6 +56,7 @@ export function dogrula(kisiListesi,mekanListesi,metinler,terimler){
     if(k.is!=null&&!mekan.has(k.is)) e(`iş mekânı yok: ${k.is}`);
     if(!k.esyalar||k.esyalar.length<2) e('en az 2 ayırt edici eşya gerekli (iz bırakabilsin)');
     if(!k.sirlar||k.sirlar.length<1) e('en az 1 sır gerekli (sebep doğabilsin)');
+    for(const s of k.sirlar||[]) if(!SIR_ROLLERI.includes(s.rol)) e(`sır ${s.id}: rol fail, tanik ya da magdur olmalı (${s.rol})`);
     for(const s of k.sirlar||[]) for(const o of s.kimler){ if(!kisiVar.has(o)) e(`sır ${s.id}: kişi yok ${o}`); if(o===k.id) e(`sır ${s.id}: kendini gösteriyor`); }
     for(const i of k.iliskiler||[]){
       if(!ILISKI_TURLERI.includes(i.tur)) e(`bilinmeyen ilişki türü ${i.tur}`);

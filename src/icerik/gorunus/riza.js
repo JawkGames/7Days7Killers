@@ -10,5 +10,6 @@ export default {
   sakal:{bicim:'kirli'}, biyik:{bicim:'kalin'},
   baslik:{tur:'kep', renk:'#47472f'},
   ortu:'kaput', giysi:{renk:'#3d3e2c', icRenk:'#4d4a36'},
-  omuz:1.14
+  omuz:1.14,
+  boy:1.05, iri:1.03
 };
