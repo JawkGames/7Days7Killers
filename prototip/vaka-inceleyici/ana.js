@@ -53,7 +53,7 @@ function kaliteCiz(){
   const zincir=Object.entries(q.zincirler||{}).map(([k,n])=>`${kisiBag(k)} <b class="${n>=2?'':'kirmizi'}">${esc(n)}</b>`).join(' · ');
   $('#kalite').innerHTML=`<p>${parca.join(' · ')} · <span class="soluk">${esc(T.sure.replace('{ms}',B.ms))}</span></p>
     <p><span class="etiket">${esc(T.kalite.zincirler)}</span> ${zincir||esc(T.bos)}</p>
-    <p class="soluk"><span class="etiket">${esc(T.kalite.cekirdekler)}</span> ${esc((v.cekirdekler||[]).join(', ')||T.bos)}</p>${elenen?`<p class="soluk"><span class="etiket">${esc(T.kalite.elenenBaslik)}</span> ${elenen}</p>`:''}`;
+    <p class="soluk"><span class="etiket">${esc(T.kalite.cekirdekler)}</span> ${esc((v.cekirdekler||[]).join(', ')||T.bos)}</p>${elenen?`<details class="soluk"><summary>${esc(T.kalite.elenenBaslik)} (${q.elenenDenemeler.length})</summary>${elenen}</details>`:''}`;
 }
 
 function sekmeGoster(ad_){

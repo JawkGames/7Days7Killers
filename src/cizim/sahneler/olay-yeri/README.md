@@ -21,6 +21,20 @@ const kimlik=f.izBul(p[0],p[1]);    // dokunulan izin kimliği ya da null
 f.isaretle(kimlik); f.ciz(...);     // bulunan iz kopya kalemiyle halkalanır
 ```
 
+### Yakınlaştırma (telefon)
+
+`ciz` büyük `genislik` ve kaydırılmış merkez alır, `ekrandanFotoya` son çizimi tersine çevirir; yani sahne arayüzü yeterli. `yakinlik.js` durumu tutar:
+
+```js
+import {gorunumKur,yakinlikDinle} from './yakinlik.js';
+const g=gorunumKur({enCok:4});
+f.ciz(ctx,g.yerlesim(alan));                 // alan: {x,y,w,h}, bağlam birimi
+const R=g.cozunurluk(alan,devicePixelRatio); // yakınken keskin baskı için fotografKur cozunurluk değeri (çeyrek adımlı)
+yakinlikDinle(tuval,g,()=>alan,{dokun:(x,y)=>{...izBul...}, degisti:()=>yenidenCiz()}); // tekerlek, çift dokunma, iki parmak, sürükleme
+```
+
+Tek dokunma sürüklenmemiş bırakmada gelir; çift dokunmanın ilki de tek dokunma sayılır. Tuvalde `touch-action:none` olmalı.
+
 `f.bolgeler`: her iz için dokunma bölgesi. `yuvaBilgisi(mekan,ad)` bir yuvanın fotoğraftaki yerini ve ölçeğini verir.
 
 ## Koordinatlar
@@ -58,7 +72,12 @@ Kurallar:
 - Işık tek kaynaktan: kapı boşluğu (bembeyaz, ayrıntısız), ocak közü, gök. Köşeleri `karanlik`, genel dokuyu `atmosfer` ile ver.
 - Çizemediğin şeyi kadrajla ya da karanlıkla kes (karlığın üstü, minare, uzak köy yalnızca karaltı). İnsan, el, bacak yok.
 - Renk serbest ama sonunda gri tona çevrilir; yalnız parlaklık önemlidir.
-- Ortak parçalar `mekan-yardim.js`: `tasOrgu` (kesme/moloz taş, `duzensiz`), `sivaDuvar`, `zemin` (toprak, çakıl, ışık lekesi), `aydinlikBosluk` (kapı), `atmosfer`, `karanlik`. 3B kutular `kalem.js`: `kutu`, `silindir`, `cokgen3`, `hat3`.
+- Ortak parçalar:
+  - `mekan-yardim.js`: `tasOrgu` (kesme/moloz taş, `duzensiz`), `sivaDuvar`, `zemin`, `aydinlikBosluk` (kapı), `atmosfer`, `karanlik`; genel araçlar `yuzNormal`, `duzlemCizgi`, `kenarIsigi`, `daire3`.
+  - `ic-yardim.js` (iç mekân, köy evi): `badanaDuvar` (tek giriş: `yamalar` verilirse ev biçimi, verilmezse oda biçimi), `tahtaYuzey`, `tasYuzey`, `kutuDoku`, `tasDoseme`, `pencere`, `gunesLekesi`, `torna`, `dipGolgesi`, `etekBandi`, `minder`, `kilimSer`, `RENK_EV`, `odaDuvarlari`, `odaKenarlari`, `tavanCiz`, `bosluk`, `duvarBoslugu`, `nis`, `isikDusmesi`, `huzme`, `yuzDoku`, `yumusakKutu`, `tabanGolgesi`, `sandik`, `yatakYigini`, `teneke`, `gazLambasi`, `sise`, `tas`, `agacCivi`, `gugum`.
+  - `dis-yardim.js` (dış mekân): `GOK`, `gokIsigi`, `sisle`, `gokCiz`, `sirt`, `ev`, `koy`, `agac`, `prizma`, `yatikSilindir`, `kaya`, `kuruDuvar`, `kirZemin`, `ot`, `cali`.
+  - `asinma.js`: `asinmisPrizma`, `asinmisKutu`, `tekneOyugu` (yuvarlak kenarlı, düzensiz yüzlü, yosunlu taş/döşek). `prizma(...,{asinma:true|{...}})` ve `kaya(...,{asinma:1})` bunu açar; verilmezse eski çizim aynen kalır. Henüz hiçbir mekân kullanmıyor.
+  - 3B kutular `kalem.js`: `kutu`, `silindir`, `cokgen3`, `hat3`.
 
 ### Yuva sözleşmesi
 
@@ -110,23 +129,23 @@ Mevcut türler ve parametreleri:
 | tür | parametre |
 | --- | --- |
 | `ip` | `renk`: kirmizi, lacivert, yesil, sari, kahve, beyaz, mor ya da [r,g,b] |
-| `ayak-izi` | `cesit`: cizme (nallı), carik, ayak; `sayi`: 1-4; `yon` (radyan) |
+| `ayak-izi` | `tip`: carik, postal (kabaralı, topuk demirli), cizme (kabaralı, iki sıra), yalin, nal (katır), ters-nal (açık uç ileri); eski `cesit` (cizme, carik, ayak→yalin) hâlâ geçer, `tip` kazanır; `sayi`: 1-4; `yon` (radyan); `yuzey` yuvanın yüzeyini ezer |
 | `alet` | `cesit`: cekic, orak, kama, makas |
 | `civi` | `sekil`: cekic, orak, masa (maşa), cerceve, tufek, yok — duvarda boş çivi ve asılı şeyin soluk izi |
 | `saat` | `saat`: 'SS:DD'. Duvarda ahşap kasalı duvar saati, yerde/üstte zincirli cep saati |
 | `devrik` | `cesit`: gugum (dökülmüş su), lamba (kırık şişe, gaz lekesi). Yalnız zemin |
-| `esya` | `cesit`: dugme, tespih, cakmak, tabaka |
+| `esya` | `cesit`: dugme, tespih, cakmak, tabaka. Düğme ve çakmak gerçeğinden biraz büyük, küçük ışık parıltılı |
 | `kan` | `buyukluk`: kucuk, orta, buyuk. Toprak emer, taşta kabuk bağlar |
-| `un` | — (delik çuvaldan dökülen iz ve küçük yığıntı) |
+| `un` | — (delik çuvaldan dökülen kesiksiz sızıntı, topaklar ve küçük yığıntı) |
 
 Her iz `yon` parametresi alabilir (temel açıya eklenir). Aynı yuvaya ikinci iz konursa yana kayar.
 
 ## Dosyalar
 
-`ayar.js` (ölçü, ton, renkler) · `perspektif.js` · `kalem.js` (düzlemde hat, 3B kutu/silindir, ışık) · `yerlesim.js` · `mekan-yardim.js` · `kurban.js` · `baski.js` (ton, yıpranma, kâğıt, kıvrım) · `sahne.js` (`fotografKur`, `yuvaBilgisi`) · `masa-zemini.js` · `kutuphane.js` · `mekanlar/` · `izler/`.
+`ayar.js` (ölçü, ton, renkler) · `perspektif.js` · `kalem.js` (düzlemde hat, 3B kutu/silindir, ışık) · `yerlesim.js` · `mekan-yardim.js` · `kurban.js` · `baski.js` (ton, yıpranma, kâğıt, kıvrım) · `sahne.js` (`fotografKur`, `yuvaBilgisi`) · `yakinlik.js` · `ic-yardim.js` · `dis-yardim.js` · `asinma.js` · `masa-zemini.js` · `kutuphane.js` · `mekanlar/` · `izler/`.
 
 ## Bilinen eksikler
 
-- Telefon dikeyde fotoğraf ekran genişliğine sığar ama küçük kalır (ekranın üçte biri); yakınlaştırma yok.
-- Küçük eşyalar (düğme, çakmak) gerçek boyutlarıyla çok küçük; bulunmaları dokunma bölgesinin en az yarıçapına dayanıyor.
-- Hatlar fotoğrafta titremez (baskı durağandır). İz adları henüz dil dosyasında değil (deneme sayfasının `metin-tr.js` dosyasında).
+- Hatlar fotoğrafta titremez (baskı durağandır).
+- İz adları `prototip/olay-yeri/metin-tr.js` içindeki `iz` nesnesinde (`ad`, `renk`, `eskiTip`, `bilinmeyen`); `src/dil/tr/terimler.js`'e `"iz"` anahtarıyla olduğu gibi taşınabilir. `izAdi(p, sozluk)` aynı dosyada.
+- Zayıf sahneler (cami, ırgat evi, sınır patikası, ağa konağı, bakkal, Halil'in evi) ve kutu/kristal gibi duran prizma nesneleri olduğu gibi duruyor.

@@ -40,7 +40,7 @@ export const SIM_AYAR=Object.freeze({
     ekIz:.5, // fotoğrafta da tanıkta da güçlü iz yoksa dikkatsiz katilin bir iz daha bırakma olasılığı
     calintiSilahKurnaz:2.5, // kurnaz katilin başkasının aletini çalma ağırlığı
     calintiSilah:.6,
-    silahBirakma:.25, // kendi silahını olay yerinde bırakma
+    silahBirakma:.12, // kendi silahını olay yerinde bırakma
     aletYerinde:.9, // olay yerinde duran aleti (dirgen, kürek, değirmen demiri) kapma ağırlığı
     aletGetirme:.45, // kendi evinden/iş yerinden alet (balta, av tüfeği, urgan) getirme ağırlığı
     aletBirakma:.55, // yerin aletini olay yerinde bırakma

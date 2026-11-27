@@ -12,7 +12,7 @@ import {sebepAdaylari,rolleriSec} from './roller.js';
 import {rutinKur} from './cizelge.js';
 import {cinayetleriYerlestir} from './cinayet.js';
 import {izleriKur,izTamamla} from './izler.js';
-import {kaliteRaporu,kaliteOzeti} from './cozucu/kalite.js';
+import {kaliteRaporu,kaliteOzeti,KALITE_AYAR} from './cozucu/kalite.js';
 import {cekirdekSec} from './cekirdek.js';
 import {mudahaleKur,mudahaleSorunu} from './mudahale.js';
 import {onemliIfadeler} from './yalan.js';
@@ -124,7 +124,13 @@ function kur(tohum,deneme,koy,ayar,taban=null){
     if(tur===ayar.tamamlamaTuru) break;
     const eksik=rapor.katiller.filter(k=>k.cinayet&&!onceki.has(k.cinayet)&&k.zincirSayisi<(ayar.kalite?.enAzZincir??2));
     let eklendi=0;
-    for(const k of eksik) if(izTamamla(v,k.cinayet,{sonTur:tur===ayar.tamamlamaTuru-1})) eklendi++;
+    // Son turda tek sahipli eşya izi, eleğin çok kolay sınırına (tekSahipliEnCok) kadar eklenir.
+    let butce=Math.max(0,(ayar.kalite?.tekSahipliEnCok??KALITE_AYAR.tekSahipliEnCok)-(rapor.enAzSorgu.tekSahipli||0));
+    for(const k of eksik){
+      const son=tur===ayar.tamamlamaTuru-1&&butce>0;
+      const iz=izTamamla(v,k.cinayet,{sonTur:son});
+      if(iz){eklendi++; if(son&&iz.tur==='fiziksel'&&iz.adaylar.length===1) butce--;}
+    }
     if(!eklendi){ if(tur>=ayar.tamamlamaTuru-1) break; tur=Math.max(tur,ayar.tamamlamaTuru-2); continue; } // başka yol yoksa son tura atla
     v={...v,izler:[...v.izler]}; // yeni nesne: ifade motorunun önbelleği eski izleri tutmasın
   }
