@@ -2129,7 +2129,7 @@ export default {
   'yan-sir-var':{
     degiskenler:['kim','diger'],
     genel:[
-      '{kim:in} saklı bir işi var; ne olduğunu ben söyleyemem. {diger} de bilir.',
+      '{kim:in} saklı bir işi var; ne olduğunu ben söyleyemem. Bunu bir {diger} bilir, bir ben.',
       '{kim} herkesin bildiği gibi biri değil. Gerisini {diger:e} sorun.',
     ],
     korkak:[
