@@ -35,3 +35,10 @@ CHARACTER:
 CHARACTER:
 Bekir Usta, 47-year-old village blacksmith from a 1943 village near Gaziantep, calm and quiet. Broad strong face, short dark beard with grey streaks, thick moustache, deep wrinkles at the eyes, a small burn scar on the left cheek, soot smudges on the forehead. Wears a dark brown felt skullcap (keçe külah). Torso: thick muscular shoulders and neck, collarless faded grey cotton shirt (mintan) with sleeves rolled, a heavy scorched brown leather blacksmith apron over it, a dark red woolen waist sash (kuşak).
 ```
+
+## Canva'dan tam boy alma (Claude için)
+
+1. `generate-image` → media id (ör. MAHc...).
+2. Dışa aktarma tasarımı: `DAHcJeTrVeg`, sayfa 2 (1264x1264). `read-design` ile `open_transaction`, sonra `edit-design` `insert_fill` (top 0, left 0, 1264x1264, yeni media id), sonra `commit`.
+3. `export-design` png, `pages:[2]`, 2048x2048.
+4. `bash araclar/canva-indir.sh "<bağlantı>" varliklar/gorsel/ham/kukla/<ad>-sayfa.png` (izin kuralı `.claude/settings.json`'da).
