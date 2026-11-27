@@ -80,7 +80,6 @@ describe('oyun akışı',()=>{
 
   it('Rewind defteri korur, zamanı birinci güne döndürür',()=>{
     const b=B(5);
-    let rewindOnce=null, rewindSonra=null;
     let d=acilis(b,oyunBaslat({tohum:5})).durum;
     while(d.zaman.adim!=='karar'){
       const s=secenekler(b,d);
@@ -88,9 +87,9 @@ describe('oyun akışı',()=>{
       if(d.zaman.adim==='sorgu'&&sorular(b,d).length) d=uygula(b,d,{tur:'sor',soru:sorular(b,d)[0].id}).durum;
       else d=uygula(b,d,e).durum;
     }
-    rewindOnce=d.defter;
+    const rewindOnce=d.defter;
     d=uygula(b,d,{tur:'geriSar'}).durum;
-    rewindSonra=d.defter;
+    const rewindSonra=d.defter;
     expect(d.zaman).toMatchObject({gun:1,dongu:2,adim:'gun-basi'});
     expect(rewindSonra.ifadeler).toEqual(rewindOnce.ifadeler);
     expect(rewindSonra.izler).toEqual(rewindOnce.izler);

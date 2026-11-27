@@ -317,10 +317,12 @@ export function coz(g){
       ekleSecim(a.ifadeler); aciklanan.push({kisi:tek[0],tur:a.tur});
     }
     plan.push({cinayet:c.cinayet,zincir:sec[0].id,zincirler:sec.map(z=>z.id),kisi:ana.kisi,aciklanan,
-      tekTanik:zs.some(z=>z.tur==='tanik'&&z.kaynaklar.length===1&&!z.eleme.length)});
+      tekTanik:zs.some(z=>z.tur==='tanik'&&z.kaynaklar.length===1&&!z.eleme.length),
+      fotograf:sec.length>=2&&sec.every(z=>!z.ifadeler.length)});
   }
   const takvim=sorguTakvimi([...secilen].map(id=>ifadeById[id]),G,hak);
   const tekTanik=plan.filter(p=>p.tekTanik).length;
+  const fotograf=plan.filter(p=>p.fotograf).length; // hiç sorgusuz, yalnızca fotoğrafla iki zincir
   const zincirOf=(c,id)=>cinayetler.find(x=>x.cinayet===c).zincirler.find(z=>z.id===id);
   const eleme=plan.reduce((s,p)=>s+(p.zincirler||[]).reduce((a,id)=>a+zincirOf(p.cinayet,id).eleme.length,0),0);
 
@@ -329,7 +331,7 @@ export function coz(g){
     failler:[...new Set(cinayetler.flatMap(c=>c.supheliler.slice(0,1).map(s=>s.kisi)))].sort(),
     enAzSorgu:{sorgu:takvim.oturumlar.length,sigar:takvim.sigar,gunler:takvim.gunler,oturumlar:takvim.oturumlar,
       adim:secilen.size+secilenIz.size+eleme,
-      ifade:secilen.size,iz:secilenIz.size,tekTanik,plan},
+      ifade:secilen.size,iz:secilenIz.size,tekTanik,fotograf,plan},
     ifadeler:ifadeById,
     istatistik:{soru:ifadeler.length},
   };

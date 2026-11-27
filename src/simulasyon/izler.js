@@ -27,7 +27,7 @@ export function izleriKur(d,z,cz,sonuc){
   const {elde,alinabilir,durum}=sonuc.esya;
   // t anında bırakılabilecek izler. Nesne (eşyanın kendisi) yalnızca sonra bir daha kullanılmayacaksa düşer.
   // Ayırt edicilik: az kişide olan iz (çizme izi, çekiç) daha sık kalır; beş kişinin abası daha seyrek.
-  const ayirt=anahtar=>3/(2+adaylar(anahtar).length);
+  const ayirt=anahtar=>Math.sqrt(3/(2+adaylar(anahtar).length));
   const izSecenekleri=(id,t,yalnizInce,haric=[])=>{
     const k=d.kisi(id), l=[];
     for(const e of k.esyalar||[]){
@@ -258,15 +258,15 @@ export function izleriKur(d,z,cz,sonuc){
 }
 
 // Tamamlama: çözücünün iki bağımsız zincir bulamadığı katil için vakaya bir iz daha eklenir.
-// Sırayla denenir (bu cinayette henüz denenmemiş tür önce): olay yerine katilin bir izi daha düşer (dikkatsiz katil),
-// ertesi gün giysisindeki kan ya da tırmık onu korumayacak biri tarafından görülür, ya da komşu mekândan biri
-// yüzünü seçer. Hepsi çizelgeye uyar (denetim aynı kuralları sınar).
+// Sırayla denenir (bu cinayette henüz denenmemiş tür önce): ertesi gün giysisindeki kan ya da tırmık onu korumayacak
+// biri tarafından görülür, komşu mekândan biri yüzünü seçer, ya da olay yerine katilin bir izi daha düşer (dikkatsiz katil). Hepsi çizelgeye uyar (denetim aynı kuralları sınar).
 // Döner: eklenen iz ya da null. vaka yerinde değişir (izler ve cinayetin iz listesi).
 export function izTamamla(vaka,cinayetId){
   const c=vaka.cinayetler.find(x=>x.id===cinayetId); if(!c) return null;
   const burada=vaka.izler.filter(i=>i.cinayet===c.id&&i.gercek.tamamlama);
   const turu=i=>i.tur;
-  const sira=[['fiziksel',fizikselTamamla],['dolayli',dolayliTamamla],['tanik',tanikTamamla]];
+  // Sorguyla bulunan izler önce: fotoğraftan tek başına çözülen vaka kolaylaşır.
+  const sira=[['dolayli',dolayliTamamla],['tanik',tanikTamamla],['fiziksel',fizikselTamamla]];
   sira.sort((a,b)=>burada.filter(i=>turu(i)===a[0]).length-burada.filter(i=>turu(i)===b[0]).length);
   for(const [,f] of sira){const iz=f(vaka,c); if(iz) return iz;}
   return null;

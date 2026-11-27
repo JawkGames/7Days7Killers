@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>7 Days 7 Killers — Metin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* oyunun koyu paleti: kirli sarı lamba, küflü yeşil, morluk moru */
+  --zemin:#0b0a0d;
+  --kagit:#141217;
+  --cizgi:#2b2830;
+  --yazi:#d9d2ba;
+  --soluk:#8f8a74;
+  --lamba:#e2c27a;
+  --soguk:#7f9a9e;
+  --morluk:#8d6f99;
+  --kan:#a4545f;
+  color-scheme:dark;
+  --yazi-tipi:"Courier Prime","Courier New",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--zemin);color:var(--yazi);font:400 17px/1.55 var(--yazi-tipi)}
+button{font:inherit;color:var(--yazi);background:transparent;border:1px solid var(--cizgi);border-radius:2px;cursor:pointer}
+button:hover{border-color:var(--soluk)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--lamba);outline-offset:2px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:10px 16px;background:rgba(11,10,13,.94);border-bottom:1px solid var(--cizgi)}
+header h1{margin:0;font-size:18px;color:var(--lamba);letter-spacing:.04em}
+header .durum{color:var(--soluk);font-size:14px;flex:1}
+header button{padding:5px 10px;font-size:14px}
+.duzen{display:grid;grid-template-columns:minmax(0,1fr) 380px;max-width:1240px;margin:0 auto}
+main{padding:12px 16px 40px;min-width:0}
+#gunluk{max-width:44em}
+#gunluk p{margin:.35em 0}
+.baslik{color:var(--lamba);margin-top:1.2em!important;letter-spacing:.03em}
+.anlatim{color:var(--yazi)}
+.soru{color:var(--soguk)}
+.soru::before{content:"— "}
+.soz{padding-left:1em;border-left:2px solid var(--cizgi)}
+.soz b{color:var(--lamba);font-weight:400}
+.sahne{color:var(--soluk);font-style:italic;padding-left:1.2em;font-size:15px}
+.sistem{color:var(--morluk);font-size:15px}
+.ayrac{border-top:1px dashed var(--cizgi);margin:1.1em 0!important;height:0}
+.yeni{animation:belir .5s ease-out}
+@keyframes belir{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+#secenekler{display:flex;flex-direction:column;gap:7px;margin-top:16px;max-width:44em}
+#secenekler button{text-align:left;padding:9px 12px;line-height:1.35;background:var(--kagit)}
+#secenekler button.ana{border-color:var(--soluk);color:var(--lamba)}
+#secenekler .not{color:var(--soluk);font-size:14px}
+aside{border-left:1px solid var(--cizgi);background:var(--kagit);height:calc(100vh - 49px);position:sticky;top:49px;overflow:auto;padding:10px 14px 30px}
+aside h2{font-size:16px;color:var(--lamba);margin:4px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.sekmeler{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.sekmeler button{font-size:13px;padding:4px 8px}
+.sekmeler button[aria-pressed="true"]{border-color:var(--lamba);color:var(--lamba)}
+.liste{font-size:14px;line-height:1.45}
+.liste .satir{padding:6px 0;border-bottom:1px solid var(--cizgi);display:flex;gap:8px}
+.liste label{display:flex;gap:8px;cursor:pointer}
+.liste input{accent-color:var(--lamba);margin-top:4px}
+.kisi{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.kisi .ad.olu{color:var(--soluk);text-decoration:line-through}
+.kisi .dugmeler button{font-size:12px;padding:2px 6px}
+.kisi .dugmeler button[aria-pressed="true"]{color:var(--zemin);background:var(--lamba);border-color:var(--lamba)}
+.kisi .dugmeler button.temiz[aria-pressed="true"]{background:var(--soguk);border-color:var(--soguk)}
+.karsilastir{position:sticky;bottom:-30px;background:var(--kagit);padding:8px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--soluk)}
+.karsilastir button{font-size:13px;padding:5px 9px}
+.hukum{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:8px}
+.hukum button{padding:8px;text-align:left;background:var(--kagit)}
+.hukum button[aria-pressed="true"]{border-color:var(--kan);color:var(--kan)}
+#defterAc{display:none}
+.giris{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.giris input{font:inherit;background:var(--kagit);color:var(--yazi);border:1px solid var(--cizgi);padding:7px;width:8em}
+@media (max-width:860px){
+  .duzen{grid-template-columns:1fr}
+  #defterAc{display:inline-block}
+  aside{position:fixed;inset:49px 0 0 0;height:auto;border-left:0;display:none;z-index:4}
+  aside.acik{display:block}
+  body{font-size:16px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="baslik"></h1>
+  <span class="durum" id="durum"></span>
+  <button id="defterAc" type="button"></button>
+  <button id="yeni" type="button"></button>
+</header>
+<div class="duzen">
+  <main>
+    <div id="gunluk" aria-live="polite"></div>
+    <div id="secenekler"></div>
+  </main>
+  <aside id="defter" aria-label="Defter">
+    <h2><span id="defterBaslik"></span><button id="defterKapat" type="button"></button></h2>
+    <div class="sekmeler" id="sekmeler"></div>
+    <div class="liste" id="liste"></div>
+    <div class="karsilastir" id="karsilastir"></div>
+  </aside>
+</div>
+<script type="module" src="./oyun.js"></script>
+</body>
+</html>

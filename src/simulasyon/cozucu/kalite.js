@@ -3,7 +3,8 @@
 //   - her katile (cinayetin asıl failine) en az `enAzZincir` bağımsız ipucu zinciri gider,
 //   - hiçbir masuma (katil olmayan) zincir gitmez,
 //   - her yanıltıcı izin gösterdiği her masum için en az bir çürütme yolu vardır (ya da iz oyuncuya hiç ulaşmaz),
-//   - çok kolay değildir: en az `enAzSorgu` sorgu gerekir ve tek tanıkla çözülen cinayet `tekTanikEnCok`u aşmaz,
+//   - çok kolay değildir: en az `enAzSorgu` sorgu gerekir, tek tanıkla çözülen cinayet `tekTanikEnCok`u, yalnızca
+//     fotoğrafla (sorgusuz) çözülen cinayet `fotografEnCok`u aşmaz,
 //   - çok zor değildir: en az sorgu, günlük sorgu hakkıyla 7 güne sığar.
 
 import {oyuncuGorunumu} from './gorunum.js';
@@ -13,6 +14,7 @@ export const KALITE_AYAR=Object.freeze({
   enAzZincir:2,
   enAzSorgu:3, // bundan az sorguyla (iki bağımsız zincirle) çözülen vaka çok kolaydır
   tekTanikEnCok:4, // tek bir tanığın tek ifadesiyle çözülebilen cinayet sayısı bunu aşarsa vaka çok kolaydır
+  fotografEnCok:3, // hiç sorgusuz, yalnızca fotoğraftan iki zincirle çözülen cinayet sayısı bunu aşarsa vaka çok kolaydır
 });
 
 // Döner: {gecti, nedenler:[...], zorluk, katiller, yanilticilar, celiskiler, enAzSorgu, cozum}
@@ -51,11 +53,11 @@ export function kaliteRaporu(vaka,ayar={}){
 
   const s=cz.enAzSorgu;
   if(!s.sigar) nedenler.push({tur:'cok-zor',sorgu:s.sorgu});
-  if(s.sorgu<A.enAzSorgu||s.tekTanik>A.tekTanikEnCok) nedenler.push({tur:'cok-kolay',sorgu:s.sorgu,tekTanik:s.tekTanik});
+  if(s.sorgu<A.enAzSorgu||s.tekTanik>A.tekTanikEnCok||s.fotograf>A.fotografEnCok) nedenler.push({tur:'cok-kolay',sorgu:s.sorgu,tekTanik:s.tekTanik,fotograf:s.fotograf});
   return {
     gecti:!nedenler.length,
     nedenler,
-    zorluk:{adim:s.adim,sorgu:s.sorgu,tekTanik:s.tekTanik,sigar:s.sigar},
+    zorluk:{adim:s.adim,sorgu:s.sorgu,tekTanik:s.tekTanik,fotograf:s.fotograf,sigar:s.sigar},
     katiller,yanilticilar,
     celiskiler:cz.celiskiler,
     enAzSorgu:s,

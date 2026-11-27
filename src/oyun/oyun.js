@@ -281,7 +281,6 @@ export function sonGoster(b,d){
   const pk=oran===1?'hepsi':oran>=.7?'cogu':oran>=.4?'yarim':oran>0?'azi':'hic';
   g.push(parca('baslik',S_.pencereBaslik),parca('anlatim',S_.pencereGiris),parca('anlatim',S_.pencere[pk]));
   g.push(parca('baslik',S_.gercekBaslik));
-  const dl=v.ayar.dilimler;
   for(const c of v.cinayetler){
     g.push(parca('anlatim',doldur(S_.gercekSatiri,{katil:kisiDeger(c.katil,b.dil),kurban:kisiDeger(c.kurban,b.dil),
       zaman:zamanAnlati(b,c.zaman),yer:mekanDeger(c.mekan,{},b.dil),yontem:O(b).yontem[c.yontem]??O(b).yontem.genel,sebep:O(b).sebep[c.sebep.tur]??c.sebep.tur})));
