@@ -1,81 +1,210 @@
 // Kendi kendine oynayan dedektif: duman testi ve oynanış değerlendirmesi için.
-// Yalnızca oyuncunun görebildiğini kullanır: seçenekler, defter ve herkesin bildiği köy bilgisi (ev, giysi).
-// Gerçeğe (vaka.katiller, tavır, izin gerçek sahibi) bakmaz; son puanlamayı defterden yapar.
+// "Dikkatli ama sıradan" bir oyuncuyu taklit eder: gerçeğe (vaka.katiller, tavır, izin gerçek sahibi, cinayetin
+// yöntemi) bakmaz; yalnızca ekranda gördüğünü ve defterini kullanır. Herkesin bildiği köy bilgisi: kim nerede oturur,
+// kim ne giyer, kim kimin eşi/çocuğu, hangi mekân hangisine komşu. Sorgu hakkı ve sabır oyunla aynıdır.
 //
-//   otoOyna(b, {geriSarma:1, yaz:(goster, eylem)=>{}}) → {durum, adimSayisi, secilenler}
+//   otoOyna(b, {geriSarma:1, tedbir:true, yaz:(goster, eylem)=>{}}) → {durum, adimSayisi, secilenler, donguler:[{dongu, secilenler}]}
+//   donguler: her karar anında (Rewind'den önce de) oyuncunun o an vereceği hüküm; ölçüm aracı bunu puanlar.
 
-import {oyunBaslat,acilis,secenekler,uygula,sorular,hukumAdaylari} from './oyun.js';
+import {oyunBaslat,acilis,secenekler,uygula,sorular,hukumAdaylari,tedbirAlinabilir} from './oyun.js';
 import {celiskiBul,ifadeBul} from '../diyalog/defter.js';
 import {rngAl} from '../diyalog/adlar.js';
+import {mudahalePenceresi} from '../simulasyon/index.js';
 
-const SORU_PAYI={yuzlesme:40,iz:12,yer:10,gordu:9,fark:24,baskasi:3,fail:2,iliski:6,sir:14,'sir-kendi':-4};
+const KANLI=['bicak-yarasi','ezik-yara'], TIRMIK=['bogaz-morlugu','islak-ceset','ip-izi','dusme-yarasi'];
+const SEBEP=['hasim','borclu','korkar'];
 
-// Defterden şüphe puanı: her önerme bir ağırlık taşır. Oyuncunun yapacağı kaba hesap.
-export function supheHesapla(b,d){
-  const df=d.defter, p={}, ekle=(k,x)=>{if(k) p[k]=(p[k]||0)+x;};
-  const cinZaman=new Map(df.cinayetler.map(c=>[c.zaman,c]));
-  const izCin=new Map(df.izler.map(i=>[i.iz,i.cinayet]));
-  const ortuSayisi={};
-  for(const id of b.ids) ortuSayisi[b.vaka.kisiler[id].ortu]=(ortuSayisi[b.vaka.kisiler[id].ortu]||0)+1;
-  for(const f of df.ifadeler){
-    for(const i of f.iddialar||[]){
-      const cin=cinZaman.get(i.zaman);
-      if(i.tur==='konum'&&cin&&i.mekan===cin.mekan&&i.kisi!==cin.kurban) ekle(i.kisi,i.kisi===f.kisi?1.5:3);
-      if(i.tur==='degil'&&cin) ekle(i.kisi,1.5);
-      if(i.tur==='siluet'&&cin){
-        const l=b.ids.filter(x=>b.vaka.kisiler[x].ortu===i.ortu);
-        for(const x of l) ekle(x,3/l.length);
-        if(i.tahmin) ekle(i.tahmin,.5);
-      }
-      if(i.tur==='sahip'&&izCin.has(i.iz)&&i.kisi!==f.kisi) ekle(i.kisi,2.5);
-      if(i.tur==='adaylar'&&izCin.has(i.iz)) for(const x of i.kisiler) ekle(x,2/i.kisiler.length);
-      if(i.tur==='sahip'&&i.kisi===f.kisi) ekle(i.kisi,-.5); // kabul eden, çoğu zaman açıklar
-      if(i.tur==='dolayli') ekle(i.kisi,{'kanli-giysi':4,tirmik:4,'eksik-esya':2,'gece-yoklugu':1,'yirtik-giysi':-.5,'eksik-alet':-1}[i.alt]??0);
-      if(i.tur==='fail') ekle(i.kisi,2);
+// Herkesin bildiği: ev, giysi, aile (eş, ana-baba, çocuk).
+function kamuBilgi(b){
+  if(b._otoKamu) return b._otoKamu;
+  const v=b.vaka, aile={};
+  for(const id of b.ids) aile[id]=new Set();
+  for(const i of v.iliskiler) if(['es','ebeveyn','cocuk'].includes(i.tur)) aile[i.kimden].add(i.kime);
+  const k={ev:id=>v.kisiler[id].ev,ortu:id=>v.kisiler[id].ortu,aile,dilimler:v.ayar.dilimler,ayar:v.ayar};
+  b._otoKamu=k;
+  return k;
+}
+const izBilgi=(b,id)=>b.izKayit.get(id)??null; // fotoğrafta görülen (anahtar, alt); sahibi kullanılmaz
+
+// Defterden çıkarım: her cinayet için kişi başına şüphe puanı ve kısa gerekçe.
+//   {cinayetler:[{id, kurban, zaman, mekan, puan:{kisi:x}}], genel:{kisi:x}, testler:[{kisi, cinayet, sonuc}]}
+export function cikarim(b,d){
+  const df=d.defter, K=kamuBilgi(b), D=K.dilimler.length;
+  const ifadeler=df.ifadeler;
+  const yuzunden=new Map(); // izId -> yara anahtarı (fotoğraftan)
+  for(const x of df.izler){const iz=izBilgi(b,x.iz); if(iz&&iz.alt==='yara') yuzunden.set(x.cinayet,iz.anahtar);}
+  const kurbanlar=new Set(df.cinayetler.map(c=>c.kurban));
+  const olumAni={}; for(const c of df.cinayetler) olumAni[c.kurban]=Math.min(olumAni[c.kurban]??Infinity,c.zaman);
+  const kendiYeri=(k,t)=>{for(const f of ifadeler) if(f.kisi===k) for(const i of f.iddialar||[]) if(i.tur==='konum'&&i.kisi===k&&i.zaman===t) return i.mekan; return null;};
+  const tedbirler=df.tedbirler||[], gozlem=df.gozlemler||[];
+  const goruldu=(cid,dongu)=>gozlem.some(g=>g.cinayet===cid&&g.dongu===dongu);
+  // Alıkoyma testi: X alıkonduğu gece beklenen cinayet yine olduysa X o cinayetin katili değildir; olmadıysa güçlü şüphe.
+  const testler=[];
+  for(const t of tedbirler){
+    if(t.tur!=='alikoy') continue;
+    const [ilk,son]=mudahalePenceresi(K.ayar,t.gun);
+    for(const c of df.cinayetler){
+      if(c.zaman<ilk||c.zaman>son||c.kurban===t.kisi||c.dongu>=t.dongu) continue;
+      // Sonuç ancak fotoğrafın geleceği gün geçtiyse bilinir.
+      const gecti=d.zaman.dongu>t.dongu||(d.zaman.dongu===t.dongu&&d.zaman.gun>=c.fotografGunu);
+      if(!gecti) continue;
+      testler.push({kisi:t.kisi,cinayet:c.id,sonuc:goruldu(c.id,t.dongu)?'temiz':'supheli'});
     }
-    if(f.soru.tur==='yuzlesme'){
-      const itiraf=(f.iddialar||[]).some(i=>i.tur==='sir')||/yalan söyledim|saklamayayım|söyleyeyim|benim\./i.test(f.metin);
-      ekle(f.kisi,itiraf?-2.5:2.5);
-    }
-    ekle(f.kisi,(f.tepki?.gerginlik??0)*.6);
   }
-  for(const k of df.celiskiler) for(const id of [k.a,k.b]){const f=ifadeBul(df,id); if(f) ekle(f.kisi,.5);}
-  for(const c of df.cinayetler) delete p[c.kurban];
-  return p;
+  const sonuc=[], genel={};
+  for(const c of df.cinayetler){
+    const p={}, ekle=(k,x)=>{if(!k||k===c.kurban||!b.vaka.kisiler[k]) return; if((olumAni[k]??Infinity)<c.zaman) return; p[k]=(p[k]||0)+x;};
+    const t=c.zaman, m=c.mekan, yara=yuzunden.get(c.id);
+    const izler=new Set(df.izler.filter(x=>x.cinayet===c.id).map(x=>x.iz));
+    const oy={}; // iz -> {kisi: oy}
+    const sahneyeKoyan={}, mazeret={};
+    for(const f of ifadeler){
+      const s=f.kisi;
+      for(const i of f.iddialar||[]){
+        if(i.tur==='konum'&&i.zaman===t){
+          if(i.mekan===m&&i.kisi!==c.kurban){ if(i.kisi===s) ekle(i.kisi,1); else (sahneyeKoyan[i.kisi]??=new Set()).add(s); }
+          else if(i.kisi!==s&&!K.aile[i.kisi].has(s)){
+            const sy=kendiYeri(s,t);
+            if(sy==null||sy===i.mekan||f.soru.tur==='gordu') (mazeret[i.kisi]??=new Set()).add(s);
+          }
+          const ky=kendiYeri(i.kisi,t);
+          if(i.kisi!==s&&ky&&ky!==i.mekan) ekle(i.kisi,1.5); // kendi söylediği yer başkasının gördüğünü tutmuyor
+        }
+        if(i.tur==='degil'&&i.zaman===t) ekle(i.kisi,i.mekan===K.ev(i.kisi)?2:1.5);
+        if(i.tur==='siluet'&&i.zaman===t&&i.mekan===m){
+          const l=b.ids.filter(x=>K.ortu(x)===i.ortu&&x!==s);
+          for(const x of l) ekle(x,3/l.length);
+          if(i.tahmin) ekle(i.tahmin,.5);
+        }
+        if((i.tur==='sahip'||i.tur==='adaylar')&&izler.has(i.iz)){
+          const o=oy[i.iz]??={};
+          if(i.tur==='sahip'&&i.kisi!==s) o[i.kisi]=(o[i.kisi]||0)+1;
+          if(i.tur==='sahip'&&i.kisi===s) o[s]=(o[s]||0)+.6; // kabul eden çoğu zaman bir açıklama da yapar
+          if(i.tur==='adaylar') for(const x of i.kisiler) o[x]=(o[x]||0)+1/i.kisiler.length;
+        }
+        if(i.tur==='dolayli'&&i.zaman>=t&&i.zaman<=t+2*D&&i.kisi!==s){
+          const w={'kanli-giysi':KANLI.includes(yara)?5:2,tirmik:TIRMIK.includes(yara)?5:2,'eksik-esya':2,'yirtik-giysi':-1,'eksik-alet':0}[i.alt]??0;
+          ekle(i.kisi,w);
+        }
+        if(i.tur==='fail'&&i.cinayet===c.id&&i.kisi!==s) ekle(i.kisi,1.5);
+        if(i.tur==='iliski'&&i.hedef===c.kurban&&(i.iliskiler||[]).some(x=>SEBEP.includes(x))) ekle(i.kisi,i.dedikodu?.8:1.5);
+        if(i.tur==='iliski'&&i.kisi===s&&i.hedef===c.kurban&&(i.iliskiler||[]).some(x=>SEBEP.includes(x))) ekle(s,1);
+      }
+    }
+    for(const [x,l] of Object.entries(sahneyeKoyan)) ekle(x,Math.min(8,4*l.size));
+    for(const [x,l] of Object.entries(mazeret)) if(!sahneyeKoyan[x]) ekle(x,-Math.min(5,2.5*l.size));
+    // Giysi lifi: kim ne giyer herkes bilir.
+    for(const id of izler){
+      const iz=izBilgi(b,id); if(!iz||iz.alt==='yara'||iz.alt==='kurban-esyasi') continue;
+      const ortu=b.kamuIzler[id]?.ortu??(iz.ortu&&!iz.esya?iz.ortu:null);
+      if(ortu){const l=b.ids.filter(x=>K.ortu(x)===ortu); const o=oy[id]??={}; for(const x of l) o[x]=(o[x]||0)+1/l.length;}
+    }
+    for(const o of Object.values(oy)){
+      const top=Object.values(o).reduce((a,x)=>a+x,0);
+      if(top>0) for(const [x,n] of Object.entries(o)) ekle(x,3.5*n/top);
+    }
+    // Aleti cinayetten önce çalındığını kendisi söyleyen.
+    for(const f of ifadeler) for(const i of f.iddialar||[]) if(i.tur==='dolayli'&&i.alt==='eksik-alet'&&i.kisi===f.kisi&&i.zaman<t) ekle(f.kisi,-1.5);
+    for(const k of df.celiskiler){const fa=ifadeBul(df,k.a); if(k.konu?.tur==='konum'&&k.konu.zaman===t) ekle(k.konu.kisi,2); else if(fa&&k.konu?.tur==='sahip') ekle(k.konu.kisi,1);}
+    for(const x of testler.filter(x=>x.cinayet===c.id)) ekle(x.kisi,x.sonuc==='temiz'?-25:14);
+    // Karakolda alıkonan o gece kimseyi öldüremez.
+    for(const tb of tedbirler) if(tb.tur==='alikoy'&&goruldu(c.id,tb.dongu)){const [a,z]=mudahalePenceresi(K.ayar,tb.gun); if(t>=a&&t<=z) ekle(tb.kisi,-25);}
+    for(const f of ifadeler) if(f.tepki&&f.soru.zaman===t) ekle(f.kisi,f.tepki.gerginlik*.4);
+    sonuc.push({id:c.id,kurban:c.kurban,zaman:t,mekan:m,dongu:c.dongu,fotografGunu:c.fotografGunu,puan:p});
+    for(const [x,n] of Object.entries(p)) if(n>0) genel[x]=(genel[x]||0)+n;
+  }
+  for(const k of kurbanlar) delete genel[k];
+  return {cinayetler:sonuc,genel,testler};
+}
+
+// Eski arayüz: kişi başına toplam şüphe (araçlar ve testler için).
+export const supheHesapla=(b,d)=>cikarim(b,d).genel;
+
+// Hüküm: ilk döngüde görülen her cinayete en güçlü şüpheli (bir kişi bir kez), kalan yerler genel şüpheyle.
+export function hukumSec(b,d){
+  const c=cikarim(b,d), aday=new Set(hukumAdaylari(b,d)), n=d.zaman.kural.finalSecimSayisi;
+  const ilk=c.cinayetler.filter(x=>x.dongu===1);
+  const ciftler=[];
+  for(const x of ilk) for(const [k,p] of Object.entries(x.puan)) if(aday.has(k)&&p>0) ciftler.push({cinayet:x.id,kisi:k,p});
+  ciftler.sort((a,b)=>b.p-a.p||(a.kisi<b.kisi?-1:1));
+  const secilen=[], tutulan=new Set();
+  for(const x of ciftler){
+    if(secilen.length>=n) break;
+    if(tutulan.has(x.cinayet)||secilen.includes(x.kisi)) continue;
+    secilen.push(x.kisi); tutulan.add(x.cinayet);
+  }
+  const kalan=[...aday].filter(k=>!secilen.includes(k)).sort((a,b)=>(c.genel[b]||0)-(c.genel[a]||0)||(a<b?-1:1));
+  return [...secilen,...kalan].slice(0,n);
 }
 
 function cagrilacak(b,d,adaylar){
-  const df=d.defter, p=supheHesapla(b,d), puan={};
-  const yeni=[...df.cinayetler].sort((a,c)=>c.zaman-a.zaman)[0];
-  const sorguda=new Set(df.ifadeler.filter(f=>f.dongu===d.zaman.dongu).map(f=>f.kisi));
-  const kacKez={};
-  for(const f of df.ifadeler) if(f.dongu===d.zaman.dongu) (kacKez[f.kisi]??=new Set()).add(f.gun);
-  const r=rngAl(b.tohum,'oto',d.zaman.gun,d.zaman.dongu);
+  const df=d.defter, z=d.zaman, c=cikarim(b,d), K=kamuBilgi(b);
+  const bugunku=c.cinayetler.filter(x=>x.fotografGunu<=z.gun&&df.gozlemler?.some(g=>g.cinayet===x.id&&g.dongu===z.dongu)).sort((a,b)=>b.zaman-a.zaman);
+  const yeni=bugunku[0];
+  const buDongu=new Map();
+  for(const f of df.ifadeler) if(f.dongu===z.dongu) (buDongu.get(f.kisi)??buDongu.set(f.kisi,new Set()).get(f.kisi)).add(f.gun);
+  const herhangi=new Set(df.ifadeler.map(f=>f.kisi));
+  const yonlendirilen=new Set();
+  for(const f of df.ifadeler) for(const i of f.iddialar||[]) if(i.tur==='yonlendir'&&!df.ifadeler.some(g=>g.kisi===i.kisi&&g.soru.id===(i.konu.tur==='fark'?'fark:'+i.konu.cinayet:'iz:'+i.konu.iz))) yonlendirilen.add(i.kisi);
+  const yuzlesilecek=new Set();
+  for(const k of df.celiskiler) for(const id of [k.a,k.b]){const f=ifadeBul(df,id); if(f&&!df.ifadeler.some(g=>g.kisi===f.kisi&&g.soru.id==='yuzlesme:'+k.id)) yuzlesilecek.add(f.kisi);}
+  const r=rngAl(b.tohum,'oto-cagir',z.gun,z.dongu);
+  const puan={};
   for(const id of adaylar){
-    // Şüphe çeker ama bir oyuncu gibi köyü de dolaşır: aynı kişiyi tekrar tekrar çağırmak azalan getiri.
-    let x=Math.min(p[id]||0,12)*.5+r()*3-(kacKez[id]?.size||0)*4;
-    if(df.celiskiler.some(k=>[k.a,k.b].some(f=>ifadeBul(df,f)?.kisi===id)&&!df.ifadeler.some(f=>f.kisi===id&&f.soru.id==='yuzlesme:'+k.id))) x+=8;
-    if(yeni&&yeni.bulan===id&&!sorguda.has(id)) x+=3;
-    if(yeni&&b.vaka.kisiler[id].ev===b.vaka.kisiler[yeni.kurban].ev) x+=2.5;
-    if(!sorguda.has(id)) x+=6;
+    let x=r()*2.5;
+    if(yonlendirilen.has(id)) x+=10;
+    if(yuzlesilecek.has(id)) x+=7;
+    for(const s of bugunku.slice(0,2)){
+      const p=s.puan[id]||0;
+      x+=Math.min(p,8)*(s===yeni?.9:.4);
+      if(s.kurban&&K.ev(s.kurban)===K.ev(id)) x+=s===yeni?3:1;
+      if(df.cinayetler.find(q=>q.id===s.id)?.bulan===id) x+=s===yeni?5:1.5;
+    }
+    x+=Math.min(c.genel[id]||0,10)*.25;
+    const n=buDongu.get(id)?.size||0;
+    x-=n*3.5;
+    if(!herhangi.has(id)) x+=3; else if(!n) x+=1.5;
     puan[id]=x;
   }
-  return adaylar.sort((a,c)=>puan[c]-puan[a])[0];
+  return [...adaylar].sort((a,c2)=>puan[c2]-puan[a]||(a<c2?-1:1))[0];
 }
 
+const SORU_PAYI={yuzlesme:20,iz:8,yer:6,gordu:8,fark:10,baskasi:0,fail:-4,iliski:2,sir:-6,'sir-kendi':-14};
 function soruSec(b,d,l){
-  const K=d.zaman.sorgudaki;
-  const sorulan=new Set(d.defter.ifadeler.filter(f=>f.kisi===K&&f.gun===d.zaman.gun&&f.dongu===d.zaman.dongu).map(f=>f.soru.tur));
-  // Sahibi iki kişiden duyulmuş izi başkalarına yeniden göstermek boşa soru: yalnızca adı geçen kişiye gösterilir.
+  const K=d.zaman.sorgudaki, df=d.defter;
+  const bugun=df.ifadeler.filter(f=>f.kisi===K&&f.gun===d.zaman.gun&&f.dongu===d.zaman.dongu);
+  const sorulanTur=new Map(); for(const f of bugun) sorulanTur.set(f.soru.tur,(sorulanTur.get(f.soru.tur)||0)+1);
+  // Sahibi iki kişiden aynı duyulmuş izi yeniden göstermek boşa soru.
   const sahipler={};
-  for(const f of d.defter.ifadeler) for(const i of f.iddialar||[]) if(i.tur==='sahip'&&i.kisi!==f.kisi) (sahipler[i.iz]??=[]).push(i.kisi);
-  const izPayi=q=>{
-    if(q.tur!=='iz') return 0;
-    const l=sahipler[q.iz]||[];
-    return l.length>=2&&!l.includes(K)?-40:0;
+  for(const f of df.ifadeler) for(const i of f.iddialar||[]) if(i.tur==='sahip'&&i.kisi!==f.kisi) (sahipler[i.iz]??=[]).push(i.kisi);
+  const c=cikarim(b,d);
+  const puan=q=>{
+    let x=q.oncelik+(SORU_PAYI[q.tur]??0)-(sorulanTur.get(q.tur)||0)*(q.tur==='yuzlesme'?0:q.tur==='iz'?6:12);
+    if(q.tur==='iz'){const s=sahipler[q.iz]||[]; if(s.length>=2&&new Set(s).size===1&&!s.includes(K)) x-=40;}
+    if(q.tur==='baskasi'){const s=c.cinayetler.find(y=>y.zaman===q.zaman); x+=Math.min(6,(s?.puan[q.kisi]||0));}
+    return x;
   };
-  const puan=q=>q.oncelik+(SORU_PAYI[q.tur]??0)+izPayi(q)-(sorulan.has(q.tur)&&q.tur!=='yuzlesme'&&q.tur!=='iz'?14:0);
-  return [...l].sort((a,c)=>puan(c)-puan(a))[0];
+  return [...l].sort((a,b2)=>puan(b2)-puan(a)||(a.id<b2.id?-1:1))[0];
+}
+
+// Gün sonu tedbiri. Önceki döngüden bilinen ve bu gece beklenen cinayetin baş şüphelisini (henüz sınanmadıysa)
+// alıkoyar; ilk döngüde en çok şüphelendiğini.
+function tedbirSec(b,d){
+  const z=d.zaman, c=cikarim(b,d), K=kamuBilgi(b);
+  const [ilk,son]=mudahalePenceresi(K.ayar,z.gun);
+  const yasayan=new Set(hukumAdaylari(b,d));
+  const sinandi=new Set(c.testler.map(t=>t.kisi+'|'+t.cinayet));
+  const alikonan=new Set((d.defter.tedbirler||[]).filter(t=>t.tur==='alikoy').map(t=>t.kisi+'|'+t.gun));
+  const beklenen=c.cinayetler.filter(x=>x.dongu<z.dongu&&x.zaman>=ilk&&x.zaman<=son&&x.dongu===1);
+  for(const x of beklenen){
+    const l=Object.entries(x.puan).filter(([k,p])=>p>0&&yasayan.has(k)&&!sinandi.has(k+'|'+x.id)&&!alikonan.has(k+'|'+z.gun)).sort((a,b2)=>b2[1]-a[1]);
+    if(l.length) return {tur:'tedbir',tedbir:'alikoy',kisi:l[0][0]};
+  }
+  if(z.dongu===1){
+    const l=Object.entries(c.genel).filter(([k])=>yasayan.has(k)).sort((a,b2)=>b2[1]-a[1]);
+    if(l.length&&l[0][1]>4) return {tur:'tedbir',tedbir:'alikoy',kisi:l[0][0]};
+  }
+  return null;
 }
 
 // Yeni ifadeyi eskilerle yan yana koyar (oyuncunun defterde yapacağı karşılaştırma).
@@ -91,10 +220,11 @@ function celiskiAra(b,d,yaz){
   return d;
 }
 
-export function otoOyna(b,{geriSarma=1,yaz=null,azamiAdim=5000}={}){
+export function otoOyna(b,{geriSarma=1,tedbir=true,yaz=null,azamiAdim=8000}={}){
   let d=oyunBaslat({tohum:b.tohum,ayar:b.ayar});
   const a=acilis(b,d); d=a.durum; yaz?.(a.goster,null);
   let n=0, secilenler=null;
+  const donguler=[];
   while(d.zaman.adim!=='bitti'){
     if(++n>azamiAdim) throw new Error('otoOyna: oyun bitmedi');
     const z=d.zaman, l=secenekler(b,d);
@@ -106,17 +236,18 @@ export function otoOyna(b,{geriSarma=1,yaz=null,azamiAdim=5000}={}){
     }else if(z.adim==='sorgu'){
       const q=soruSec(b,d,sorular(b,d));
       s=q?l.find(x=>x.eylem.soru===q.id):l.find(x=>x.eylem.tur==='ilerle');
+    }else if(z.adim==='gun-sonu'){
+      const e=tedbir&&tedbirAlinabilir(b,d)?tedbirSec(b,d):null;
+      s=e?{etiket:'Tedbir',eylem:e}:l.find(x=>x.eylem.tur==='ilerle');
     }else if(z.adim==='karar'){
+      const h=hukumSec(b,d);
+      donguler.push({dongu:z.dongu,secilenler:h});
       if(z.dongu<=geriSarma) s=l.find(x=>x.eylem.tur==='geriSar');
-      else{
-        const p=supheHesapla(b,d);
-        secilenler=hukumAdaylari(b,d).sort((x,y)=>(p[y]||0)-(p[x]||0)||(x<y?-1:1)).slice(0,z.kural.finalSecimSayisi);
-        s={etiket:l.find(x=>x.eylem.tur==='hukum').etiket,eylem:{tur:'hukum',kisiler:secilenler}};
-      }
+      else{ secilenler=h; s={etiket:l.find(x=>x.eylem.tur==='hukum').etiket,eylem:{tur:'hukum',kisiler:secilenler}}; }
     }else s=l.find(x=>x.eylem.tur==='incele')??l.find(x=>x.eylem.tur==='ilerle');
     const r=uygula(b,d,s.eylem);
     d=r.durum; yaz?.(r.goster,s);
     if(s.eylem.tur==='sor') d=celiskiAra(b,d,yaz);
   }
-  return {durum:d,adimSayisi:n,secilenler};
+  return {durum:d,adimSayisi:n,secilenler,donguler};
 }

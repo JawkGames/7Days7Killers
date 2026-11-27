@@ -24,7 +24,8 @@ export const SIM_AYAR=Object.freeze({
   enAzSebep:.6, // bundan zayıf sebep (katil|kurban ağırlığı) cinayete yetmez
   enAzBag:2, // katiller arasında en az bu kadar bağ kurulmaya çalışılır
   azamiDeneme:40,
-  tamamlamaTuru:3, // çözücünün zincir bulamadığı katile ek iz bırakma turu (0: kapalı)
+  tamamlamaTuru:4, // çözücünün zincir bulamadığı katile ek iz bırakma turu (0: kapalı)
+  mudahaleler:null, // oyuncunun tedbirleri (mudahale.js); boşsa vaka müdahalesizdir
   kalite:null, // kalite eleği ayarı (cozucu/kalite.js KALITE_AYAR'ın üstüne yazılır)
   elek:true, // false: elekten geçmeyen vaka da ilk denemede döner (vaka.kalite yine yazılır)
   elekDeneme:12, // elekten geçemeyen en çok bu kadar deneme; sonra en az kusurlusu döner // kurulamayan vaka bu kadar kez türetilmiş tohumla yeniden denenir
@@ -35,6 +36,8 @@ export const SIM_AYAR=Object.freeze({
     kacanTanik:.28, // olay yerine yoldan geçen biri düşer, saldırıya uğrar, kaçar, eşya bırakır
     oncekiGecis:.5, // olay yerinden daha önce geçen birinin izi kalır
     kurbanEsyasi:.4,
+    tekSahipliIz:.12, // tek sahipli eşyanın (kama, mühür) iz olarak kalma ağırlığı; birkaç kişide olan iz 1
+    ekIz:.5, // fotoğrafta da tanıkta da güçlü iz yoksa dikkatsiz katilin bir iz daha bırakma olasılığı
     calintiSilahKurnaz:2.5, // kurnaz katilin başkasının aletini çalma ağırlığı
     calintiSilah:.6,
     silahBirakma:.25, // kendi silahını olay yerinde bırakma

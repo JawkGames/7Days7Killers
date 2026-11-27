@@ -3,13 +3,23 @@
 // izin sahibi/tanığı/fark edeni çizelgeye göre gerçekten oradadır. Testler bunu tek tek denetler.
 
 import {ESYA,esyaIzi,ORTU_IZ,YONTEM_YARA,MIZAC_DIKKATSIZLIK,GIZLI_NEDEN_ONEKLERI,mekanAletleri} from './tablolar.js';
+import {karma} from './zar.js';
+
+// Cinayetin iz kimliklerinin başladığı sayı: müdahalesiz vakada sıra × 100 (c3 → i301...), müdahaleyle değişmiş
+// cinayette kimliğinden türeyen büyük bir sayı (başka bir zaman çizgisinin izleriyle karışmasın).
+export function izTabani(cid){
+  const m=/^c(\d+)$/.exec(cid);
+  return m?Number(m[1])*100:(1000+karma(cid)%90000)*100;
+}
 
 const INCE=['ayak-izi','lif','kirinti','leke']; // gözle zor seçilen, "üstünden geçen" bırakabilecek izler
 
-export function izleriKur(d,z,cz,sonuc){
-  const {cinayetler,olaylar,olayId}=sonuc, {zaman,ayar}=d, o=ayar.oranlar, D=zaman.D;
+// zarOf(...etiket): tohumlu akış üretir. Her cinayetin fiziksel, tanık ve dolaylı izleri ayrı akıştan gelir ve
+// kimlikleri cinayete göre numaralanır: sonraki cinayetler değişse de (oyuncu müdahalesi) önceki bir cinayetin
+// fotoğrafı ve tanıkları değişmez. Fiziksel ve tanık izleri yalnızca cinayet anına kadarki çizelgeye bakar.
+export function izleriKur(d,zarOf,cz,sonuc){
+  const {cinayetler,olaylar}=sonuc, {zaman,ayar}=d, o=ayar.oranlar, D=zaman.D;
   const izler=[], yanilticilar=[];
-  let n=0, ny=0;
 
   // İz anahtarı → o izi bırakabilecek herkes (eşyasından ya da örtüsünden).
   const adayIndex={};
@@ -24,17 +34,18 @@ export function izleriKur(d,z,cz,sonuc){
   const silahIz=s=>s.mekanAleti?(mekanAletleri(s.mekanAleti,d.mekanTuru(s.mekanAleti)).find(a=>a.alet===s.esya)?.iz??s.esya):esyaIzi(s.esya).iz;
   const silahAdaylari=s=>s.mekanAleti?(s.getirildi?d.ids.filter(k=>d.kisi(k).ev===s.mekanAleti||d.kisi(k).is===s.mekanAleti).sort():[]):adaylar(silahIz(s));
   // Kişinin bırakabileceği izler: eşyaları (silah olarak kullanılanlar hariç) ve örtüsünün lifi.
-  const {elde,alinabilir,durum}=sonuc.esya;
-  // t anında bırakılabilecek izler. Nesne (eşyanın kendisi) yalnızca sonra bir daha kullanılmayacaksa düşer.
-  // Ayırt edicilik: az kişide olan iz (çizme izi, çekiç) daha sık kalır; beş kişinin abası daha seyrek.
-  const ayirt=anahtar=>Math.sqrt(3/(2+adaylar(anahtar).length));
+  const {elde,durum}=sonuc.esya;
+  const kaybet=(k,e,t)=>{const s=durum(k,e); s.kayip=s.kayip==null?t:Math.min(s.kayip,t);};
+  // t anında bırakılabilecek izler. Silah olabilen eşya iz olarak düşmez (sonra silah olabilir); nesne düşerse kaybolur.
+  // Ayırt edicilik: köyde birkaç kişide olan iz (aba tiftiği, çarık izi) en sık kalır; tek sahipli iz (kama, mühür)
+  // seyrek kalır: "bu kimin?" sorusu tek başına vakayı çözmesin.
+  const ayirt=anahtar=>{const n=adaylar(anahtar).length; return n<=1?o.tekSahipliIz:n<=4?1:.7;};
   const izSecenekleri=(id,t,yalnizInce,haric=[])=>{
     const k=d.kisi(id), l=[];
     for(const e of k.esyalar||[]){
       if(haric.includes(e)||ESYA[e]?.silah||!elde(id,e,t)) continue;
       const x=esyaIzi(e);
       if(yalnizInce&&!INCE.includes(x.tur)) continue;
-      if(x.tur==='nesne'&&!alinabilir(id,e,t)) continue;
       l.push({esya:e,anahtar:x.iz,iztur:x.tur,w:(INCE.includes(x.tur)?3:1)*ayirt(x.iz)});
     }
     if(ORTU_IZ[k.ortu]) l.push({ortu:k.ortu,anahtar:ORTU_IZ[k.ortu],iztur:'lif',w:2*ayirt(ORTU_IZ[k.ortu])});
@@ -47,30 +58,41 @@ export function izleriKur(d,z,cz,sonuc){
   const AILE=['es','ebeveyn','cocuk'];
   const dogrulanir=(P,t)=>cz.canli(P,t)&&!gizli(P,t)&&cz.orada(cz.yer[P][t],t).filter(h=>h!==P&&!gizli(h,t)&&!d.rel(h,P).some(r=>AILE.includes(r))).length>=2;
   // korumaz: katilin aleyhine olan iz için, onu korumayacak (yakını, dostu, borçlusu olmayan) biri öncelikli.
+  // Fark eden rasgele bir köylü değil: önce kurbanın yakını (gözü katildedir), sonra komşu ya da ev halkı;
+  // böylece oyuncu "kime sorulmalı"yı köyün bağlarından sezebilir.
   const KORUYAN=['es','ebeveyn','cocuk','sevgili','sever','korur','dost','borclu','korkar','ortak'];
-  const farkEden=(k,t0,t1,haric=[],korumaz=false)=>{
-    let yedek=null;
+  const komsuEv=(a,b)=>{const ea=d.kisi(a).ev, eb=d.kisi(b).ev; return ea===eb||(d.harita[ea]||[]).includes(eb);};
+  const farkPuani=(h,k,V)=>(V&&d.rel(h,V).length?3:0)+(komsuEv(h,k)?2:0)+(d.rel(h,k).length?1:0);
+  // Nedensel: ilk karşılaşmada yanında olan fark eder (korumaz ise onu korumayacak ilk kişi); sonraki günlere
+  // bakıp geri dönmez, böylece sonradan değişen gelecek (oyuncu müdahalesi) geçmişteki fark edişi değiştirmez.
+  const farkEden=(k,t0,t1,haric=[],korumaz=false,V=null)=>{
     for(let u=t0+1;u<=Math.min(t1,zaman.T-1);u++){
       if(!cz.canli(k,u)) break;
       const mk=cz.yer[k][u];
       if(cz.sahne(mk,u)) continue; // başka bir cinayetin anı: orada kimse kimsenin giysisine bakmaz
       const l=cz.orada(mk,u).filter(h=>h!==k&&!haric.includes(h));
       if(!l.length) continue;
-      if(!korumaz) return {u,kim:l.find(h=>d.rel(h,k).length)||l[0],mekan:mk};
-      const iyi=l.find(h=>!d.rel(h,k).some(r=>KORUYAN.includes(r)));
-      if(iyi) return {u,kim:iyi,mekan:mk};
-      yedek??={u,kim:l[0],mekan:mk};
+      // Katilin aleyhine olanı onu koruyacak biri görse de görmezden gelir: sonraki karşılaşmaya bakılır.
+      const iyi=korumaz?l.filter(h=>!d.rel(h,k).some(r=>KORUYAN.includes(r))):l;
+      if(!iyi.length) continue;
+      const kim=[...iyi].sort((x,y)=>farkPuani(y,k,V)-farkPuani(x,k,V)||(x<y?-1:1))[0];
+      return {u,kim,mekan:mk};
     }
-    return yedek;
+    return null;
   };
 
   for(const c of cinayetler){
     const A=c.katil, V=c.kurban, Y=c.yardimci, m=c.mekan, t=c.zaman, dilim=c.dilim;
     const ilgili=[A,V,...(Y?[Y]:[])];
-    const ekle=iz=>{iz.id='i'+(++n); iz.cinayet=c.id; iz.yaniltici=!!iz.yaniltici; izler.push(iz); c.izler.push(iz.id); return iz;};
-    const yaniltici=y=>{y.id='y'+(++ny); y.cinayet=c.id; yanilticilar.push(y); return y;};
-    const olayEkle=ol=>{ol.id=olayId(); ol.cinayet=c.id; olaylar.push(ol); return ol;};
+    // Her türün kendi akışı ve kimlik bloğu: fiziksel 1-39, tanık 40-59, dolaylı 60-89 (tamamlama 90-99).
+    const zf=zarOf('iz-fiziksel',c.id), zt=zarOf('iz-tanik',c.id), zd=zarOf('iz-dolayli',c.id);
+    const taban=izTabani(c.id), sayac={fiziksel:0,tanik:40,dolayli:60};
+    let ny=0, no=0;
+    const ekle=iz=>{iz.id='i'+(taban+(++sayac[iz.tur])); iz.cinayet=c.id; iz.yaniltici=!!iz.yaniltici; izler.push(iz); c.izler.push(iz.id); return iz;};
+    const yaniltici=y=>{y.id='y'+(taban/10+(++ny)); y.cinayet=c.id; yanilticilar.push(y); return y;};
+    const olayEkle=ol=>{ol.id=c.id+'g'+(++no); ol.cinayet=c.id; olaylar.push(ol); return ol;};
     const kanit=[]; // katili gösteren izler (çözülebilirlik için en az bir tane)
+    const z=zf;
 
     // --- Fiziksel ---
     const yara={tur:'fiziksel',alt:'yara',anahtar:YONTEM_YARA[c.yontem],mekan:m,zaman:t,kisi:V,olay:c.id,gercek:{neden:'yontem',yontem:c.yontem}};
@@ -95,25 +117,29 @@ export function izleriKur(d,z,cz,sonuc){
       if(c.yontem==='tufek') yara.yaniltici=true;
     }
     // Katilin kendi izi.
+    const katilIziEkle=(id,s,neden)=>{
+      if(s.esya&&s.iztur==='nesne') kaybet(id,s.esya,t);
+      return ekle({tur:'fiziksel',alt:'esya',anahtar:s.anahtar,iztur:s.iztur,esya:s.esya??null,ortu:s.ortu??null,sahip:id,adaylar:adaylar(s.anahtar),mekan:m,zaman:t,olay:c.id,gercek:{neden}});
+    };
     const katilIzi=(id,neden,zorla=false)=>{
       if(!zorla&&!z.olasilik(MIZAC_DIKKATSIZLIK[d.kisi(id).mizac]??.5)) return null;
       const s=z.agirlikli(izSecenekleri(id,t,zorla,c.silah?[c.silah.esya]:[]));
-      if(!s) return null;
-      if(s.esya&&s.iztur==='nesne') durum(id,s.esya).kayip=t;
-      const iz=ekle({tur:'fiziksel',alt:'esya',anahtar:s.anahtar,iztur:s.iztur,esya:s.esya??null,ortu:s.ortu??null,sahip:id,adaylar:adaylar(s.anahtar),mekan:m,zaman:t,olay:c.id,gercek:{neden}});
-      return iz; // aynı izi bırakabilen başkaları iz.adaylar'da; bu bir belirsizliktir, yanıltıcı sayılmaz
+      return s?katilIziEkle(id,s,neden):null; // aynı izi bırakabilen başkaları iz.adaylar'da; bu bir belirsizliktir, yanıltıcı sayılmaz
     };
     const ki=katilIzi(A,'katil-birakti');
     if(ki) kanit.push(ki.id);
     if(Y&&z.olasilik(.4)) katilIzi(Y,'yardimci-birakti');
-    // Kaçan tanığın düşürdüğü eşya.
+    // Kaçan tanığın düşürdüğü eşya (başka bir olay yerinde daha önce düşmüşse artık elinde değildir).
     const kt=c.kacanTanik;
     let kacanY=null;
+    if(kt&&kt.esya&&durum(kt.kisi,kt.esya).kayip!==t) kt.esya=null;
     if(kt&&kt.esya){
       const x=esyaIzi(kt.esya);
       const iz=ekle({tur:'fiziksel',alt:'esya',anahtar:x.iz,iztur:x.tur,esya:kt.esya,ortu:null,sahip:kt.kisi,adaylar:adaylar(x.iz),mekan:m,zaman:t,olay:kt.olay,yaniltici:true,gercek:{neden:'tanik-kacarken'}});
       kacanY=yaniltici({izler:[iz.id],isaret:[kt.kisi],aciklama:'tanik-kacti',olay:kt.olay,
         curutme:[{tur:'ifade',kisi:kt.kisi,olgu:{tur:'gorulen',zaman:t}},...(t>0?[{tur:'konum',kisi:kt.kisi,zaman:t-1}]:[])]});
+    }else if(kt){
+      kacanY=null;
     }
     // Daha önce oradan geçenin izi.
     if(z.olasilik(o.oncekiGecis)){
@@ -151,13 +177,13 @@ export function izleriKur(d,z,cz,sonuc){
     // --- Tanık ---
     const kesinlik=W=>{
       const tanir=d.evHalki[d.kisi(A).ev]?.includes(W)||d.rel(W,A).some(x=>['es','ebeveyn','cocuk','sevgili','sever'].includes(x));
-      return z.olasilik(Math.min(1,(o.yuzTanima[dilim]??.5)+(tanir?.35:0)))?'yuz':'siluet';
+      return zt.olasilik(Math.min(1,(o.yuzTanima[dilim]??.5)+(tanir?.35:0)))?'yuz':'siluet';
     };
     const tanikIzi=(W,alt,gorulen,nereden)=>{
       const k=gorulen?kesinlik(W):null;
       const iz=ekle({tur:'tanik',alt,tanik:W,gorulen,kesinlik:k,ortu:gorulen?d.kisi(gorulen).ortu:null,nereden,mekan:m,zaman:t,olay:c.id,
         ...(alt==='ses'?{anahtar:c.yontem==='tufek'?'silah-sesi':'bagirti'}:{}),gercek:{neden:gorulen?'gordu':'duydu'}});
-      if(gorulen===A&&k==='yuz') kanit.push(iz.id);
+      if(gorulen===A) kanit.push(iz.id);
       return iz;
     };
     for(const W of c.gozTaniklari){
@@ -172,49 +198,60 @@ export function izleriKur(d,z,cz,sonuc){
       if(!(d.harita[m]||[]).includes(wy)) continue;
       const uyur=dilim==='gece'&&cz.neden[W][t]==='ev';
       const p=(o.gorme[dilim]??.4)*(gezgin(W)?2:1)*(uyur?.3:1);
-      if(z.olasilik(Math.min(.95,p))) gorenler.push({W,wy});
-      else if(c.yontem==='tufek'||z.olasilik(.15)) duyanlar.push({W,wy});
+      if(zt.olasilik(Math.min(.95,p))) gorenler.push({W,wy});
+      else if(c.yontem==='tufek'||zt.olasilik(.15)) duyanlar.push({W,wy});
     }
     // Kalabalık komşu mekân vakayı tek tanıkla çözmesin: en çok iki gören, üç duyan.
-    for(const g of z.karistir(gorenler).slice(0,2).sort((a,b)=>a.W<b.W?-1:1)) tanikIzi(g.W,'gordu',A,g.wy);
-    for(const g of z.karistir(duyanlar).slice(0,3).sort((a,b)=>a.W<b.W?-1:1)) tanikIzi(g.W,'ses',null,g.wy);
+    for(const g of zt.karistir(gorenler).slice(0,2).sort((a,b)=>a.W<b.W?-1:1)) tanikIzi(g.W,'gordu',A,g.wy);
+    for(const g of zt.karistir(duyanlar).slice(0,3).sort((a,b)=>a.W<b.W?-1:1)) tanikIzi(g.W,'ses',null,g.wy);
 
-    // --- Dolaylı ---
-    const dolayli=iz=>ekle({tur:'dolayli',cinayet:c.id,...iz});
-    // k evinde değilken o dilimde evde olan ev halkı (yokluğu fark edebilecekler)
+    // Gece yokluğu: o an evde olanlar fark eder (yalnızca cinayet anına bakar; bu yüzden dolaylı akışta değil).
+    const dolayli=(iz,zz)=>ekle({tur:'dolayli',cinayet:c.id,...iz});
     const evdekiler=(k,u)=>cz.yer[k][u]===d.kisi(k).ev?[]:(d.evHalki[d.kisi(k).ev]||[]).filter(h=>h!==k&&cz.yer[h][u]===d.kisi(k).ev);
     if(dilim==='gece'){
       const h=evdekiler(A,t).filter(h=>h!==V);
-      if(h.length&&z.olasilik(o.geceYoklugu)){
-        const iz=dolayli({alt:'gece-yoklugu',kisi:A,fark_eden:z.sec(h),zaman:t,mekan:d.kisi(A).ev,olay:c.id,gercek:{neden:'katil-disaridaydi'}});
+      if(h.length&&zt.olasilik(o.geceYoklugu)){
+        const iz=dolayli({alt:'gece-yoklugu',kisi:A,fark_eden:zt.sec(h),zaman:t,mekan:d.kisi(A).ev,olay:c.id,gercek:{neden:'katil-disaridaydi'}});
         kanit.push(iz.id);
       }
       // Aynı gece sırrı yüzünden dışarıda olan masumun boş yatağı da fark edilebilir.
       for(const X of d.ids){
         if(ilgili.includes(X)||!cz.canli(X,t)||!(cz.neden[X][t]||'').startsWith('sir:')) continue;
         const hx=evdekiler(X,t);
-        if(!hx.length||!z.olasilik(.3)) continue;
+        if(!hx.length||!zt.olasilik(.3)) continue;
         const sirId=cz.neden[X][t].slice(4);
         const ol=olayEkle({tur:'gizli-hareket',zaman:t,mekan:cz.yer[X][t],kisiler:[X],sir:{sahip:X,sir:sirId}});
-        const iz=dolayli({alt:'gece-yoklugu',kisi:X,fark_eden:z.sec(hx),zaman:t,mekan:d.kisi(X).ev,olay:ol.id,yaniltici:true,gercek:{neden:'gizli-isi-vardi'}});
+        const iz=dolayli({alt:'gece-yoklugu',kisi:X,fark_eden:zt.sec(hx),zaman:t,mekan:d.kisi(X).ev,olay:ol.id,yaniltici:true,gercek:{neden:'gizli-isi-vardi'}});
         yaniltici({izler:[iz.id],isaret:[X],aciklama:'gizli-isi-vardi',olay:ol.id,curutme:[{tur:'konum',kisi:X,zaman:t},{tur:'sir',sahip:X,sir:sirId}]});
       }
     }
-    if((c.yontem==='bicak'||c.yontem==='darbe')&&z.olasilik(o.kanliGiysi)){
-      const f=farkEden(A,t,t+D,[V],true);
+    // Çözülebilirlik (cinayet anına kadarki bilgiyle): katili gösteren iz hiç yoksa olay yerine bir iz daha düşer.
+    // Güçlü iz (fotoğraf ya da yüzden tanık) yoksa dikkatsiz katil bir iz daha bırakabilir: çoğu zaman birkaç kişide
+    // olan bir şey (lif, ayak izi), seyrek olarak tek sahipli bir eşya.
+    const guclu=()=>kanit.map(id=>izler.find(i=>i.id===id)).filter(i=>i.alt!=='gece-yoklugu'&&(i.tur!=='tanik'||i.kesinlik==='yuz')).length;
+    const birakilan=()=>izler.filter(i=>i.cinayet===c.id&&i.sahip===A&&i.esya).map(i=>i.esya);
+    if(guclu()<1&&z.olasilik(o.ekIz)){
+      const s=z.agirlikli(izSecenekleri(A,t,false,[...birakilan(),...(c.silah?[c.silah.esya]:[])]).filter(x=>!izler.some(i=>i.cinayet===c.id&&i.sahip===A&&i.anahtar===x.anahtar)));
+      if(s) kanit.push(katilIziEkle(A,s,'katil-birakti').id);
+    }
+    if(!kanit.length){const iz=katilIzi(A,'katil-birakti',true); if(iz) kanit.push(iz.id);}
+
+    // --- Dolaylı (sonradan fark edilen; cinayetten sonraki çizelgeye bakar) ---
+    if((c.yontem==='bicak'||c.yontem==='darbe')&&zd.olasilik(o.kanliGiysi)){
+      const f=farkEden(A,t,t+D,[V],true,V);
       if(f) kanit.push(dolayli({alt:'kanli-giysi',kisi:A,ortu:d.kisi(A).ortu,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'katilin-giysisi'}}).id);
     }
-    if(['bogma','suda-bogma','asma','itme'].includes(c.yontem)&&z.olasilik(o.tirmik)){
-      const f=farkEden(A,t,t+D,[V],true);
+    if(['bogma','suda-bogma','asma','itme'].includes(c.yontem)&&zd.olasilik(o.tirmik)){
+      const f=farkEden(A,t,t+D,[V],true,V);
       if(f) kanit.push(dolayli({alt:'tirmik',kisi:A,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'kurban-tirmaladi'}}).id);
     }
-    if(ki&&ki.iztur==='nesne'&&ki.esya){
-      const f=farkEden(A,t,t+2*D,[V],true);
-      if(f) kanit.push(dolayli({alt:'eksik-esya',kisi:A,esya:ki.esya,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'olay-yerinde-dusurdu'}}).id);
+    for(const iz of izler.filter(i=>i.cinayet===c.id&&i.tur==='fiziksel'&&i.alt==='esya'&&i.sahip===A&&i.iztur==='nesne'&&i.esya)){
+      const f=farkEden(A,t,t+2*D,[V],true,V);
+      if(f) kanit.push(dolayli({alt:'eksik-esya',kisi:A,esya:iz.esya,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:'olay-yerinde-dusurdu'}}).id);
     }
     if(kacanY){
       const Q=kt.kisi;
-      if(z.olasilik(.7)){
+      if(zd.olasilik(.7)){
         const f=farkEden(Q,t,t+D,ilgili);
         if(f) kacanY.izler.push(dolayli({alt:'yirtik-giysi',kisi:Q,ortu:d.kisi(Q).ortu,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:kt.olay,yaniltici:true,gercek:{neden:'saldiriya-ugradi'}}).id);
       }
@@ -234,51 +271,36 @@ export function izleriKur(d,z,cz,sonuc){
         }
       }
     }
-    // Çözülebilirlik: katile giden güçlü (az adaylı ya da yüzden) iz ikiden azsa olay yerinde başka izler kalır,
-    // giysideki kan ya da tırmık fark edilir. Eleğin "iki bağımsız zincir" kuralı için malzeme budur; zincirin
-    // gerçekten kurulup kurulmadığına çözücü karar verir.
-    const guclu=()=>kanit.map(id=>izler.find(i=>i.id===id)).filter(i=>i.alt!=='gece-yoklugu'&&(!i.adaylar||i.adaylar.length<=3)&&(i.tur!=='tanik'||i.kesinlik==='yuz')).length;
-    const birakilan=()=>izler.filter(i=>i.cinayet===c.id&&i.sahip===A&&i.esya).map(i=>i.esya);
-    for(let deneme=0;deneme<2&&guclu()<2;deneme++){
-      const s=z.agirlikli(izSecenekleri(A,t,false,[...birakilan(),...(c.silah?[c.silah.esya]:[])]).filter(x=>!izler.some(i=>i.cinayet===c.id&&i.sahip===A&&i.anahtar===x.anahtar)));
-      if(!s) break;
-      if(s.esya&&s.iztur==='nesne') durum(A,s.esya).kayip=t;
-      kanit.push(ekle({tur:'fiziksel',alt:'esya',anahtar:s.anahtar,iztur:s.iztur,esya:s.esya??null,ortu:s.ortu??null,sahip:A,adaylar:adaylar(s.anahtar),mekan:m,zaman:t,olay:c.id,gercek:{neden:'katil-birakti'}}).id);
-    }
-    if(guclu()<2){
-      const alt=(c.yontem==='bicak'||c.yontem==='darbe')?'kanli-giysi':['bogma','suda-bogma','asma','itme'].includes(c.yontem)?'tirmik':null;
-      if(alt&&!izler.some(i=>i.cinayet===c.id&&i.alt===alt)){
-        const f=farkEden(A,t,t+D,[V],true);
-        if(f) kanit.push(dolayli({alt,kisi:A,...(alt==='kanli-giysi'?{ortu:d.kisi(A).ortu}:{}),fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:c.id,gercek:{neden:alt==='tirmik'?'kurban-tirmaladi':'katilin-giysisi'}}).id);
-      }
-    }
-    if(!kanit.length) katilIzi(A,'katil-birakti',true);
   }
   return {izler,yanilticilar};
 }
 
 // Tamamlama: çözücünün iki bağımsız zincir bulamadığı katil için vakaya bir iz daha eklenir.
 // Sırayla denenir (bu cinayette henüz denenmemiş tür önce): ertesi gün giysisindeki kan ya da tırmık onu korumayacak
-// biri tarafından görülür, komşu mekândan biri yüzünü seçer, ya da olay yerine katilin bir izi daha düşer (dikkatsiz katil). Hepsi çizelgeye uyar (denetim aynı kuralları sınar).
+// biri tarafından görülür, komşu mekândan biri yüzünü seçer, ya da olay yerine katilin bir izi daha düşer (dikkatsiz katil;
+// çoğu zaman birkaç kişide olan bir iz, tek sahipli eşya en son). Hepsi çizelgeye uyar (denetim aynı kuralları sınar).
 // Döner: eklenen iz ya da null. vaka yerinde değişir (izler ve cinayetin iz listesi).
-export function izTamamla(vaka,cinayetId){
+// sonTur: tek sahipli eşya izi ancak son turda, başka hiçbir yol kalmamışsa eklenir.
+export function izTamamla(vaka,cinayetId,{sonTur=true}={}){
   const c=vaka.cinayetler.find(x=>x.id===cinayetId); if(!c) return null;
   const burada=vaka.izler.filter(i=>i.cinayet===c.id&&i.gercek.tamamlama);
   const turu=i=>i.tur;
   // Sorguyla bulunan izler önce: fotoğraftan tek başına çözülen vaka kolaylaşır.
   const sira=[['dolayli',dolayliTamamla],['fiziksel',fizikselTamamla],['tanik',tanikTamamla]];
-  sira.sort((a,b)=>burada.filter(i=>turu(i)===a[0]).length-burada.filter(i=>turu(i)===b[0]).length);
+  // Az denenmiş tür önce; eşitlikte sorguyla bulunan (dolaylı, tanık) fizikselden önce gelir.
+  const pay={dolayli:0,tanik:.3,fiziksel:1.6};
+  sira.sort((a,b)=>burada.filter(i=>turu(i)===a[0]).length+pay[a[0]]-burada.filter(i=>turu(i)===b[0]).length-pay[b[0]]);
   for(const [,f] of sira){const iz=f(vaka,c); if(iz) return iz;}
-  return null;
+  return sonTur?fizikselTamamla(vaka,c,true):null;
 }
-const yeniId=vaka=>'i'+(Math.max(0,...vaka.izler.map(i=>Number(i.id.slice(1))))+1);
+const yeniId=(vaka,c)=>{const n=izTabani(c.id)+90; let k=1; while(vaka.izler.some(i=>i.id==='i'+(n+k))) k++; return 'i'+(n+k);};
 const KORUYAN_T=['es','ebeveyn','cocuk','sevgili','sever','korur','dost','borclu','korkar','ortak'];
 const relOf=(vaka,a,b)=>vaka.iliskiler.filter(i=>i.kimden===a&&i.kime===b).map(i=>i.tur);
 const koruyanMi=(vaka,h,A)=>relOf(vaka,h,A).some(r=>KORUYAN_T.includes(r));
 
 // Olay yerine katilin bir izi daha: yalnızca gerçekten taşıdığı bir eşyadan ya da örtüsünden; nesne ya da silah
 // olabilen eşya vakada başka hiçbir yerde geçmemeli (kaybolan eşya geri gelmez). En ayırt edici iz seçilir.
-function fizikselTamamla(vaka,c){
+function fizikselTamamla(vaka,c,tekSahipliSerbest=false){
   const A=c.katil, k=vaka.kisiler[A];
   const adaySay={};
   for(const [id,x] of Object.entries(vaka.kisiler)){
@@ -296,10 +318,20 @@ function fizikselTamamla(vaka,c){
   }
   if(ORTU_IZ[k.ortu]&&!burada.some(i=>i.anahtar===ORTU_IZ[k.ortu])) l.push({esya:null,ortu:k.ortu,anahtar:ORTU_IZ[k.ortu],iztur:'lif'});
   if(!l.length) return null;
-  l.sort((a,b)=>adaySay[a.anahtar].size-adaySay[b.anahtar].size||(a.anahtar<b.anahtar?-1:1));
+  // Tercih: olay yerindeki başka bir izle kesişince yalnızca katilde buluşan iz (aba tiftiği ∩ çarık izi), sonra
+  // birkaç kişide olan iz (mazeretlerle daraltılır), sonra kalabalık; tek sahipli eşya en son.
+  const mevcut=burada.filter(i=>i.tur==='fiziksel'&&!i.yaniltici&&(i.adaylar||[]).includes(A)&&i.adaylar.length>1).map(i=>new Set(i.adaylar));
+  const tercih=x=>{
+    const C=adaySay[x.anahtar], n=C.size;
+    if(n===1) return 20;
+    if(mevcut.some(E=>[...C].filter(k=>E.has(k)).length===1)) return n/10;
+    return n<=4?n:4+n;
+  };
+  l.sort((a,b)=>tercih(a)-tercih(b)||(a.anahtar<b.anahtar?-1:1));
+  if(adaySay[l[0].anahtar].size===1&&!tekSahipliSerbest) return null; // tek sahipli eşyayı tamamlama eklemez
   const s=l[0];
   const iz={tur:'fiziksel',alt:'esya',anahtar:s.anahtar,iztur:s.iztur,esya:s.esya,ortu:s.ortu,sahip:A,adaylar:[...adaySay[s.anahtar]].sort(),
-    mekan:c.mekan,zaman:c.zaman,olay:c.id,gercek:{neden:'katil-birakti',tamamlama:true},id:yeniId(vaka),cinayet:c.id,yaniltici:false};
+    mekan:c.mekan,zaman:c.zaman,olay:c.id,gercek:{neden:'katil-birakti',tamamlama:true},id:yeniId(vaka,c),cinayet:c.id,yaniltici:false};
   vaka.izler.push(iz); c.izler.push(iz.id);
   return iz;
 }
@@ -317,7 +349,7 @@ function dolayliTamamla(vaka,c){
     const h=Object.keys(vaka.cizelge).sort().find(k=>k!==A&&k!==c.kurban&&vaka.cizelge[k][u]===mk&&!koruyanMi(vaka,k,A)&&vaka.kisiler[k].mizac!=='korkak'&&!zaten.has(k));
     if(!h) continue;
     const iz={tur:'dolayli',cinayet:c.id,alt,kisi:A,...(alt==='kanli-giysi'?{ortu:vaka.kisiler[A].ortu}:{}),fark_eden:h,zaman:u,mekan:mk,olay:c.id,
-      gercek:{neden:alt==='tirmik'?'kurban-tirmaladi':'katilin-giysisi',tamamlama:true},id:yeniId(vaka),yaniltici:false};
+      gercek:{neden:alt==='tirmik'?'kurban-tirmaladi':'katilin-giysisi',tamamlama:true},id:yeniId(vaka,c),yaniltici:false};
     vaka.izler.push(iz); c.izler.push(iz.id);
     return iz;
   }
@@ -336,7 +368,7 @@ function tanikTamamla(vaka,c){
   if(!l.length) return null;
   const W=l.find(k=>vaka.neden[k][t]!=='ev')||l[0];
   const iz={tur:'tanik',alt:'gordu',tanik:W,gorulen:A,kesinlik:'yuz',ortu:vaka.kisiler[A].ortu,nereden:vaka.cizelge[W][t],mekan:m,zaman:t,olay:c.id,
-    gercek:{neden:'gordu',tamamlama:true},id:yeniId(vaka),cinayet:c.id,yaniltici:false};
+    gercek:{neden:'gordu',tamamlama:true},id:yeniId(vaka,c),cinayet:c.id,yaniltici:false};
   vaka.izler.push(iz); c.izler.push(iz.id);
   return iz;
 }

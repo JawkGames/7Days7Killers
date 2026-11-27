@@ -27,6 +27,10 @@ function boyutla(){
 }
 
 /* ───────────── canlılık ───────────── */
+// Dışarıdan (oyun arayüzünden) sürülen tepki etkisi. Varsayılanlar etkisizdir: sahne eskisi gibi davranır.
+//   bakis: null ya da [x,y] (-1..1): göz kaçırma gibi zorla bakılan yön; imleci ve boşta bakışı ezer.
+//   kirpHiz: göz kırpma sıklığı çarpanı (gergin biri daha sık kırpar).
+export const sorguEtki={bakis:null,kirpHiz:1};
 const durum={imX:0,imY:0,imZaman:-99,hedefX:0,hedefY:0,sonrakiBakis:2,kirpBas:-9,sonrakiKirp:3,cift:false,kesinti:-9,sonrakiKesinti:4};
 function isaretci(e){
   const kx=gor.vw/2, ky=gor.vh-(OLCU.yukseklik-OLCU.kafaY)*gor.S;
@@ -36,7 +40,8 @@ function guncelle(t,dt){
   const R=Math.random;
   sozGuncelle(dt);
   // bakış: sizi izler; boşta gözünü neredeyse hiç kaçırmaz
-  if(t-durum.imZaman<2.5){durum.hedefX=durum.imX; durum.hedefY=durum.imY;}
+  if(sorguEtki.bakis){durum.hedefX=sorguEtki.bakis[0]; durum.hedefY=sorguEtki.bakis[1];}
+  else if(t-durum.imZaman<2.5){durum.hedefX=durum.imX; durum.hedefY=durum.imY;}
   else if(t>durum.sonrakiBakis){
     if(R()<.82){durum.hedefX=0; durum.hedefY=0; durum.sonrakiBakis=t+3+R()*5;}
     else{durum.hedefX=(R()-.5)*.8; durum.hedefY=(R()-.4)*.4; durum.sonrakiBakis=t+.35+R()*.6;}
@@ -45,7 +50,7 @@ function guncelle(t,dt){
   poz.gx+=(durum.hedefX-poz.gx)*hiz; poz.gy+=(durum.hedefY-poz.gy)*hiz;
   poz.hgx+=(durum.hedefX-poz.hgx)*agir; poz.hgy+=(durum.hedefY-poz.hgy)*agir;
   // seyrek göz kırpma
-  if(t>durum.sonrakiKirp){durum.kirpBas=t; durum.cift=R()<.12; durum.sonrakiKirp=t+4+R()*6;}
+  if(t>durum.sonrakiKirp){durum.kirpBas=t; durum.cift=R()<.12; durum.sonrakiKirp=t+(sorguEtki.kirpHiz===1?4+R()*6:(4+R()*6)/sorguEtki.kirpHiz);}
   let p=(t-durum.kirpBas)/.18, kapali=0;
   if(p>=0&&p<=1) kapali=Math.sin(p*Math.PI);
   else if(durum.cift){p=(t-durum.kirpBas-.27)/.18; if(p>=0&&p<=1) kapali=Math.sin(p*Math.PI);}
@@ -108,17 +113,27 @@ function ciz(t){
   kaplama(t);
 }
 
-let once=0;
+let once=0, kareNo=0, calisiyor=false, dinleniyor=false;
 function kare(ms){
+  if(!calisiyor) return;
   const t=ms/1000, dt=Math.min(.05,t-once||.016); once=t;
   if(cv.clientWidth!==gor.vw||cv.clientHeight!==gor.vh) boyutla(); // boyut olayı gelmese de yakala
   if(gor.hazir){guncelle(t,dt); ciz(t);}
-  requestAnimationFrame(kare);
+  kareNo=requestAnimationFrame(kare);
 }
-export function sorguOdasiBaslat(){
-  isaretciDinle(isaretci);
-  addEventListener('resize',boyutla);
-  kumOlustur(); boyutla(); girisBaslat();
+const boyutOlay=()=>{if(calisiyor) boyutla();}; // durmuşken ortak canvas başka sahnenindir: dokunma
+// Döngüyü başlatır (ya da durdurulmuşsa yeniden başlatır). Ön bellekler her başlangıçta yeniden kurulur,
+// çünkü ortak canvas ve `gor` arada başka bir sahnece değiştirilmiş olabilir.
+//   giris: false ise kapıdan giriş oynamaz, karakter doğrudan oturur (kayıttan dönüş için).
+export function sorguOdasiBaslat({giris:girisOynat=true}={}){
+  if(!dinleniyor){isaretciDinle(isaretci); addEventListener('resize',boyutOlay); dinleniyor=true;}
+  cancelAnimationFrame(kareNo); calisiyor=true;
+  kumOlustur(); boyutla();
+  if(girisOynat) girisBaslat();
+  else Object.assign(giris,{aktif:false,bas:null,d:0,ayakta:0,kapi:0,gorun:1,sal:0,zip:0,karart:0});
   if(gor.hazir){guncelle(0,.016); ciz(0);}
-  requestAnimationFrame(kare);
+  kareNo=requestAnimationFrame(kare);
 }
+// Döngüyü durdurur (başka sahneye geçerken). Dinleyiciler kalır ama durmuşken bir şey çizmez.
+export function sorguOdasiDurdur(){calisiyor=false; cancelAnimationFrame(kareNo);}
+export const sorguOdasiCalisiyor=()=>calisiyor;

@@ -24,7 +24,7 @@ export default {
       'kirmizi-yun-ipi':'kırmızı yün ipi', 'sari-yazma-parcasi':'sarı yazma parçası', 'mor-oya':'mor oya parçası',
       'boz-yun':'boz yün tutamı', 'kece-tuyu':'keçe tüyü', 'aba-tiftigi':'aba tiftiği', 'entari-parcasi':'entari parçası',
       'palto-kumasi':'palto kumaşı parçası', 'cubbe-kumasi':'cübbe kumaşı parçası', 'kaput-yunu':'kaput yünü', 'onluk-ipligi':'önlük ipliği',
-      'cizme-izi':'körüklü çizme izi', 'carik-izi':'yamalı çarık izi', 'unlu-ayak-izi':'unlu çarık izi', 'postal-izi':'kabaralı postal izi',
+      'cizme-izi':'çizme izi', 'carik-izi':'çarık izi', 'unlu-ayak-izi':'unlu çarık izi', 'postal-izi':'kabaralı postal izi',
       'baston-izi':'baston ucu izi', 'esek-izi':'eşek nalı izi',
       'mor-kalem-lekesi':'mor kopya kalemi lekesi', 'kurum-lekesi':'kurum lekesi', 'yesil-murekkep':'yeşil mürekkep lekesi',
       'gaz-damlasi':'gaz yağı damlası', 'gaz-yagi-lekesi':'gaz yağı lekesi',
@@ -71,6 +71,8 @@ export default {
     supheli:'şüpheli',
     temiz:'temiz',
     dongu:'({n}.\u00a0döngü)',
+    tedbirler:'Tedbirlerin',
+    tedbirSatiri:'{gun}.\u00a0gün akşamı: {metin}',
   },
 
   // ---- Tepki notları (ipucudur, kanıt değil) ----
@@ -165,6 +167,25 @@ export default {
     isaretlendi:'{kim} defterinde: {isaret}.',
     isaretKaldirildi:'{kim} için işaretini sildin.',
     oluKisi:'{kim} artık yok.',
+    // Gün sonu tedbiri (Rewind'in anlamı: geceyi değiştirebilirsin; günde bir).
+    tedbir:{
+      alikoy:'Tedbir: birini bu gece karakolda alıkoy',
+      uyar:'Tedbir: birini uyar, bu gece kapısını kimseye açmasın',
+      nobet:'Tedbir: bir yere bu gece jandarma nöbeti koy',
+    },
+    tedbirSoru:{alikoy:'Kimi alıkoyacaksın?',uyar:'Kimi uyaracaksın?',nobet:'Nereye nöbet koyacaksın?'},
+    tedbirSec:{alikoy:'Alıkoy: {kim}',uyar:'Uyar: {kim}',nobet:'Nöbet: {yer}'},
+    tedbirVazgec:'Vazgeç',
+    tedbirAlindi:{
+      alikoy:'Onbaşıya emri verdin: {kim} bu gece karakolda kalacak.',
+      uyar:'{kim:e} haber saldın: bu gece kapısını sürgülesin, kimseye açmasın.',
+      nobet:'Onbaşı bu gece {yer:de} nöbet tutacak.',
+    },
+    tedbirSonrasi:{
+      alikoy:'{kim} geceyi karakolda geçirdi; sabah salıverildi.',
+      uyar:'{kim} geceyi kapısı sürgülü geçirdi.',
+      nobet:'Onbaşı sabaha kadar {yer:de} nöbet tuttu.',
+    },
   },
 
   // ---- Son ----
@@ -173,11 +194,18 @@ export default {
     giris:'Yedi adı yazdın, kâğıdı onbaşıya verdin. Sabah jandarma yedi kapıyı çaldı.',
     kayipBaslik:'Götürülenlerin ardından',
     kayipSatiri:'{kim}: {sahne}',
-    kanit:[
-      'Evin bir köşesinde, kimsenin bakmadığı bir yerde katlanmış bir {ortu} duruyor; yeninde kurumuş kan.',
-      'Sandığın dibinde, bezlere sarılı bir şey var. Kimse açmıyor.',
-      'Ocağın külünde yarısı yanmış bir kumaş parçası.',
-    ],
+    // Götürülen herkesin evinde ikircikli bir ayrıntı (katilde de masumda da çıkar; oyun.js ayrintiSec).
+    ayrinti:{
+      kan:['Evin bir köşesinde katlanmış bir {ortu} duruyor; yeninde koyu bir leke var. Kan mı, pekmez mi, kimse yaklaşıp bakmıyor.','Eşikte kurumuş, kararmış bir leke. Kesilen tavuktan mı kalmış, kimse sormuyor.'],
+      sandik:['Sandığın dibinde, bezlere sarılı bir şey var. Kimse açmıyor.','Yüklükte, yorganların arkasına itilmiş bir bohça duruyor.'],
+      kul:['Ocağın külünde yarısı yanmış bir kumaş parçası.','Ocakta bu mevsimde yakılmaz bir ateşin külü var.'],
+      camur:['Kapının arkasında çamuru kurumamış bir çift çarık duruyor.','Avluda, kapıdan ahıra kadar giden çamurlu ayak izleri.'],
+      mektup:['Yastığın altında katlanmış bir kâğıt; evde okumayı bilen yok.','Duvardaki çerçevenin arkasından bir mektubun ucu görünüyor.'],
+      ip:['Ahırın kirişinde bir ip parçası sallanıyor.','Kapı tokmağına dolanmış, ucu kesilmiş bir urgan.'],
+      kilit:['Kilerin kapısı içeriden sürgülenmiş; anahtar bulunamıyor.','Sandığın kilidi yeni değiştirilmiş; eski kilit yerde duruyor.'],
+      yikanmis:['İpte tek bir giysi asılı, gece yarısı yıkanmış gibi.','Leğende suyu bulanık bir çamaşır bekliyor.'],
+      bos:['Evde her şey yerli yerinde. Yalnızca duvardaki çivi boş.','Kapının önündeki taş bir karış kaymış; altında toprak yeni.'],
+    },
     pencereBaslik:'Pencere',
     pencereGiris:'Pencereye yürüdün, aşağı baktın.',
     pencere:{
@@ -192,6 +220,8 @@ export default {
     // Gerçeğin anlatımında mutlak zaman: "üçüncü gece", "ikinci günün akşamı".
     zamanGece:'{sira} gece', zamanGunduz:{sabah:'{sira} günün sabahı',ogle:'{sira} günün öğle vakti',ikindi:'{sira} günün ikindisi',aksam:'{sira} günün akşamı'},
     yardimciSatiri:'{yardimci} ona yardım etti.',
+    yonelmeSatiri:'Aslında {eski:i} öldürecekti; sen önünü kesince ona yöneldi.',
+    engelSatiri:'{katil}, {kurban:i} öldürmeye hazırlanmıştı; senin tedbirin yüzünden fırsat bulamadı.',
     akibetBaslik:'Kaçanlar',
     akibet:[
       '{kim} o kış köyden ayrıldı. Antep\'te bir handa görüldüğü söylendi; sonra izi kayboldu.',

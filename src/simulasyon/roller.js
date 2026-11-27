@@ -105,7 +105,7 @@ export function sebepAdaylari(d){
 }
 
 // Bir çiftin sebeplerini ana sebep + ek sebepler biçimine indirir.
-function sebepOzet(c){
+export function sebepOzet(c){
   const l=[...c.sebepler].sort((a,b)=>b.agirlik-a.agirlik);
   return {tur:l[0].tur,agirlik:c.agirlik,kaynak:l[0].kaynak,ek:l.slice(1).map(s=>({tur:s.tur,kaynak:s.kaynak}))};
 }

@@ -13,8 +13,10 @@ export function vakaDenetle(v){
   const komsu=(a,b)=>(v.harita[a]||[]).includes(b);
 
   // Roller
-  const katiller=v.cinayetler.map(c=>c.katil), kurbanlar=v.cinayetler.map(c=>c.kurban);
-  if(v.cinayetler.length!==v.ayar.katilSayisi) e(`cinayet sayısı ${v.cinayetler.length}, beklenen ${v.ayar.katilSayisi}`);
+  const katiller=[...v.cinayetler.map(c=>c.katil),...(v.engellenen||[]).map(e=>e.katil)], kurbanlar=v.cinayetler.map(c=>c.kurban);
+  const engellenen=v.engellenen||[];
+  if(v.cinayetler.length+engellenen.length!==v.ayar.katilSayisi) e(`cinayet sayısı ${v.cinayetler.length} (+${engellenen.length} engellenen), beklenen ${v.ayar.katilSayisi}`);
+  if(new Set(v.katiller.map(k=>k.kisi)).size!==v.ayar.katilSayisi) e('katil listesi eksik ya da tekrarlı');
   if(new Set(katiller).size!==katiller.length) e('bir katil iki cinayet işlemiş');
   if(new Set(kurbanlar).size!==kurbanlar.length) e('bir kurban iki kez ölmüş');
   for(const k of kurbanlar) if(katiller.includes(k)) e(`${k} hem katil hem kurban`);
@@ -51,6 +53,7 @@ export function vakaDenetle(v){
   // Olaylar: içindeki herkes o anda oradadır
   for(const o of v.olaylar){
     if(o.cinayet&&!cin[o.cinayet]) e(`${o.id}: bilinmeyen cinayet ${o.cinayet}`);
+    if(!o.cinayet&&o.tur!=='hirsizlik'&&o.tur!=='ot-alma') e(`${o.id}: cinayetsiz olay`);
     for(const k of o.kisiler) if(cz[k][o.zaman]!==o.mekan) e(`${o.id} (${o.tur}): ${k} ${o.zaman} anında ${o.mekan}'de değil`);
   }
 

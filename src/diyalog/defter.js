@@ -11,6 +11,8 @@
 //   ifadeler:   [Ifade],
 //   celiskiler: [{id, a, b, konu, gun, dongu}],  // oyuncunun yan yana koyup tuttuğu çelişkiler
 //   isaretler:  {kisi: 'supheli'|'temiz'},
+//   gozlemler:  [{cinayet, gun, dongu}],         // isteğe bağlı: hangi döngüde hangi cinayetin fotoğrafı geldi
+//   tedbirler:  [{tur, kisi|mekan, gun, dongu}],  // isteğe bağlı: oyuncunun gün sonu tedbirleri (alıkoy, uyar, nöbet)
 // }
 // Ifade: {id:'f3', kisi, soru:{id, tur, ...}, olgu|null, iddialar:[Iddia], metin, tepki, gun, dongu}
 //
@@ -26,7 +28,8 @@
 //   {tur:'sir',    sahip, sir}                bir sır açıldı
 //   {tur:'sir-yok', sahip}                    "benim saklayacak bir şeyim yok"
 //   {tur:'dolayli', alt, kisi, zaman, esya?, ortu?, iz}
-//   {tur:'iliski', kisi, hedef, iliskiler}
+//   {tur:'iliski', kisi, hedef, iliskiler, kaynak?, dedikodu?}   kisi'nin hedefle ilişkisi (yan bilgide başkasından duyulan)
+//   {tur:'yonlendir', kisi, konu:{tur:'fark', cinayet}|{tur:'iz', iz}}  "bunu kisi bilir, ona sorun"
 //   {tur:'susar'} | {tur:'bilmez'}
 
 export const DEFTER_SURUMU=1;
@@ -42,6 +45,7 @@ export function defterSorunu(d){
   for(const a of ['cinayetler','izler','ifadeler','celiskiler']) if(!Array.isArray(d[a])) return a+' dizi değil';
   if(!d.isaretler||typeof d.isaretler!=='object') return 'işaretler nesne değil';
   if(!Number.isInteger(d.sayac)) return 'sayaç tam sayı değil';
+  for(const a of ['gozlemler','tedbirler']) if(d[a]!=null&&!Array.isArray(d[a])) return a+' dizi değil';
   return null;
 }
 
@@ -51,6 +55,17 @@ const kimlik=(d,on)=>({sayac:d.sayac+1,id:on+(d.sayac+1)});
 export function cinayetEkle(d,{id,kurban,mekan,zaman,bulan,fotografGunu},{gun,dongu}){
   if(d.cinayetler.some(c=>c.id===id)) return d;
   return {...d,cinayetler:[...d.cinayetler,{id,kurban,mekan,zaman,bulan,fotografGunu,gun,dongu}]};
+}
+
+// Bu döngüde bu cinayetin fotoğrafı geldi (aynı cinayet her döngüde yeniden görülür; Rewind'de neyin değiştiği buradan okunur).
+export function gozlemEkle(d,cinayet,{gun,dongu}){
+  const l=d.gozlemler||[];
+  if(l.some(x=>x.cinayet===cinayet&&x.dongu===dongu)) return d;
+  return {...d,gozlemler:[...l,{cinayet,gun,dongu}]};
+}
+// Gün sonu tedbiri: {tur, kisi|mekan, gun}.
+export function tedbirEkle(d,t,{dongu}){
+  return {...d,tedbirler:[...(d.tedbirler||[]),{...t,dongu}]};
 }
 
 export const izBulunduMu=(d,iz)=>d.izler.some(x=>x.iz===iz);

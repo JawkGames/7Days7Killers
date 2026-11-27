@@ -28,7 +28,7 @@ const NEDEN={'zincir-eksik':'bir katile iki bağımsız zincir yok','masum-zinci
   'cok-kolay':'çok kolay','cok-zor':'çok zor (sorgu hakkına sığmıyor)'};
 const t0=Date.now();
 let ilk=0, sonunda=0, denemeTop=0;
-const ilkNeden={}, ilkNedenVaka={}, sorguD={}, adimD={}, katil={}, yontem={}, silah={}, zincirTur={}, zincirSay={}, elenmeSay={};
+const tamamlama={}, ilkNeden={}, ilkNedenVaka={}, sorguD={}, adimD={}, katil={}, yontem={}, silah={}, zincirTur={}, zincirSay={}, elenmeSay={};
 const ornekler=[];
 for(let s=1;s<=N;s++){
   const v=vakaUret(s,koy);
@@ -43,9 +43,20 @@ for(let s=1;s<=N;s++){
   }
   say(sorguD,v.kalite.zorluk.sorgu); say(adimD,Math.floor(v.kalite.zorluk.adim/5)*5);
   for(const c of v.cinayetler){say(katil,c.katil); say(yontem,c.yontem); say(silah,c.silah?(c.silah.mekanAleti?'yerin aleti':c.silah.calinti?'çalıntı eşya':'kendi eşyası'):'silahsız');}
-  if(s<=200||ornekler.length<ORNEK){
+  for(const i of v.izler) if(i.gercek?.tamamlama) say(tamamlama,i.tur);
+  {
     const r=kaliteRaporu(v);
-    for(const k of r.katiller){say(zincirSay,Math.min(k.zincirSayisi,4)); for(const z of k.zincirler) if(k.bagimsiz.includes(z.id)) say(zincirTur,z.tur);}
+    for(const k of r.katiller){
+      say(zincirSay,Math.min(k.zincirSayisi,4));
+      for(const z of k.zincirler) if(k.bagimsiz.includes(z.id)){
+        let tur=z.tur;
+        if(tur==='iz'){
+          const isaret=r.cozum.cinayetler.find(c=>c.cinayet===k.cinayet).isaretler.find(i=>i.tur==='iz'&&i.iz===z.izler[0]);
+          tur=isaret&&isaret.adaylar.length===1?'iz (tek sahipli)':'iz (elemeyle)';
+        }
+        say(zincirTur,tur);
+      }
+    }
     if(ornekler.length<ORNEK&&r.gecti&&s%7===0) ornekler.push({s,v,r});
   }
 }
@@ -71,8 +82,9 @@ for(const [k,n] of sirala(yontem)) o+=`  ${k.padEnd(12)} ${yuzde(n,C).padStart(6
 o+=`SİLAH\n`;
 for(const [k,n] of sirala(silah)) o+=`  ${k.padEnd(14)} ${yuzde(n,C).padStart(6)}\n`;
 const zt=Object.values(zincirTur).reduce((a,b)=>a+b,0);
-o+=`\nBAĞIMSIZ ZİNCİR TÜRLERİ (ilk ${Math.min(N,200)} tohum)\n`;
-for(const [k,n] of sirala(zincirTur)) o+=`  ${k.padEnd(10)} ${yuzde(n,zt).padStart(6)}\n`;
+o+=`\nBAĞIMSIZ ZİNCİR TÜRLERİ (${N} tohum)\n`;
+for(const [k,n] of sirala(zincirTur)) o+=`  ${k.padEnd(18)} ${yuzde(n,zt).padStart(6)}\n`;
+o+=`TAMAMLAMA İZİ (vaka başına): ${sirala(tamamlama).map(([k,n])=>`${k} ${(n/N).toFixed(2)}`).join(', ')||'—'}\n`;
 o+=`KATİL BAŞINA BAĞIMSIZ ZİNCİR: ${Object.entries(zincirSay).sort().map(([k,n])=>`${k==='4'?'4+':k}: ${n}`).join(', ')}\n`;
 
 // Örnek çözümler

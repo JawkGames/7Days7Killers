@@ -688,6 +688,11 @@ export default {
       'Hem de yalnız değildi, yanında biri daha vardı; kimdi bilmem ama boylu poslu biriydi, köyden de değildi galiba! Sonra ikisi ayrıldı, {kim} etrafına bakına bakına gitti; ben anladım ki bunda bir iş var.',
       'Bir de şunu söyleyeyim beyim: {kim:in} o gece elinde bir bohça vardı, sabah yoktu! Bohçanın içinde ne vardı, nereye bıraktı, bunu da bir sorun bakalım; ben size söyledim ama benden duymuş olmayın.',
       'Hem de ne hâldeydi bilseniz! Saçı başı dağılmış, yüzü kireç gibi, sanki peşinde biri var. {kim:i} hiç öyle görmemiştim, otuz yıldır bu köydeyim.',
+      'Ayakkabısı da çamur içindeydi, oysa o gün yağmur yağmamıştı beyim; çamuru nereden buldu, kim bilir hangi dereden geçti. Bunu ben söylemiyorum, çamur söylüyor.',
+      'Bir de durmadan arkasına bakıyordu; insan evine giderken arkasına bakar mı? Bakmaz. {kim} baktı, hem de üç kere, ben saydım.',
+      'Gerçi ben yanılıyor olabilirim, gözlerim eskisi gibi değil; ama yürüyüşünden tanırım, {kim:in} yürüyüşü başkadır, sağ ayağını sürür. O gece de sürüyordu, hem de hızlı hızlı.',
+      'Elinde bir şey vardı, sarılı bir şey; ekmek desem değil, odun desem değil. Sordum, cevap vermedi, başını çevirdi gitti. Selamı bile almadı, ki {kim} selamsız geçmezdi.',
+      'O gece köpekler de bir tuhaf havladı beyim; {kim} geçerken sustular, sonra yine başladılar. Hayvan bilir, insandan iyi bilir.',
     ],
     sert:[
       'Telaşlıydı.',
@@ -1938,6 +1943,150 @@ export default {
   },
 
   // ---- Selam (sorguya girerken) ----
+  // ---- Yan bilgi: soruyu bilmeyen, bildiği başka bir şeyi söyler (cevap.js yanBilgi) ----
+  'yan-giris':{
+    degiskenler:[],
+    genel:[
+      'Ama size başka bir şey söyleyeyim.',
+      'Onu bilmem; ama bildiğim bir şey var.',
+      'Bilmem. Yalnız aklıma bir şey geldi.',
+    ],
+    korkak:[
+      'Bilmem... ama bir şey var...',
+      'Ben... başka bir şey biliyorum... belki...',
+    ],
+    dedikoducu:[
+      'Onu bilmem beyim, vallahi bilmem; ama madem sordunuz, size başka bir şey anlatayım ki bu köyde kimsenin aklına gelmez, ben de kimseye söylemedim, siz ilk duyan olursunuz.',
+      'Ah beyim, o konuda bir şey diyemem, yalan olur; ama durun, gitmeden şunu da dinleyin, belki işinize yarar belki yaramaz, ben söyleyeyim siz tartın.',
+    ],
+    sert:[
+      'Bilmem. Ama şu var.',
+      'Onu bilmem. Başkasını bilirim.',
+    ],
+    kurnaz:[
+      'Onu bilmem. Ama size bedava bir şey söyleyeyim.',
+      'Bilmediğimi söylemem beyim; bildiğimi söylerim.',
+    ],
+    saf:[
+      'Onu bilmem beyim. Ama başka bir şey biliyorum, söyleyeyim mi?',
+      'Bilmiyorum. Ama bildiğim bir şey var, onu söyleyeyim.',
+    ],
+  },
+  'yan-duyum':{
+    degiskenler:[],
+    genel:[
+      'Köyde bir laf dolaşıyor, kimden çıktı bilmem.',
+      'Duyduğuma göre, ama doğru mu bilmem:',
+    ],
+    korkak:[
+      'Duydum ki... ama benden duymadınız...',
+      'Bir laf var... kimden çıktı bilmem...',
+    ],
+    dedikoducu:[
+      'Bunu kimden duydum, şimdi hatırlamıyorum beyim; çeşme başında mıydı, bakkalın önünde mi, ama bütün köy fısır fısır bunu konuşuyor, siz de bilin.',
+      'Beyim, ben görmedim ama duydum; bu köyde laf rüzgâr gibi gezer, çoğu zaman nereden estiği bellidir, gerçi bu sefer ben de bilmiyorum.',
+    ],
+    sert:[
+      'Laf dolaşıyor.',
+      'Duydum. Doğru mu, bilmem.',
+    ],
+  },
+  'yan-kavga':{
+    degiskenler:['kim','diger'],
+    genel:[
+      '{kim:in} {diger:le} arası hiç iyi değildi.',
+      '{kim} ile {diger} kanlı bıçaklıydı, herkes bilir.',
+    ],
+    korkak:[
+      '{kim}... {diger:le} kavgalıydı... galiba.',
+      '{kim:in} {diger:le} arası... bozuktu...',
+    ],
+    dedikoducu:[
+      '{kim:in} {diger:le} arası çoktandır bozuk beyim; geçen bayram köy odasının önünde öyle bir bağırıştılar ki imam araya girdi, yoksa kan çıkacaktı. O günden beri selam bile vermezler.',
+      'Bakın, {kim} ile {diger} yıllardır düşman; tarla meselesi mi, eski bir laf mı, kimse tam bilmez ama ikisi aynı yolda yürümez. Biri sağdan giderse öbürü soldan gider.',
+    ],
+    sert:[
+      '{kim} ile {diger} kavgalıydı.',
+      '{kim:in} {diger:le} arası bozuk.',
+    ],
+  },
+  'yan-borc':{
+    degiskenler:['kim','diger'],
+    genel:[
+      '{kim:in} {diger:e} borcu vardı, ödeyemiyordu.',
+      '{kim}, {diger:e} borçluydu; bunu bilen bilir.',
+    ],
+    korkak:[
+      '{kim}... {diger:e} borçluydu... öyle duydum...',
+      'Borç meselesi var... {kim} ile {diger} arasında...',
+    ],
+    dedikoducu:[
+      '{kim:in} {diger:e} borcu boğazına kadar beyim; tarla için almış, ödeyemedi, üstüne bindi, şimdi kapısının önünden geçerken başını yere eğiyor. Bunu bilmeyen yok ama kimse yüksek sesle söylemez.',
+      'Size bir şey söyleyeyim: {kim}, {diger:e} öyle bir borçlu ki hasat da kurtarmaz; geçen ay ikisi bakkalın önünde konuşurken ben oradaydım, sesleri yükseldi, sonra {kim} başını öne eğip gitti.',
+    ],
+    sert:[
+      '{kim}, {diger:e} borçluydu.',
+      '{kim:in} {diger:e} borcu var.',
+    ],
+  },
+  'yan-korku':{
+    degiskenler:['kim','diger'],
+    genel:[
+      '{kim}, {diger:den} korkardı; yüzüne bakamazdı.',
+      '{kim} ile {diger} arasında bir korku vardı; {kim} hep çekinirdi.',
+    ],
+    korkak:[
+      '{kim}... {diger:den} korkardı... benim gibi...',
+      '{kim}... çekinirdi... {diger:den}...',
+    ],
+    dedikoducu:[
+      '{kim} beyim, {diger:den} ödü kopardı; {diger} köy odasına girdi mi {kim} bir bahane bulup çıkar giderdi. Neden korkardı, ne biliyordu, orasını ben söyleyemem ama göz gördüğünü saklamaz.',
+      'Bunu herkes görür: {kim}, {diger} karşısında küçülür, sesi titrer. Bir keresinde çeşme başında {diger} ona bir şey fısıldadı, {kim:in} rengi attı; o gün bu gündür ikisi yan yana gelmez.',
+    ],
+    sert:[
+      '{kim}, {diger:den} korkardı.',
+      '{kim} çekinirdi. Hem de çok.',
+    ],
+  },
+  'yan-yonlendir-fark':{
+    degiskenler:['kim'],
+    genel:[
+      '{kim} bir şey görmüş, bana öyle dedi; başkasına söylemedi. Ona sorun.',
+      'Siz {kim:e} sorun; o günlerde bir şey gözüne çarpmış.',
+    ],
+    korkak:[
+      '{kim:e} sorun... o bir şey gördü...',
+      '{kim}... bir şey demişti... ona sorun...',
+    ],
+    dedikoducu:[
+      'Beyim, ben görmedim ama {kim} gördü; geçen akşam bana fısıldadı, kimseye söyleme dedi, ben de söylemedim, size söylüyorum çünkü siz devletsiniz. Onu çağırın, ama benden duyduğunuzu söylemeyin.',
+      'Size bir yol göstereyim: {kim:e} sorun. O sabah bir şey gördü, yüzü bembeyaz oldu, ama korkudan kimseye açmadı; bana bile yarım ağızla anlattı.',
+    ],
+    sert:[
+      '{kim:e} sorun. O gördü.',
+      '{kim} bir şey gördü. Ona sor.',
+    ],
+  },
+  'yan-yonlendir-iz':{
+    degiskenler:['kim','esya'],
+    genel:[
+      'Bu {esya} kimin, ben bilmem; {kim} bilir, onun gözünden bir şey kaçmaz.',
+      'Bunu soracaksanız {kim:e} sorun.',
+    ],
+    korkak:[
+      '{kim:e} sorun... o bilir...',
+      'Ben bilmem... {kim} bilir belki...',
+    ],
+    dedikoducu:[
+      'Bu {esya} kimin, vallahi şimdi çıkaramadım beyim; ama {kim:e} sorun, o köyde kimin evinde ne var, kim neyi nereye koymuş, hepsini bilir. Benden bile iyi bilir, düşünün artık.',
+      'Ah beyim, ben bunu bir yerde gördüm ama nerede, kimde, aklıma gelmiyor; {kim} bilir ama, onun evi herkesin evine yakın, gözü de keskindir.',
+    ],
+    sert:[
+      '{kim} bilir. Ona sor.',
+      'Bilmem. {kim:e} sor.',
+    ],
+  },
+
   'selam':{
     degiskenler:[],
     genel:[

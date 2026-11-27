@@ -2,7 +2,8 @@
 // İçerik (kişi, sır, eşya) veri dosyalarındadır; burada yalnızca o verinin nasıl okunacağı durur.
 // Tabloda karşılığı olmayan yeni bir eşya ya da sır türü hata vermez, güvenli varsayılan alır.
 
-// Eşya → olay yerinde bıraktığı iz.
+// Eşya → olay yerinde bıraktığı iz. Birbirine benzeyen izler aynı anahtarı paylaşır (çizme ile postal, iki çarık,
+// fener ile lamba): köyde birkaç kişiyi gösteren iz, tek sahipli eşyadan daha çoktur.
 //   iz: izin anahtarı (aynı anahtarı bırakan herkes o izin adayıdır: kırmızı yün Elif'te de Gülsüm'de de var)
 //   tur: ayak-izi | lif | kirinti | leke | nesne
 //   silah: eşya silah olarak kullanılabiliyorsa yöntem
@@ -17,7 +18,7 @@ export const ESYA={
   'boyun-cingiragi':{iz:'cingirak',tur:'nesne'},
   'teneke-masrapa':{iz:'masrapa',tur:'nesne'},
   'sedef-cakmak':{iz:'cakmak',tur:'nesne'},
-  'koruklu-cizme':{iz:'cizme-izi',tur:'ayak-izi'},
+  'koruklu-cizme':{iz:'cizme-izi',tur:'ayak-izi'}, // çamurda çizmeyle postal ayırt edilmez
   'muhtar-muhru':{iz:'muhur',tur:'nesne'},
   'kasket':{iz:'kasket',tur:'nesne'},
   'kirmizi-hirka':{iz:'kirmizi-yun-ipi',tur:'lif'},
@@ -37,8 +38,8 @@ export const ESYA={
   'orak':{iz:'orak',tur:'nesne',silah:'bicak',yer:'is'},
   'yamali-carik':{iz:'carik-izi',tur:'ayak-izi'},
   'kirbac':{iz:'kirbac',tur:'nesne',silah:'bogma',yer:'is'},
-  'el-feneri':{iz:'gaz-damlasi',tur:'leke'},
-  'unlu-carik':{iz:'unlu-ayak-izi',tur:'ayak-izi'},
+  'el-feneri':{iz:'gaz-yagi-lekesi',tur:'leke'}, // feneri de lambayı da gazyağı lekesi gösterir
+  'unlu-carik':{iz:'carik-izi',tur:'ayak-izi'}, // gece çamurunda unu seçilmez: çarık izi
   'raki-sisesi':{iz:'raki-sisesi',tur:'nesne',silah:'darbe',yer:'is'}, // sarhoş değirmencinin şişesi
   'gumus-saat':{iz:'cep-saati',tur:'nesne'},
   'kehribar-tespih':{iz:'tespih-tanesi',tur:'nesne'},
@@ -53,7 +54,7 @@ export const ESYA={
   'yun-sal':{iz:'boz-yun',tur:'lif'},
   'gaz-lambasi':{iz:'gaz-yagi-lekesi',tur:'leke'},
   'asker-kaputu':{iz:'asker-dugmesi',tur:'nesne'},
-  'asker-postali':{iz:'postal-izi',tur:'ayak-izi'},
+  'asker-postali':{iz:'cizme-izi',tur:'ayak-izi'},
   'burma-bilezik':{iz:'bilezik',tur:'nesne'},
   'anahtar-destesi':{iz:'anahtar',tur:'nesne'},
 };

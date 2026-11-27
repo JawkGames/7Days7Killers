@@ -24,6 +24,7 @@ export function cizelgeKur(d){
       yer[k][t]=m; neden[k][t]=n; if(kilitle) kilit[k][t]=true;
     },
     kilitle(k,t){kilit[k][t]=true;},
+    kilitAc(k,t){kilit[k][t]=false;},
     kilitli:(k,t)=>kilit[k][t],
     bos:(k,t)=>t>=0&&t<T&&!kilit[k][t]&&yer[k][t]!==null, // canlı ve oynatılabilir
     canli:(k,t)=>t>=0&&t<T&&yer[k][t]!==null,

@@ -16,7 +16,7 @@
 //   iliski    "Hacı Ağa'yla aran nasıldı?"
 //   yuzlesme  "Demirci seni değirmende görmüş."                (yalnızca oyuncunun yakaladığı çelişkilerden)
 //
-// kamu: {dilimler, sorguZamani, kisiler:{id:{ev, ortu}}, canli(id, t):boolean, izler:{izId:{ad, cinayet, sorulabilir, ortu?}}}
+// kamu: {dilimler, sorguZamani, kisiler:{id:{ev, ortu}}, canli(id, t):boolean, izler:{izId:{ad, cinayet, sorulabilir, ortu?}}, cinayetler?:Set}
 // (kamu yalnızca herkesin bildiğini taşır: oyun katmanı vakadan kurar, gerçeği koymaz.)
 
 import {doldur} from './kalip.js';
@@ -75,7 +75,8 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
   const kd=id=>kisiDeger(id,dil);
   const Kev=kamu.kisiler[K].ev;
   const {cinayet:cinAnlari,diger:digerAnlar}=bilinenAnlar(defter,S);
-  const cinayetler=defter.cinayetler.filter(c=>c.zaman<S).sort((a,b)=>b.zaman-a.zaman);
+  // kamu.cinayetler: bu zaman çizgisinde gerçekten işlenmiş cinayetler (müdahaleyle önlenen sorulmaz).
+  const cinayetler=defter.cinayetler.filter(c=>c.zaman<S&&(!kamu.cinayetler||kamu.cinayetler.has(c.id))).sort((a,b)=>b.zaman-a.zaman);
   const supheliler=Object.entries(defter.isaretler).filter(([,v])=>v==='supheli').map(([k])=>k);
   const evHalki=Object.keys(kamu.kisiler).filter(x=>x!==K&&kamu.kisiler[x].ev===Kev);
 
@@ -169,5 +170,12 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
   const nk=acikSirlar.filter(x=>x.sahip===K).length;
   ekle({id:'sir-kendi'+(nk?'#'+nk:''),tur:'sir-kendi'},'sir-kendi',{},34);
 
+  // "Kime sorulmalı": başkasının bu kişiyi gösterdiği konu (yönlendirme) öne çıkar.
+  for(const f of defter.ifadeler) for(const i of f.iddialar||[]){
+    if(i.tur!=='yonlendir'||i.kisi!==K||!i.konu) continue;
+    const id=i.konu.tur==='fark'?'fark:'+i.konu.cinayet:i.konu.tur==='iz'?'iz:'+i.konu.iz:null;
+    const q=out.find(x=>x.id===id);
+    if(q) q.oncelik=Math.max(q.oncelik,95);
+  }
   return out.sort(sirala);
 }

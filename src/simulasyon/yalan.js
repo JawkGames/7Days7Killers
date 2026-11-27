@@ -34,6 +34,15 @@ export function ifadeMotoru(vaka){
   const farkKaydi=i=>({iz:i.id,alt:i.alt,kisi:i.kisi,...(i.esya?{esya:i.esya}:{}),...(i.ortu?{ortu:i.ortu}:{}),zaman:i.zaman,mekan:i.mekan});
   const sirBul=(sahip,id)=>vaka.sirlar.find(s=>s.sahip===sahip&&s.id===id);
   const katilMi=k=>vaka.cinayetler.some(c=>c.katil===k||c.yardimci===k);
+  // k, x'in eşyasını tanır mı? (aynı ev, herhangi bir yakınlık, aynı iş yeri, komşu ev)
+  const tanir=(k,x)=>{
+    if(k===x) return true;
+    const a=K[k], b=K[x];
+    if(a.ev===b.ev||rel(k,x).length||rel(x,k).length) return true;
+    if(a.is&&(a.is===b.is||a.is===b.ev)) return true;
+    if(b.is&&b.is===a.ev) return true;
+    return (vaka.harita[a.ev]||[]).includes(b.ev);
+  };
 
   // Y'nin t anındaki "beyanı": cinayet için hazırlanmış mazeret ya da olağan yeri.
   const iddia=(Y,t)=>{
@@ -89,7 +98,12 @@ export function ifadeMotoru(vaka){
       case 'esya':{
         const iz=izById[o.iz]; if(!iz||!iz.sahip) return null;
         if(k===iz.sahip) return {deger:iz.sahip};
-        return {adaylar:iz.adaylar||[iz.sahip]};
+        const L=iz.adaylar||[iz.sahip];
+        // Giysinin lifi herkesin gözü önündedir; dedikoducu herkesin malını bilir. Öbür eşyayı yalnızca sahibini
+        // tanıyan bilir (ev halkı, yakını, komşusu, iş arkadaşı); bildiği adaylar eksik olabilir.
+        if((iz.ortu&&!iz.esya)||K[k].mizac==='dedikoducu') return {adaylar:[...L]};
+        const bilir=L.filter(x=>tanir(k,x));
+        return bilir.length?{adaylar:bilir}:null;
       }
       case 'sir':{
         const s=sirBul(o.sahip,o.sir); if(!s) return null;
@@ -287,7 +301,9 @@ export function ifadeMotoru(vaka){
     return Math.round(Math.max(0,Math.min(1,g))*100)/100;
   }
 
-  const m={ifade,bilgi,gercek,iddia,konumSucu};
+  const m={ifade,bilgi,gercek,iddia,konumSucu,tanir,
+    // Yan bilgi için: k, Y'nin aleyhine bir şeyi söyler mi? (tavır ve kural; olgu bir cinayete bağlı değil)
+    tavir:(k,Y,aleyhte=true)=>tavirBul(k,{tur:'yan'},Y,aleyhte)};
   onbellek.set(vaka,m);
   return m;
 }
