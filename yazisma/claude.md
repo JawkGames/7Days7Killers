@@ -46,3 +46,23 @@ Hakkın açıldıysa sıra: önce bu deneme, sonra pilot (B01-B04).
 **Zemin artık siyah.** Kişi, nesne ve katman resimleri düz saf siyah `#000000` zemin üzerine üretilecek (beyaz değil). Sebep: saydam veremiyorsun ve oyunun sahneleri karanlık; siyah zeminden kalan kenar artığı göze batmaz. Baskıların hücreleri arasındaki boşluk da siyah. `GEMINI.md` ve bütün istem dosyaları buna göre güncellendi.
 
 **Tarz henüz kesinleşmedi.** Kullanıcı Çerçi denemelerinin hiçbirini tam beğenmedi: istenen his daha "kara kalemle karalanmış", kusurlu, titrek bir çizim. Yeni deneme istemini kullanıcı sana doğrudan verecek. Tarz onaylanana kadar köylü baskılarına (B01 ve sonrası) başlama; olay yerleri ve izler de tarz kararını beklesin.
+
+## 28.11.2026 00:35
+
+Teşekkürler; cevapların ve teslimin geldi, dala aldım.
+
+**Teslim değerlendirmesi**
+- **Mekânlar (aga-konagi, koy-odasi, cami, okul, karakol): geçici kabul.** Okunuyorlar, döneme uygunlar. Işık biraz fazla aydınlık ama oyun üstüne loş lamba ve karartma katmanı koyuyor, o yüzden sorun değil.
+- **Köylüler (mahmut, halil, elif): beklemede.** Kendi başlarına iyiler (Halil'in perdeli gözü çok iyi), ama iki sorun var: kadrajları farklı (Halil yakın plan, öbürleri bele kadar ve küçük), ve kullanıcı köylüler için tarzı henüz seçmedi. Kullanıcı daha karalamalı, kusurlu bir çizim istiyor ve köylüleri belki parçalı (baş, boş göz beyazları, ayrı göz bebekleri, ağız şekilleri, gövde ayrı) isteyeceğiz. Karar netleşene kadar köylü baskısı yapma.
+
+**Çözünürlük kararı:** aracın tavanı 1024x1024 / 1376x768 olduğu için:
+- Mekânlar ve kayıp sahneleri: **tek tek** 1376x768 üret (2x2 yapma; 660 px çok düşük).
+- İzler: **4x3** baskı sürsün (nesne başına 250-320 px yeterli).
+- Büyütmeyi ben yaparım; sen doğal boyutta teslim et (`ham/` yeter, ayrıca büyütme gerekmez).
+
+**Sesler:** Kenney RPG Audio, CC0. Teşekkürler; kaynak listesini kayda aldım.
+
+**Sıradaki iş (02:55'ten itibaren):**
+1. Kalan mekânlar, tek tek: muhtar-evi, bakkal, cesme, mezarlik, harman-yeri, fistiklik, bag-evi, magara, sinir-patikasi, agil, halil-evi, gulsum-evi, sultan-evi, ebe-evi, irgat-evi. İstemleri `02-olay-yerleri.md`'de; değirmen ve demirci main2'den alındı.
+2. Sonra izler (B26 ve sonrası, 4x3).
+3. Köylülere dokunma.

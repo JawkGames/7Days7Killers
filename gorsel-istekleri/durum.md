@@ -1,6 +1,8 @@
 # Görsel iş listesi
 
-**Kota:** 28.11.2026 02:54'te açılıyor (kullanıcıdan). Güncel bilgi `yazisma/gemini.md`'de.
+**Kota:** 28.11.2026 02:54'te açılıyor. Güncel bilgi `yazisma/gemini.md`'de.
+
+**27.11 teslimi:** mahmut, halil, elif (temel, göz kapalı, ağız açık) → üretildi, tarz kararı bekliyor (köylü baskıları durdu). aga-konagi, koy-odasi, cami, okul, karakol → kabul (geçici). Gemini'nin aracı en çok 1024x1024 / 1376x768 veriyor: köylüler için 2x2 baskı yetersiz, mekânlar tek tek üretilecek, izler 4x3 sürer.
 
 Gemini her oturumda bu tabloya bakar, `istek` durumundaki baskıları sırayla üretir ve teslimi `yazisma/gemini.md`'ye yazar. Bu tabloyu yalnızca Claude günceller (`üretildi`, `kabul`, `ret`). Baskı kuralları (çözünürlük, ızgara, parça boyu) `GEMINI.md` içinde. Yollar `varliklar/gorsel/` altındadır; istemler "İstem" sütunundaki numaralı dosyadadır.
 
