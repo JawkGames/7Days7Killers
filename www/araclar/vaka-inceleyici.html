@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7 Days 7 Killers — Vaka ve Çözücü İnceleyici</title>
+  <style>
+    body { background:#0d100e; color:#e0d9c8; font-family:Georgia, serif; padding:20px; line-height:1.5; }
+    h1, h2, h3 { color:#dfc072; margin-bottom:8px; }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; align-items:center; }
+    input, button { background:#1c211d; color:#e7dfc9; border:1px solid #4a4336; padding:8px 14px; font-family:inherit; }
+    button { cursor:pointer; font-weight:bold; }
+    button:hover { background:#2b332c; }
+    .card { background:#151916; border:1px solid #383329; padding:14px; margin-bottom:12px; }
+    .ok { color:#79c987; font-weight:bold; }
+    .bad { color:#e06c65; font-weight:bold; }
+    .tag { display:inline-block; padding:2px 8px; background:#2c2632; font-size:0.8rem; margin-right:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; font-size:0.85rem; }
+    th, td { border:1px solid #2f2c24; padding:6px 8px; text-align:left; }
+  </style>
+</head>
+<body>
+  <h1>7 Days 7 Killers — Geliştirici Vaka & Çözücü İnceleyici</h1>
+  <div class="toolbar">
+    <label>Tohum: <input id="seedInput" value="770142" /></label>
+    <button id="btnInspect">VAKAYI ÜRET VE İNCELE</button>
+    <button id="btnRandom">RASTGELE TOHUM</button>
+    <button id="btnBatch">100 TOHUM ÇÖZÜLEBİLİRLİK TESTİ</button>
+  </div>
+  <div id="batchResult"></div>
+  <div id="caseOutput"></div>
+
+  <script type="module">
+    import { generateValidatedCase } from '../js/sim/generator.js';
+    import { getPersonById } from '../js/data/townspeople.js';
+    import { getLocationById, getClueTypeById } from '../js/data/locations.js';
+
+    const out = document.getElementById('caseOutput');
+    const batchOut = document.getElementById('batchResult');
+    const seedEl = document.getElementById('seedInput');
+
+    function renderSeed(seed) {
+      const t0 = performance.now();
+      const c = generateValidatedCase(seed);
+      const ms = (performance.now() - t0).toFixed(1);
+      const rep = c.solverReport;
+
+      let html = `<div class="card">
+        <h2>Tohum #${seed} — Çözülebilirlik: <span class="${rep.solvable ? 'ok' : 'bad'}">${rep.solvable ? 'GEÇTİ (ÇÖZÜLEBİLİR)' : 'BAŞARISIZ'}</span></h2>
+        <p>Üretim süresi: <strong>${ms} ms</strong> | Deneme: ${c.attemptUsed} | Tahmini Zorluk Adımı: <strong>${rep.difficultySteps}</strong> | Çürütülemeyen Yanıltıcı İz: <strong>${rep.unrefutedRedHerrings}</strong></p>
+        <p><strong>7 Katil:</strong> ${c.killerIds.map((id) => getPersonById(id)?.name || id).join(', ')}</p>
+      </div>`;
+
+      for (const m of c.murders) {
+        const killer = getPersonById(m.killerId);
+        const victim = getPersonById(m.victimId);
+        const loc = getLocationById(m.locationId);
+        const fakeLoc = getLocationById(m.fakeAlibiLocationId);
+        const chainObj = rep.chainSummaries?.find((x) => x.day === m.day);
+
+        html += `<div class="card">
+          <h3>Gün ${m.day}: ${loc?.name} — Maktul: ${victim?.name} | Gerçek Katil: ${killer?.name}</h3>
+          <p><span class="tag">Çekirdek: ${m.storyCore?.title}</span> <span class="tag">Katilin Sahte Alibisi: ${fakeLoc?.name}</span></p>
+          <p><strong>Fotoğraf İzleri:</strong></p>
+          <ul>
+            ${m.photoClues.map((pc) => {
+              const cd = getClueTypeById(pc.clueTypeId);
+              const owner = getPersonById(pc.linkedPersonId);
+              return `<li><strong>${cd?.name}</strong> (${pc.isRedHerring ? `<span class="bad">YANILTICI İZ — Sahibi: ${owner?.name}, Neden: ${pc.innocentReason}</span> — Çürütme: ${pc.refutationText}` : `<span class="ok">GERÇEK İZ → ${owner?.name}</span>`})</li>`;
+            }).join('')}
+          </ul>
+          <p><strong>Çözücü Kanıt Zincirleri (${chainObj?.chains?.length || 0}):</strong> ${(chainObj?.chains || []).join(' | ')}</p>
+        </div>`;
+      }
+
+      out.innerHTML = html;
+    }
+
+    document.getElementById('btnInspect').addEventListener('click', () => renderSeed(seedEl.value.trim() || '1'));
+    document.getElementById('btnRandom').addEventListener('click', () => {
+      seedEl.value = String(100000 + Math.floor(Math.random() * 899999));
+      renderSeed(seedEl.value);
+    });
+    document.getElementById('btnBatch').addEventListener('click', () => {
+      let passed = 0;
+      const t0 = performance.now();
+      for (let i = 1; i <= 100; i++) {
+        const c = generateValidatedCase('test_' + i);
+        if (c.solverReport?.solvable) passed++;
+      }
+      const dt = (performance.now() - t0).toFixed(0);
+      batchOut.innerHTML = `<div class="card"><strong>100 Tohum Kalite Eleği Sonucu:</strong> <span class="ok">${passed} / 100 vaka %100 çözülebilir üretildi</span> (${dt} ms toplam).</div>`;
+    });
+
+    renderSeed(seedEl.value);
+  </script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0e0c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>7 Days 7 Killers</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app" class="app-root">
+    <!-- Katmanlı Sorgu Odası Ana Sahnesi -->
+    <canvas id="sceneCanvas" class="scene-canvas"></canvas>
+
+    <!-- Yükleme Ekranı -->
+    <div id="loadingOverlay" class="loading-overlay">
+      <div class="loading-box">
+        <h1 class="noir-title">7 DAYS 7 KILLERS</h1>
+        <p id="loadingStatus" class="loading-status">Kasaba dosyası ve görseller hazırlanıyor...</p>
+        <div class="loading-bar-track">
+          <div id="loadingBarFill" class="loading-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Üst Bilgi ve Kontroller -->
+    <header class="hud-top">
+      <div class="hud-left">
+        <div class="day-badge">
+          <span id="hudDayLabel">GÜN 1 / 7</span>
+          <span id="hudLoopBadge" class="loop-pill hidden">DÖNGÜ 1</span>
+        </div>
+        <div class="summon-badge">
+          <span id="hudSummonsLabel">SORGU HAKKI: 4</span>
+        </div>
+        <div id="hudSeedBadge" class="seed-badge" title="Tohum numarası (Yeni Vaka için tıkla)">TOHUM: #----</div>
+      </div>
+
+      <!-- Sağ Üst Köşe İkonlar + Tarayıcı Tam Ekran Butonu (Uygulamada otomatik gizlenir) -->
+      <div class="hud-right">
+        <div class="hud-action-group">
+          <button id="btnAudioToggle" class="img-square-btn" title="Ses Aç / Kapat" aria-label="Ses">
+            <span id="audioIcon">🔊</span>
+          </button>
+          <button id="btnNewSeed" class="img-square-btn" title="Yeni Vaka / Tohum Seç" aria-label="Yeni Vaka">
+            <span>🎲</span>
+          </button>
+        </div>
+        <!-- Global Kural #2: Sağ üst köşede, üst göstergenin hemen altında yalnızca tarayıcıda görünen Tam Ekran butonu -->
+        <button id="btnFullscreen" class="img-square-btn fullscreen-btn" title="Tam Ekran (Yatay)" aria-label="Tam Ekran">
+          <span>⛶</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sol Alt Masaüstü Kısayol: Olay Yeri Fotoğrafları (Polaroid Yığını) -->
+    <div class="desk-hotbar">
+      <button id="btnOpenPhotos" class="img-plate-btn">
+        <span id="lblOpenPhotos">OLAY YERİ FOTOĞRAFLARI (1)</span>
+      </button>
+      <button id="btnOpenSummon" class="img-plate-btn">
+        <span id="lblOpenSummon">ŞÜPHELİ ÇAĞIR (20)</span>
+      </button>
+      <button id="btnOpenNotebook" class="img-plate-btn">
+        <span id="lblOpenNotebook">DEDEKTİF DEFTERİ</span>
+      </button>
+      <button id="btnNextDay" class="img-plate-btn blood-plate">
+        <span id="lblNextDay">GÜNÜ BİTİR (GECEYE GEÇ)</span>
+      </button>
+    </div>
+
+    <!-- Sorgu Alt Yazı ve Soru Paneli (Şüpheli masadayken aktif) -->
+    <section id="interrogationHud" class="interrogation-hud hidden">
+      <div class="suspect-nameplate">
+        <span id="activeSuspectName">—</span>
+        <span id="activeSuspectTitle" class="suspect-role">—</span>
+        <div class="suspect-quick-marks">
+          <button id="btnMarkKiller" class="mark-chip mark-killer" title="Defterde Katil Şüphesi İşaretle">KATİL?</button>
+          <button id="btnMarkCleared" class="mark-chip mark-cleared" title="Defterde Temiz İşaretle">TEMİZ</button>
+          <button id="btnDismissSuspect" class="mark-chip mark-dismiss" title="Şüpheliyi Gönder">GÖNDER ✕</button>
+        </div>
+      </div>
+
+      <div id="subtitleBox" class="subtitle-box">
+        <p id="subtitleText" class="subtitle-text"></p>
+      </div>
+
+      <div id="questionList" class="question-list"></div>
+    </section>
+
+    <!-- MODAL 1: Olay Yeri Fotoğraf İnceleme (Polaroid) -->
+    <div id="photoModal" class="modal-backdrop hidden">
+      <div class="modal-panel photo-modal-panel">
+        <div class="modal-header">
+          <h2>OLAY YERİ FOTOĞRAFLARI — İZ İNCELEME</h2>
+          <button class="img-square-btn modal-close" data-close="photoModal">✕</button>
+        </div>
+        <div id="photoDayTabs" class="day-tabs"></div>
+        <div class="photo-inspector-body">
+          <div class="polaroid-stage">
+            <canvas id="crimePhotoCanvas" width="960" height="600"></canvas>
+          </div>
+          <div class="photo-clue-sidebar">
+            <div id="murderVictimBanner" class="victim-banner"></div>
+            <p class="hint-note">Fotoğraftaki şüpheli nesnelere dokunarak izleri defterine kaydet. Her iz gerçek bir olaya bağlıdır; ama bazılarının masum bir açıklaması olabilir.</p>
+            <div id="photoFoundCluesList" class="found-clues-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Kasaba Halkı / Sorguya Çağırma ve Gece Koruma -->
+    <div id="summonModal" class="modal-backdrop hidden">
+      <div class="modal-panel wide-modal-panel">
+        <div class="modal-header">
+          <h2 id="summonModalTitle">KASABA HALKI — SORGUYA ÇAĞIR</h2>
+          <button class="img-square-btn modal-close" data-close="summonModal">✕</button>
+        </div>
+        <div id="rewindProtectBar" class="rewind-protect-bar hidden"></div>
+        <div id="suspectGrid" class="suspect-grid"></div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: Dedektif Defteri & Çelişki Yakalama -->
+    <div id="notebookModal" class="modal-backdrop hidden">
+      <div class="modal-panel notebook-modal-panel">
+        <div class="modal-header">
+          <h2>DEDEKTİF DEFTERİ VE ÇELİŞKİ MASASI</h2>
+          <button class="img-square-btn modal-close" data-close="notebookModal">✕</button>
+        </div>
+        <div class="notebook-tabs">
+          <button class="nb-tab active" data-nbtab="statements">İFADELER & ÇELİŞKİ EŞLEŞTİR</button>
+          <button class="nb-tab" data-nbtab="clues">BULUNAN FİZİKSEL İZLER</button>
+          <button class="nb-tab" data-nbtab="contradictions">YAKALANAN ÇELİŞKİLER</button>
+        </div>
+        <div id="contradictionPairBar" class="contradiction-bar">
+          <span id="contradictionStatusText">İki ifadeyi seçip yan yana koyarak çelişki ara.</span>
+          <button id="btnTestContradiction" class="img-plate-btn small-plate" disabled>
+            <span>İKİ İFADEYİ KARŞILAŞTIR</span>
+          </button>
+        </div>
+        <div id="notebookBody" class="notebook-body"></div>
+      </div>
+    </div>
+
+    <!-- MODAL 4: 7. Gün Son Karar (REWIND TIME vs FINAL VERDICT) -->
+    <div id="day7DecisionModal" class="modal-backdrop hidden">
+      <div class="modal-panel decision-modal-panel">
+        <h2 class="decision-heading">YEDİNCİ GÜNÜN SONU</h2>
+        <p class="decision-desc">
+          Kasabada yedi gün doldu, yedi cinayet işlendi. Kaç katilden eminsin?
+          Zamanı birinci güne geri sarıp yalnızca defterinle baştan başlayabilir ya da
+          yedi katil olduğuna inandığın kişileri seçip son hükmü verebilirsin.
+          <strong>Seçiminden önce kaç kişiyi doğru bulduğun sana söylenmeyecek.</strong>
+        </p>
+        <div class="decision-actions">
+          <button id="btnChooseRewind" class="img-plate-btn">
+            <span>↺ ZAMANI GERİ SAR (1. GÜNE DÖN)</span>
+          </button>
+          <button id="btnOpenVerdictPicker" class="img-plate-btn blood-plate">
+            <span>⚖ SON HÜKÜM (7 KATİLİ SEÇ)</span>
+          </button>
+        </div>
+        <button class="text-back-btn modal-close" data-close="day7DecisionModal">Masaya geri dön ve notlarını son kez incele</button>
+      </div>
+    </div>
+
+    <!-- MODAL 5: Final Verdict 7 Kişi Seçim Ekranı -->
+    <div id="verdictModal" class="modal-backdrop hidden">
+      <div class="modal-panel wide-modal-panel">
+        <div class="modal-header">
+          <h2>SON HÜKÜM — KATİL OLDUĞUNA İNANDIĞIN 7 KİŞİYİ SEÇ (<span id="verdictCount">0</span>/7)</h2>
+          <button class="img-square-btn modal-close" data-close="verdictModal">✕</button>
+        </div>
+        <div id="verdictSuspectGrid" class="suspect-grid"></div>
+        <div class="verdict-footer">
+          <button id="btnConfirmVerdict" class="img-plate-btn blood-plate" disabled>
+            <span>HÜKMÜ MÜHÜRLE VE SONUÇLARI GÖR</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 6: 3 Aşamalı Son Sahneleri (Kayıp Sahneleri -> Pencere -> Gerçeğin Açıklanması) -->
+    <div id="endingOverlay" class="modal-backdrop ending-backdrop hidden">
+      <div class="ending-stage">
+        <div id="endingHeader" class="ending-header">KAYIP SAHNELERİ</div>
+        <canvas id="endingCanvas" width="960" height="540"></canvas>
+        <div id="endingNarrative" class="ending-narrative"></div>
+        <div id="endingTruthTable" class="ending-truth-table hidden"></div>
+        <div class="ending-controls">
+          <button id="btnEndingNext" class="img-plate-btn">
+            <span id="lblEndingNext">DEVAM ET →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bildirim Toast -->
+    <div id="toastBanner" class="toast-banner hidden"></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
