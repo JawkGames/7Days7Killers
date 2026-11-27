@@ -6,7 +6,10 @@ Bütün karakterler aynı çizim koduyla çizilir. Bir karakteri ayıran şey ya
 
 - `gorunus.js`: `karakterSec(veri)` etkin görünüşü seçer. Hiç çağrılmazsa `varsayilan.js` (sorgu odasındaki ilk kadın) çizilir. `gorunusKur(veri)` eksik alanları doldurur, renkleri diziye çevirir.
 - `poz.js`: her karede değişen durum (bakış, göz kırpma, kaş, ağız, nefes, ışık, kaynama). Bütün karakterlerde aynıdır.
-- `yuz.js` (`kafa`, `goz`, `kas`), `sac.js` (`arkaSac`, `onSac`), `sakal.js`, `baslik.js`, `govde.js` (`govde`, `altGovde`), `doku.js` (tel ve kumaş dokusu).
+- `yuz.js` (`kafa`, `goz`, `kas`), `sac.js` (`arkaSac`, `onSac`), `sakal.js`, `baslik.js`, `govde.js` (`govde`, `altGovde`), `doku.js` (tel ve kumaş dokusu: `lifDoldur`, `lifKutle`, `kumas`, `kivrimlar`).
+- `yapi.js`: yüz yapısı (yaşın ve kemiğin yüze yazılması), başlığın yüze düşürdüğü iç gölge (`icGolge`), boy ve irilik dönüşümü (`figurDonusumu`).
+
+**İki çizim yolu.** Varsayılan kadın (`id:'varsayilan'`) eski yolla çizilir ve prototiple birebir aynı kalır. Öteki bütün görünüşlerde `G.ozel` doğrudur ve yeni yol çalışır: yaşa ve kemiğe göre yüz silüeti ve gölge, yalnızca gölge bölgelerinde kırpılmış tarama, çamurlu fırça dokusu, değişken kalınlıkta yüz hattı; örtünün altından görünen saç ve örtünün yüze düşen yumuşak gölgesi; tel tel sakal, bıyık ve saç (`lifKutle`: kenar kesik değil, teller silüetten taşar); kumaşta kıvrım ve ağırlık. Yeni yolda bir şeyi değiştirmek sorgu odasını etkilemez; eski yola (`!G.ozel` dalları, "çarpan 1 ise" dalları) dokunma.
 - `index.js`: tek giriş noktası.
 
 Çizim sırası sahnedeki gibidir: `altGovde` (yalnızca ayaktayken), `arkaSac` (kafa konumunda), `govde`, `kafa` (kafa konumunda, `OLCU.kafaY`).
@@ -54,7 +57,22 @@ Boş bırakılan alan varsayılanı alır. Erkekte (`cinsiyet:'E'`) yüz ölçü
 | `agizY` | -6 - 8 (birim) | ağzın ek dikey kayması |
 | `boyun` | .88 - 1.35 | boyun kalınlığı |
 
-Aralıkların dışı denenmedi; dışına çıkarsan galeride kontrol et.
+Aralıkların dışı denenmedi; dışına çıkarsan galeride kontrol et. (`boy` .9 Elif'te denendi: çok genç, yuvarlak yüz için.)
+
+### `yapi` (isteğe bağlı; verilmezse yaştan, cinsiyetten ve `yasIzi`'nden türetilir, 0-1)
+
+Yalnızca yeni yolda (varsayılan kadın dışındaki herkes) kullanılır. Işık bütün karakterlerde aynıdır; bu alanlar gölgenin nereye düştüğünü değiştirir.
+
+| Alan | Türetme | Ne yapar |
+| --- | --- | --- |
+| `cukur` | .55 + yaş (erkekte +.12), .55-1.42 | göz çukuru derinliği: kaş altı karanlığı, dış köşe çöküntüsü ve taraması |
+| `dolgun` | 1 (20 yaş) → 0 (52 yaş) | gençlik dolgunluğu: yuvarlak yanak ışığı, hafif kan rengi, burun-dudak çizgisi silik, elmacık altı gölgesi zayıf |
+| `sarkik` | 46 yaşından sonra artar | çene altı ve gıdı sarkması: silüet aşağı-dışa, gıdı hattı ve gölgesi |
+| `sakak` | 38 yaşından sonra + çökük yanak | şakak çukuru: silüet içe, leke, tarama, kıvrım çizgisi |
+| `kemik` | erkek .45 / kadın .2 + çökük yanak + yaş | elmacık çıkıntısı ve altındaki çapraz çukur; erkekte köşeli çene açısı ve düz çene hattı |
+| `kulak` | 1 + yaş × .16 | kulak büyüklüğü (yaşla büyür) |
+
+Örnek: sıska bir genç için `yapi:{kemik:.9, dolgun:.2}`; tombul bir yaşlı için `yapi:{dolgun:.5, kemik:.1}`.
 
 ### `renk` (hepsi `'#rrggbb'`)
 
@@ -88,6 +106,8 @@ Verilmezse yaştan türetilir (25 yaşında hepsi düşük, 75 yaşında yüksek
 
 Kulaklar `kisa`, `kel`, `toplu` ve şapkalarda görünür; `uzun`, `dagnik`, yemeni ve şalda görünmez.
 
+**Geriye uyumluluk:** şema yalnızca genişledi (`yapi`, `boy`, `iri` eklendi; hepsi isteğe bağlı). Var olan alanların anlamı değişmedi, ama yeni yolda aynı sayılar artık daha belirgin bir yüz yapısı verir (özellikle erkekte `cene`/`ceneUc` ile köşeli çene). Eski görünüş dosyaları değişmeden çalışır.
+
 ### `sakal`, `biyik`
 
 | Alan | Değer |
@@ -107,7 +127,7 @@ Sakalın üst kenarı yanakta tene karışarak erir. Ağız mekaniği değişmez
 | `desen` | yemenide `'duz'` benekleri kapatır |
 | `desenRenk` | yemeni benek rengi |
 
-Yemeni ve şal saçı tamamen örter (saç biçimi önemsizleşir), yüzün kenarını da örter. Kasket ve kep alına koyu bir gölge düşürür.
+Yemeni ve şal saçı örter; yeni yolda alın kenarının altından ortadan ayrılmış saç görünür (saç rengi ve `kirSac` ile). Kumaş alını ve şakakları örter, yanaktan aşağısında yüzün kendi hattı kumaşın önünde kalır (yüz "delikteki maske" gibi durmasın diye) ve kumaş yüze yumuşak bir iç gölge düşürür. Kasket, kep, takke ve sarık alına ve yanlara (kulak, şakak saçı) koyu gölge düşürür.
 
 ### Gövde
 
@@ -121,6 +141,10 @@ Yemeni ve şal saçı tamamen örter (saç biçimi önemsizleşir), yüzün kena
 | `giysi.kenar` | aba ve cübbede işlemeli kenar çizgisi (ağa için soluk sırma) |
 | `giysi.hirka` | entari üstünde hırka rengi (Elif'in kırmızı yün hırkası) |
 | `omuz` | .85 - 1.25, omuz genişliği; boyun çevresi sabit kalır |
+| `boy` | .9 - 1.08 (1 = varsayılan kadın). Oturan figürde her %1 başı ve gövdeyi 7 birim kaldırır (`BOY_BIRIM` 700). Yan yana gelince oranlar için: iri erkek 1.04-1.06, kadın .95-1, çok yaşlı .9-.93 |
+| `iri` | .93 - 1.08, bütün figürün (baş + gövde) ölçeği, baş merkezi çevresinde. Heybetli 1.05-1.06, ufak tefek .93-.95 |
+
+`boy` ve `iri` ikisi de 1 ise hiçbir dönüşüm yapılmaz. Örnekler: Mahmut 1.04/1.06, Rıza 1.05/1.03, Bektaş 1.03/.97, Elif .95/.95, Sultan .92/.93.
 
 Örtünün alt kenarı ayaktayken etek rengine erir; bacak çizilmez, eller yalnızca etekte koyu leke olarak görünür.
 
@@ -129,8 +153,9 @@ Yemeni ve şal saçı tamamen örter (saç biçimi önemsizleşir), yüzün kena
 1. `KOY-HALKI.md` içinden kişiyi oku: yaş, cinsiyet, mizaç, giysi ve eşya. `src/icerik/kisiler/<id>.js` içindeki `ortu` alanını aynen al.
 2. `src/icerik/gorunus/<id>.js` dosyasını aç. En yakın örneği kopyala: `mahmut.js` (yaşlı, sakallı erkek), `riza.js` (orta yaşlı, bıyıklı, şapkalı erkek), `bektas.js` (dağınık), `elif.js` (genç kadın, yemeni), `sultan.js` (çok yaşlı kadın, şal).
 3. Kişiliği yüze çevir, ama abartma: sert = dar göz (`gozBoy` .76-.82) ve eksi `kasEgim`; korkak = iri göz (`gozBoy` 1.1) ve artı `kasEgim`; gururlu = ağır kapak (`gozKapak` .4-.6) ve geniş çene. Başka bir köylüye benzememesi için en az üç belirgin şeyi değiştir: baş örtüsü ya da şapka, sakal/bıyık, yüz biçimi (en, boy, çene), ten ve saç rengi.
-4. Dosyanın başına bir yorum yaz: kim olduğu ve görünüşünün özeti.
-5. Kontrol et (aşağıda). `npx eslint src/icerik/gorunus` temiz olmalı.
+4. `boy` ve `iri` ver (yan yana gelince oranlar); yüz yapısı yaştan türetilir, karakter özelse `yapi` ile ez (sıska: `kemik` yüksek, `dolgun` düşük).
+5. Dosyanın başına bir yorum yaz: kim olduğu ve görünüşünün özeti.
+6. Kontrol et (aşağıda). `npx eslint src/icerik/gorunus` temiz olmalı.
 
 Dosya otomatik toplanır (`src/icerik/gorunus/index.js`); başka hiçbir dosyaya ekleme yapma.
 

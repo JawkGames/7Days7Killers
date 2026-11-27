@@ -74,15 +74,16 @@ function ortuOn(){
   const yol=()=>{ortuDis(O); ortuPencere(O);};
   c.beginPath(); yol(); c.save(); c.clip('evenodd');
   const g=c.createLinearGradient(-O.w,O.ust,O.w,O.alt);
-  g.addColorStop(0,rgba(karistir(R,'#cfc8a8',.18),1)); g.addColorStop(.4,rgba(R,1)); g.addColorStop(1,rgba(karistir(R,[0,0,0],.8),1));
+  g.addColorStop(0,rgba(karistir(R,'#cfc8a8',.18),1)); g.addColorStop(.4,rgba(R,1)); g.addColorStop(1,rgba(karistir(R,[0,0,0],G.ozel?.6:.8),1));
   c.fillStyle=g; c.fillRect(-O.w-20,O.ust-10,O.w*2+40,O.alt-O.ust+90);
+  if(G.ozel) leke(-50,O.alt-20,110,70,karistir(R,'#ddd4b4',.25),.22*poz.isik); // boyna dolanan kumaş: çene altı sakal gibi kararmasın
   if(!O.sal&&G.baslik.desen!=='duz') benek(-O.w,O.ust,O.w,O.alt,63);
   if(O.sal){ // kaba yün: kısa lifler
     const r=rng(66); for(let i=0;i<700;i++){const x=-O.w+r()*O.w*2, y=O.ust+r()*(O.alt-O.ust), a=r()*TAU, L=3+r()*6; c.strokeStyle=rgba(r()<.5?karistir(R,'#d0c6a6',.3):karistir(R,[0,0,0],.5),.22+r()*.2); c.lineWidth=1+r(); c.beginPath(); c.moveTo(x,y); c.lineTo(x+Math.cos(a)*L,y+Math.sin(a)*L); c.stroke();}
   }
   leke(-O.w*.5,O.ust+80,O.w*.42,80,karistir(R,'#ddd4b4',.3),.3*poz.isik,-.4);
   leke(O.w*.8,60,O.w*.5,300,PAL.siyah,.75);
-  leke(0,O.alt-10,O.w*.9,110,PAL.siyah,G.ozel?.35:.55);
+  leke(G.ozel?O.w*.35:0,O.alt-10,O.w*.9,110,PAL.siyah,G.ozel?.3:.55);
   leke(0,250*O.b,120,50,PAL.siyah,G.ozel?.18:.5); // çenenin altındaki gölge
   if(G.ozel){ ortuKivrim(O,R,k); ortuYuzGolgesi(O,k); }
   tara(O.w*.15,O.ust,O.w+10,O.alt+70,1.05,7,PAL.murekkep,.42,640+k,1.1);
@@ -242,6 +243,7 @@ function kep(){
 }
 function takke(){
   const Y=G.yuz, e=Y.en, u=Y.alin, R=renkAl(), k=poz.kaynama, alt=G.baslik.tur==='sarik'?-170*u:-150*u;
+  if(G.ozel&&G.baslik.tur==='takke'){ c.save(); c.beginPath(); yuzYolu(); c.clip(); leke(0,alt+14,150*e,22,PAL.siyah,.45); c.restore(); yanGolge(alt,e); }
   const yol=()=>{c.moveTo(-132*e,alt); c.bezierCurveTo(-140*e,-236*u,-60*e,-250*u,0,-250*u); c.bezierCurveTo(60*e,-250*u,140*e,-236*u,132*e,alt); c.quadraticCurveTo(0,alt+10,-132*e,alt); c.closePath();};
   kumas(yol,[-140*e,-250*u,140*e,alt+10],{renk:R,seed:700,tara:.7,desen:()=>{const r=rng(701); c.fillStyle=rgba(karistir(R,[0,0,0],.4),.5); for(let i=0;i<220;i++) c.fillRect(-140*e+r()*280*e,-250*u+r()*(alt+250*u),1.6,1.6);}});
   titrek(()=>{c.moveTo(-128*e,alt-8); c.quadraticCurveTo(0,alt+2,128*e,alt-8);},PAL.murekkep,.4,1.1,702+k,2,1.4);
@@ -251,6 +253,7 @@ function sarik(){
   const Y=G.yuz, e=Y.en, u=Y.alin, R=renkAl(), k=poz.kaynama;
   const yol=()=>{c.moveTo(-176*e,-132*u); c.bezierCurveTo(-206*e,-168*u,-190*e,-214*u,-120*e,-218*u); c.quadraticCurveTo(0,-226*u,120*e,-218*u); c.bezierCurveTo(190*e,-214*u,206*e,-168*u,176*e,-132*u); c.quadraticCurveTo(0,-112*u,-176*e,-132*u); c.closePath();};
   c.save(); c.beginPath(); yuzYolu(); c.clip(); leke(0,-100*u,180*e,34,PAL.siyah,.6); c.restore();
+  if(G.ozel) yanGolge(-132*u,e);
   kumas(yol,[-206*e,-226*u,206*e,-112*u],{renk:R,seed:710,tara:.8});
   // sargı katları
   for(let i=0;i<4;i++){ titrek(()=>{c.moveTo(-170*e,(-140-i*20)*u); c.bezierCurveTo(-90*e,(-178-i*14)*u,60*e,(-128-i*20)*u,180*e,(-170-i*12)*u);},PAL.murekkep,.45,1.2,711+i+k,2,1.6); }

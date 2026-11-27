@@ -8,7 +8,7 @@ import {poz,karakterSec,arkaSac,govde,kafa} from '/src/cizim/rig/index.js';
 import {konus,sus,konusmaOlay,sozGuncelle} from '/src/diyalog/konusma.js';
 import {gorunusListesi} from '/src/icerik/gorunus/index.js';
 
-const KADRAJ={x0:-380,y0:170,w:760,h:860}, KAFA_Y=470;
+const KADRAJ={x0:-380,y0:130,w:760,h:900}, KAFA_Y=470; // üstte pay: uzun boylu ve şapkalı karakterin başı kesilmesin
 const NOTR={...poz};
 // deneme cümleleri (galeri için; oyunda metin dil dosyasından gelir)
 const CUMLE={

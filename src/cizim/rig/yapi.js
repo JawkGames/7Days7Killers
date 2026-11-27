@@ -59,8 +59,9 @@ export function yapiBoya(fx,fy,mx,dyA){
   for(let i=0;i<170;i++){
     const x=(-150+r()*300)*e, y=(-190+r()*400)*b, sol=x<0;
     const renk=[sol?R.tenIsik:R.tenGolge,R.tenOrta,PAL.morluk,KUF,SARI,R.tenDerin][Math.floor(r()*6)];
-    const a=y<-90?(r()-.5)*.6:Math.PI/2+(x/160)*.5+(r()-.5)*.5, L=12+r()*30;
-    c.strokeStyle=rgba(renk,(.05+r()*.08)*(.8+yasli*.6)); c.lineWidth=4+r()*10;
+    // fırça yönü yüzün biçimini izler: alında yatay, yanakta elmacıktan ağza doğru çapraz
+    const a=y<-90?(r()-.5)*.6:Math.PI/2+Math.sign(x||1)*-.7+(r()-.5)*.6, L=10+r()*22;
+    c.strokeStyle=rgba(renk,(.05+r()*.08)*(.8+yasli*.6)); c.lineWidth=5+r()*11;
     c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+Math.cos(a)*L*.5+(r()-.5)*8,y+Math.sin(a)*L*.5,x+Math.cos(a)*L,y+Math.sin(a)*L); c.stroke();
   }
   // gençlik: dolgun, yuvarlak yanak ışığı ve hafif kan rengi
