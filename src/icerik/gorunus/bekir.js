@@ -11,7 +11,7 @@ export default {
   sac:{bicim:'kisa', cizgi:-122},
   sakal:{bicim:'kisa', boy:.9}, biyik:{bicim:'kalin'},
   baslik:{tur:'takke', renk:'#5a5444'},
-  ortu:'onluk', giysi:{renk:'#4a3524', ic:'gomlek', icRenk:'#6a6250'},
+  ortu:'onluk', giysi:{renk:'#4a3524', ic:'gomlek', icRenk:'#4c4536'},
   omuz:1.25,
   boy:1.05, iri:1.08
 };
