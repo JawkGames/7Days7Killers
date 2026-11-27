@@ -12,11 +12,13 @@
 //      tırmık, düşürülen eşya). Her işaret bir aday kümesi verir.
 //   4. Zincir: bir işaret + adaylardan başkalarını eleyen kabul edilmiş mazeretler, sonunda tek kişi kalır.
 //      Tanık zinciri: yüzünden gören tanık + (aynı tanığın suçlaması ya da kişinin olay yerinde olmayı inkârı).
-//   5. Bağımsızlık: iki zincirin kaynakları (iz ya da konuşan kişi; şüphelinin kendi sözleri hariç) ayrıksa bağımsızdır.
+//      Kesişim: iki işaretin açıklanamayan adayları tek kişide buluşur.
+//   5. Bağımsızlık: iki zincirin sabit kaynakları (iz ya da konuşan kişi; şüphelinin kendi sözleri hariç) ayrıksa ve
+//      her eleme için henüz kullanılmamış bir doğrulayan bulunuyorsa bağımsızdır.
 //   6. Açıklama: bir işaretin gösterdiği ama zinciri olmayan kişi için masum açıklama (mazeret, tanığın anlatımı,
 //      aletinin çalındığını önceden söylemesi). Bu, yanıltıcı izlerin çürütülme yoludur.
-//   7. En az sorgu: her cinayet için en ucuz zincir ve doğrudan işaret edilen her masumun en ucuz açıklaması seçilir
-//      (açgözlü), konuşanlar gün pencerelerine göre günlük sorgu hakkına yerleştirilir.
+//   7. En az sorgu: her cinayet için baş şüpheliye en ucuz iki bağımsız zincir ve doğrudan işaret edilen her masumun
+//      en ucuz açıklaması seçilir (açgözlü), konuşanlar gün pencerelerine göre günlük sorgu hakkına yerleştirilir.
 
 const KANLI_YARA=['bicak-yarasi','ezik-yara'];
 const TIRMIK_YARA=['bogaz-morlugu','islak-ceset','ip-izi','dusme-yarasi'];

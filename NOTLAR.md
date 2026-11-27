@@ -76,7 +76,8 @@ Komutlar: `npm run dev` (geliştirme sunucusu), `npm test` (Vitest, `testler/`),
 | `src/cizim/sahneler/kayip/` | Son: kayıp sahneleri, `kayipSahnesi({kisi, katilMi, tohum, metin})`; 24 kişinin sahne verisi `kisiler.js`. Deneme: `prototip/kayip/`. |
 | `src/simulasyon/` | Olay üretim motoru: `vakaUret(tohum, koy, ayar)` düz veri vaka döndürür; `ifade(vaka, kisi, olgu)` kişinin ne söyleyeceğini verir. Vaka biçimi: `src/simulasyon/README.md`. `npm run vaka -- 77` bir vakanın bütün gerçeğini basar. |
 | `src/cizim/sahneler/sorgu-odasi/` | `ayar.js` (`OLCU`, `DERINLIK`, `GIRIS`), `sahne.js` (`ciz`, `guncelle`, döngü), `giris.js`, `arka-plan.js`, `ampul.js`, `masa.js`, `sandalye.js`. |
-| `src/diyalog/` | `agiz-cizelgesi.js` (`cizelgeKur`, saf işlev), `konusma.js` (`KONUSMA`, `konus`, `sozGuncelle`), `kalip.js` (cümle kalıbı doldurucu, mizaca göre ton). |
+| `src/diyalog/` | `agiz-cizelgesi.js`, `konusma.js` (ağız ve alt yazı), `kalip.js` (kalıp doldurucu), `defter.js` (oyuncunun bildikleri), `soru.js` (defterden soru üretimi), `cevap.js` (`ifade` sonucunu mizaca göre cümleye ve tepkiye çevirir), `adlar.js`. |
+| `src/oyun/` | `oyun.js` (oyun durumu ve eylemler), `oto.js` (otomatik oyuncu), `ayar.js`. |
 | `src/dil/` | `index.js` (`metin(anahtar)`, `agizTablosu()`), `tr/arayuz.js`, `tr/agiz.js`, `tr/ekler.js` (Türkçe ek motoru), `tr/kaliplar.js` (cümle kalıpları), `tr/kisiler.js`, `tr/terimler.js`. Ek kuralları: `src/dil/tr/README.md`. |
 | `src/arayuz/sorgu-arayuzu.js` | Alt yazı ve iki deneme düğmesi (geçici). |
 | `src/platform/` | `girdi.js` (imleç, dokunma, `egimDinle`), `ekran.js` (tam ekran, yön, görünürlük), `kayit.js` (sürümlü kayıt, göç zinciri), `tercih.js` (`azHareket`). |
@@ -130,19 +131,22 @@ Kamera kayınca kenar açılmasın diye ön bellekler iki yandan `OLCU.pay` kada
 ### Eksikler
 
 - Yürüyüş, oturuş ve ağız hareketi hareket hâlinde hiç izlenmedi; yalnızca durağan karelere bakıldı. Akıcılığı kullanıcı değerlendiriyor.
-- 24 kişiden 5'inin görünüş dosyası var (mahmut, elif, bektas, sultan, riza); kalan 19 yazılacak. Yaşlı kadın ve yemenili yüzler zayıf (yüz "delikteki maske" gibi).
-- 22 mekândan 3'ünün olay yeri şablonu var (degirmen, cesme, demirci-dukkani); demirci çok karanlık.
+- 24 kişinin hepsinin görünüş dosyası var. Zayıflar: Nihat (gözlük yok), Süleyman (gülümseme yok), yemenili kadınlar birbirine yakın, kısa erkek saçı tek biçim.
+- 22 mekânın hepsinin olay yeri şablonu var. Zayıflar: cami, ırgat evi, sınır patikası (kayalar kutu gibi). Ayak izleri modern bot tabanı gibi. Ev, dış mekân ve iç mekân yardımcıları `halil-evi.js`, `harman-yeri.js`, `koy-odasi.js` içinde duruyor; `mekan-yardim.js`'e taşınmalı.
 - Yüz ifadesi yok (gergin, kızgın, korkmuş). `poz.kasKaldir`, `poz.kasCat`, `poz.agiz` bunun için hazır.
 - `egimDinle` hazır ama sorgu sahnesine bağlanmadı.
 - Alt yazı yazı tipi Google Fonts'tan geliyor; çevrimdışı çalışması için pakete alınmalı.
 
-## Simülasyon kararları
+## Simülasyon, çözücü ve oyun kararları
 
 - Zaman tek sayıdır: `(gün-1)*5 + dilim`; dilimler gece, sabah, öğle, ikindi, akşam. Gece günün ilk dilimidir, böylece her günün sabahında o günün fotoğrafı vardır.
 - Motor metin üretmez, yalnızca kimlik ve anahtar verir. Cümle `diyalog/kalip.js` ile kurulur.
-- Bilinen zayıflıklar: Hoca ve Yusuf hiç katil çıkmıyor; yöntemler tekdüze (çoğu taş ya da boğma); sırrın rolü (fail/tanık/mağdur) ve mekân komşuluğu veride değil, motorun içindeki geçici tablolarda.
+- Çözücü (`src/simulasyon/cozucu/`) vakayı yalnızca oyuncunun görebildiğiyle çözer (`oyuncuGorunumu`); gerçeğe bakamaz, bu testle korunur. Kalite eleği: her katile en az 2 bağımsız ipucu zinciri, her yanıltıcı ize bir çürütme yolu; geçemeyen tohum belirlenimci biçimde yeniden denenir. 1000 tohumda %58'i ilk denemede geçiyor, hepsi yeniden denemeyle geçiyor. `npm run tara -- 1000` dağılımı basar.
+- Herkes %20-41 sıklıkla katil çıkıyor. Yöntemler mesleğe, eşyaya ve mekâna bağlı. Sır rolleri (`rol`) ve mekân komşulukları (`komsular`) artık veride.
+- Oyun katmanı `src/oyun/oyun.js`: durum + eylem → yeni durum + gösterilecekler; düz veri, kayda olduğu gibi girer. Terminal: `npm run oyna -- 77` (`--oto` otomatik oyuncu). Tarayıcı: `prototip/metin-oyunu/`.
+- Bilinen zayıflıklar: oyun fazla kolay (otomatik oyuncu Rewind'siz ortalama 5,9/7 buluyor; katil çoğu zaman tek sahipli eşya bırakıyor ve "bu kimin?" sorusuna herkes doğru cevap veriyor); cevapların üçte biri "görmedim/bilmem"; Rewind'de oyuncu olayları değiştiremiyor (kurbanı koruma yok); kayıp sahnesindeki kanıt satırı kaç doğru olduğunu sezdiriyor.
 - Günlük sorgu hakkı geçici olarak 4 (`AYARLAR.gunlukSorguHakki`); kullanıcı kararı bekliyor.
 
 ## Sıradaki iş
 
-İkinci dalga ajanlar: çözücü ve kalite eleği (4. aşama), diyalog + defter + metinle oynanabilir oyun (5. aşama), karakter iskeletinde kalite turu, kalan 19 mekânın olay yeri şablonları. Karakter kalite turu bitince kalan 19 görünüş dosyası dağıtılacak. Kullanıcıdan beklenen: `KOY-HALKI.md` onayı, ampul yerine gaz lambası kararı, günlük sorgu hakkı.
+İlk beş aşama bitti: oyun metinle baştan sona oynanıyor. 24 köylü ve 22 mekân çizilebiliyor; son sahneleri hazır. Sırada: (1) zorluk ve boş cevap ayarı (motor), (2) çizim sahnelerini oyun katmanına bağlayıp görsel oynanabilir sürümü kurmak, (3) iskelete eksik özellikler (gözlük, tek göz, gülümseme; ajan çalışıyor), (4) Rewind'de müdahale, (5) yazı tipini pakete almak, ayak izlerini çarık/çizme yapmak, olay yeri yardımcılarını ortak dosyaya taşımak. Kullanıcıdan beklenen: metin oyununu oynayıp sürükleyici mi karar vermek; `KOY-HALKI.md` onayı; ampul yerine gaz lambası; günlük sorgu hakkı; ekran yönü.

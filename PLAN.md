@@ -161,9 +161,9 @@ On aşama var; beşinci aşamanın sonunda oyun görselsiz olarak baştan sona o
 
 1. **Depo ve iskelet (bitti).** Klasörler, test altyapısı, Sorgu Odası kodunun modüllere bölünmesi. Çıktı: aynı sahne `src/` altından çalışır.
 2. **Köy halkı (taslak hazır, onay bekliyor: `KOY-HALKI.md`).** 20-25 kişi: kişilik, ilişkiler, sırlar, kayıp sahnesi. Çıktı: onaylanmış kişi listesi.
-3. **Simülasyon motoru.** Çizelge, cinayet, iz, yalan. Çıktı: vaka inceleyicide okunabilen vakalar.
-4. **Çözücü ve kalite eleği.** Çıktı: 1000 tohumdan kaçının geçtiği ve örnek vakalar.
-5. **Diyalog ve defter.** Çıktı: yalnızca metinle, baştan sona oynanabilen oyun.
+3. **Simülasyon motoru (bitti).** Çizelge, cinayet, iz, yalan. Çıktı: vaka inceleyicide okunabilen vakalar.
+4. **Çözücü ve kalite eleği (bitti).** Çıktı: 1000 tohumdan kaçının geçtiği ve örnek vakalar.
+5. **Diyalog ve defter (bitti; zorluk ayarı sürüyor).** Çıktı: yalnızca metinle, baştan sona oynanabilen oyun.
 6. **Karakter iskeleti ve 20-25 karakterin çizimi.**
 7. **Olay yeri fotoğraf sahneleri.**
 8. **Sonlar.** Kayıp sahneleri, pencere sahnesi, gerçeğin açıklanması.
