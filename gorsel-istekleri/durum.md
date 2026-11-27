@@ -6,54 +6,60 @@ Gemini her oturumda bu tabloya bakar, `istek` durumundaki baskıları sırayla �
 
 Durumlar: `istek` (üret), `sırada` (henüz üretme), `beklemede` (karar bekleniyor), `üretildi` (Claude bakacak), `kabul`, `ret` (sebep notta; düzeltip yeniden üret).
 
-**Önce pilot (B01-B03):** dört köylü tek baskıda (Hacı Ağa, Kör Halil, Muhtarın Kızı, Hanımağa), sonra aynı baskının göz kapalı ve ağız açık hâlleri. Tutarsa kalan 20 köylü `istek` olur. Olay yerleri, izler, sonlar ve arayüz pilotu beklemeden üretilebilir.
+**Önce pilot (B01-B04):** dört köylü tek baskıda (Hacı Ağa, Kör Halil, Muhtarın Kızı, Hanımağa), sonra aynı baskının göz kapalı, ağız açık ve sağa bakan hâlleri. Tutarsa kalan 20 köylü `istek` olur. Olay yerleri, izler, sonlar ve arayüz pilotu beklemeden üretilebilir.
 
-42 baskı, 185 parça.
+48 baskı, 209 parça.
 
 | Baskı | Tür | Izgara | Parçalar (sırayla) | İstem | Durum | Not | Gemini notu |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | B01 | köylü temel | 2x2 | `kisiler/mahmut/temel.png`<br>`kisiler/halil/temel.png`<br>`kisiler/elif/temel.png`<br>`kisiler/zeliha/temel.png` | 01 | istek | PİLOT | |
 | B02 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/mahmut/goz-kapali.png`<br>`kisiler/halil/goz-kapali.png`<br>`kisiler/elif/goz-kapali.png`<br>`kisiler/zeliha/goz-kapali.png` | 01 | istek | PİLOT | |
 | B03 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/mahmut/agiz-acik.png`<br>`kisiler/halil/agiz-acik.png`<br>`kisiler/elif/agiz-acik.png`<br>`kisiler/zeliha/agiz-acik.png` | 01 | istek | PİLOT | |
-| B04 | köylü temel | 2x2 | `kisiler/cemil/temel.png`<br>`kisiler/dursun/temel.png`<br>`kisiler/naciye/temel.png`<br>`kisiler/abdullah/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B05 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/goz-kapali.png`<br>`kisiler/dursun/goz-kapali.png`<br>`kisiler/naciye/goz-kapali.png`<br>`kisiler/abdullah/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B06 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/agiz-acik.png`<br>`kisiler/dursun/agiz-acik.png`<br>`kisiler/naciye/agiz-acik.png`<br>`kisiler/abdullah/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B07 | köylü temel | 2x2 | `kisiler/nihat/temel.png`<br>`kisiler/riza/temel.png`<br>`kisiler/fadime/temel.png`<br>`kisiler/bekir/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B08 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/goz-kapali.png`<br>`kisiler/riza/goz-kapali.png`<br>`kisiler/fadime/goz-kapali.png`<br>`kisiler/bekir/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B09 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/agiz-acik.png`<br>`kisiler/riza/agiz-acik.png`<br>`kisiler/fadime/agiz-acik.png`<br>`kisiler/bekir/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B10 | köylü temel | 2x2 | `kisiler/yusuf/temel.png`<br>`kisiler/hatice/temel.png`<br>`kisiler/arif/temel.png`<br>`kisiler/kazim/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B11 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/goz-kapali.png`<br>`kisiler/hatice/goz-kapali.png`<br>`kisiler/arif/goz-kapali.png`<br>`kisiler/kazim/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B12 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/agiz-acik.png`<br>`kisiler/hatice/agiz-acik.png`<br>`kisiler/arif/agiz-acik.png`<br>`kisiler/kazim/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B13 | köylü temel | 2x2 | `kisiler/hasan/temel.png`<br>`kisiler/gulsum/temel.png`<br>`kisiler/bektas/temel.png`<br>`kisiler/sultan/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B14 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/goz-kapali.png`<br>`kisiler/gulsum/goz-kapali.png`<br>`kisiler/bektas/goz-kapali.png`<br>`kisiler/sultan/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B15 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/agiz-acik.png`<br>`kisiler/gulsum/agiz-acik.png`<br>`kisiler/bektas/agiz-acik.png`<br>`kisiler/sultan/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B16 | köylü temel | 2x2 | `kisiler/kadir/temel.png`<br>`kisiler/ismail/temel.png`<br>`kisiler/emine/temel.png`<br>`kisiler/suleyman/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B17 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/goz-kapali.png`<br>`kisiler/ismail/goz-kapali.png`<br>`kisiler/emine/goz-kapali.png`<br>`kisiler/suleyman/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B18 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/agiz-acik.png`<br>`kisiler/ismail/agiz-acik.png`<br>`kisiler/emine/agiz-acik.png`<br>`kisiler/suleyman/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B19 | olay yeri | 2x2 | `mekanlar/aga-konagi.webp`<br>`mekanlar/koy-odasi.webp`<br>`mekanlar/muhtar-evi.webp`<br>`mekanlar/cami.webp` | 02 | istek |  | |
-| B20 | olay yeri | 2x2 | `mekanlar/okul.webp`<br>`mekanlar/karakol.webp`<br>`mekanlar/bakkal.webp`<br>`mekanlar/cesme.webp` | 02 | istek |  | |
-| B21 | olay yeri | 2x2 | `mekanlar/mezarlik.webp`<br>`mekanlar/harman-yeri.webp`<br>`mekanlar/fistiklik.webp`<br>`mekanlar/bag-evi.webp` | 02 | istek |  | |
-| B22 | olay yeri | 2x2 | `mekanlar/magara.webp`<br>`mekanlar/sinir-patikasi.webp`<br>`mekanlar/agil.webp`<br>`mekanlar/halil-evi.webp` | 02 | istek |  | |
-| B23 | olay yeri | 2x2 | `mekanlar/gulsum-evi.webp`<br>`mekanlar/sultan-evi.webp`<br>`mekanlar/ebe-evi.webp`<br>`mekanlar/irgat-evi.webp` | 02 | istek |  | |
-| B24 | iz nesnesi | 4x3 | `izler/carik-izi.png`<br>`izler/postal-izi.png`<br>`izler/cizme-izi.png`<br>`izler/yalin-ayak-izi.png`<br>`izler/nal-izi.png`<br>`izler/ters-nal-izi.png`<br>`izler/un-izi.png`<br>`izler/izmarit.png`<br>`izler/kehribar-tespih.png`<br>`izler/altin-bilezik.png`<br>`izler/anahtar-destesi.png`<br>`izler/sedef-cakmak.png` | 03 | istek |  | |
-| B25 | iz nesnesi | 4x3 | `izler/muhtar-muhru.png`<br>`izler/kasket.png`<br>`izler/mor-oya.png`<br>`izler/mektup-destesi.png`<br>`izler/kiraz-baston.png`<br>`izler/mesin-kese.png`<br>`izler/dolma-kalem.png`<br>`izler/tel-gozluk.png`<br>`izler/tufek-kovani.png`<br>`izler/pirinc-duduk.png`<br>`izler/boynuz-kama.png`<br>`izler/tutun-tabakasi.png` | 03 | istek |  | |
-| B26 | iz nesnesi | 4x3 | `izler/mavi-boncuk.png`<br>`izler/bakir-gugum.png`<br>`izler/asker-dugmesi.png`<br>`izler/ot-torbasi.png`<br>`izler/gobek-makasi.png`<br>`izler/veresiye-defteri.png`<br>`izler/kopya-kalemi.png`<br>`izler/raki-sisesi.png`<br>`izler/kaval.png`<br>`izler/kirmizi-yun-yumagi.png`<br>`izler/keci-cingiragi.png`<br>`izler/teneke-masrapa.png` | 03 | istek |  | |
-| B27 | iz nesnesi | 4x3 | `izler/gaz-lambasi.png`<br>`izler/orme-kirbac.png`<br>`izler/gemici-feneri.png`<br>`izler/orak.png`<br>`izler/bakir-sini.png`<br>`izler/pirinc-can.png`<br>`izler/kama.png`<br>`izler/balta.png`<br>`izler/kazma.png`<br>`izler/kurek.png`<br>`izler/dirgen.png`<br>`izler/urgan.png` | 03 | istek |  | |
-| B28 | iz nesnesi | 4x3 | `izler/bag-bicagi.png`<br>`izler/demir-cubuk.png`<br>`izler/sican-otu.png`<br>`izler/av-kovani.png`<br>`izler/kumas-lifi.png`<br>`izler/kece-tuyu.png`<br>`izler/kan-lekesi.png`<br>`izler/kan-damlalari.png` | 03 | istek |  | |
-| B29 | kayıp sahnesi | 2x2 | `kayip/mahmut.webp`<br>`kayip/zeliha.webp`<br>`kayip/cemil.webp`<br>`kayip/dursun.webp` | 05 | istek |  | |
-| B30 | kayıp sahnesi | 2x2 | `kayip/naciye.webp`<br>`kayip/elif.webp`<br>`kayip/abdullah.webp`<br>`kayip/nihat.webp` | 05 | istek |  | |
-| B31 | kayıp sahnesi | 2x2 | `kayip/riza.webp`<br>`kayip/halil.webp`<br>`kayip/fadime.webp`<br>`kayip/bekir.webp` | 05 | istek |  | |
-| B32 | kayıp sahnesi | 2x2 | `kayip/yusuf.webp`<br>`kayip/hatice.webp`<br>`kayip/arif.webp`<br>`kayip/kazim.webp` | 05 | istek |  | |
-| B33 | kayıp sahnesi | 2x2 | `kayip/hasan.webp`<br>`kayip/gulsum.webp`<br>`kayip/bektas.webp`<br>`kayip/kadir.webp` | 05 | istek |  | |
-| B34 | kayıp sahnesi | 2x2 | `kayip/ismail.webp`<br>`kayip/emine.webp`<br>`kayip/suleyman.webp` | 05 | istek |  | |
-| B35 | pencere: meydan | tek | `pencere/meydan.webp` | 05 | istek |  | |
-| B36 | pencere: öfkeli kalabalık | tek | `pencere/kalabalik-ofke.png` | 05 | istek |  | |
-| B37 | pencere: coşkulu kalabalık (öfkeli resmi düzenle, yerleşim aynı) | tek | `pencere/kalabalik-cosku.png` | 05 | istek |  | |
-| B38 | pencere: oda ve müfettiş | tek | `pencere/oda.png` | 05 | istek |  | |
-| B39 | arayüz | 2x2 | `arayuz/fotograf-cercevesi.png`<br>`arayuz/defter-kapak.png`<br>`arayuz/daktilo-kagidi.png`<br>`arayuz/baslik.png` | 06 | istek |  | |
-| B40 | arayüz: masa zemini | tek | `arayuz/masa-zemini.webp` | 06 | istek |  | |
-| B41 | sorgu odası arka | tek | `oda/arka.webp` | 04 | beklemede | ışık kararı bekleniyor | |
-| B42 | sorgu odası parçaları | 2x2 | `oda/kapi.png`<br>`oda/lamba.png`<br>`oda/sandalye.png`<br>`oda/masa.png` | 04 | beklemede | ışık kararı bekleniyor | |
+| B04 | köylü sağa bakan (temel baskıyı düzenle) | 2x2 | `kisiler/mahmut/yan.png`<br>`kisiler/halil/yan.png`<br>`kisiler/elif/yan.png`<br>`kisiler/zeliha/yan.png` | 01 | istek | PİLOT | |
+| B05 | köylü temel | 2x2 | `kisiler/cemil/temel.png`<br>`kisiler/dursun/temel.png`<br>`kisiler/naciye/temel.png`<br>`kisiler/abdullah/temel.png` | 01 | sırada | pilot onaylanınca | |
+| B06 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/goz-kapali.png`<br>`kisiler/dursun/goz-kapali.png`<br>`kisiler/naciye/goz-kapali.png`<br>`kisiler/abdullah/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
+| B07 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/agiz-acik.png`<br>`kisiler/dursun/agiz-acik.png`<br>`kisiler/naciye/agiz-acik.png`<br>`kisiler/abdullah/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
+| B08 | köylü sağa bakan (temel baskıyı düzenle) | 2x2 | `kisiler/cemil/yan.png`<br>`kisiler/dursun/yan.png`<br>`kisiler/naciye/yan.png`<br>`kisiler/abdullah/yan.png` | 01 | sırada | pilot onaylanınca | |
+| B09 | köylü temel | 2x2 | `kisiler/nihat/temel.png`<br>`kisiler/riza/temel.png`<br>`kisiler/fadime/temel.png`<br>`kisiler/bekir/temel.png` | 01 | sırada | pilot onaylanınca | |
+| B10 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/goz-kapali.png`<br>`kisiler/riza/goz-kapali.png`<br>`kisiler/fadime/goz-kapali.png`<br>`kisiler/bekir/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
+| B11 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/agiz-acik.png`<br>`kisiler/riza/agiz-acik.png`<br>`kisiler/fadime/agiz-acik.png`<br>`kisiler/bekir/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
+| B12 | köylü sağa bakan (temel baskıyı düzenle) | 2x2 | `kisiler/nihat/yan.png`<br>`kisiler/riza/yan.png`<br>`kisiler/fadime/yan.png`<br>`kisiler/bekir/yan.png` | 01 | sırada | pilot onaylanınca | |
+| B13 | köylü temel | 2x2 | `kisiler/yusuf/temel.png`<br>`kisiler/hatice/temel.png`<br>`kisiler/arif/temel.png`<br>`kisiler/kazim/temel.png` | 01 | sırada | pilot onaylanınca | |
+| B14 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/goz-kapali.png`<br>`kisiler/hatice/goz-kapali.png`<br>`kisiler/arif/goz-kapali.png`<br>`kisiler/kazim/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
+| B15 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/agiz-acik.png`<br>`kisiler/hatice/agiz-acik.png`<br>`kisiler/arif/agiz-acik.png`<br>`kisiler/kazim/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
+| B16 | köylü sağa bakan (temel baskıyı düzenle) | 2x2 | `kisiler/yusuf/yan.png`<br>`kisiler/hatice/yan.png`<br>`kisiler/arif/yan.png`<br>`kisiler/kazim/yan.png` | 01 | sırada | pilot onaylanınca | |
+| B17 | köylü temel | 2x2 | `kisiler/hasan/temel.png`<br>`kisiler/gulsum/temel.png`<br>`kisiler/bektas/temel.png`<br>`kisiler/sultan/temel.png` | 01 | sırada | pilot onaylanınca | |
+| B18 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/goz-kapali.png`<br>`kisiler/gulsum/goz-kapali.png`<br>`kisiler/bektas/goz-kapali.png`<br>`kisiler/sultan/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
+| B19 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/agiz-acik.png`<br>`kisiler/gulsum/agiz-acik.png`<br>`kisiler/bektas/agiz-acik.png`<br>`kisiler/sultan/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
+| B20 | köylü sağa bakan (temel baskıyı düzenle) | 2x2 | `kisiler/hasan/yan.png`<br>`kisiler/gulsum/yan.png`<br>`kisiler/bektas/yan.png`<br>`kisiler/sultan/yan.png` | 01 | sırada | pilot onaylanınca | |
+| B21 | köylü temel | 2x2 | `kisiler/kadir/temel.png`<br>`kisiler/ismail/temel.png`<br>`kisiler/emine/temel.png`<br>`kisiler/suleyman/temel.png` | 01 | sırada | pilot onaylanınca | |
+| B22 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/goz-kapali.png`<br>`kisiler/ismail/goz-kapali.png`<br>`kisiler/emine/goz-kapali.png`<br>`kisiler/suleyman/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
+| B23 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/agiz-acik.png`<br>`kisiler/ismail/agiz-acik.png`<br>`kisiler/emine/agiz-acik.png`<br>`kisiler/suleyman/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
+| B24 | köylü sağa bakan (temel baskıyı düzenle) | 2x2 | `kisiler/kadir/yan.png`<br>`kisiler/ismail/yan.png`<br>`kisiler/emine/yan.png`<br>`kisiler/suleyman/yan.png` | 01 | sırada | pilot onaylanınca | |
+| B25 | olay yeri | 2x2 | `mekanlar/aga-konagi.webp`<br>`mekanlar/koy-odasi.webp`<br>`mekanlar/muhtar-evi.webp`<br>`mekanlar/cami.webp` | 02 | istek |  | |
+| B26 | olay yeri | 2x2 | `mekanlar/okul.webp`<br>`mekanlar/karakol.webp`<br>`mekanlar/bakkal.webp`<br>`mekanlar/cesme.webp` | 02 | istek |  | |
+| B27 | olay yeri | 2x2 | `mekanlar/mezarlik.webp`<br>`mekanlar/harman-yeri.webp`<br>`mekanlar/fistiklik.webp`<br>`mekanlar/bag-evi.webp` | 02 | istek |  | |
+| B28 | olay yeri | 2x2 | `mekanlar/magara.webp`<br>`mekanlar/sinir-patikasi.webp`<br>`mekanlar/agil.webp`<br>`mekanlar/halil-evi.webp` | 02 | istek |  | |
+| B29 | olay yeri | 2x2 | `mekanlar/gulsum-evi.webp`<br>`mekanlar/sultan-evi.webp`<br>`mekanlar/ebe-evi.webp`<br>`mekanlar/irgat-evi.webp` | 02 | istek |  | |
+| B30 | iz nesnesi | 4x3 | `izler/carik-izi.png`<br>`izler/postal-izi.png`<br>`izler/cizme-izi.png`<br>`izler/yalin-ayak-izi.png`<br>`izler/nal-izi.png`<br>`izler/ters-nal-izi.png`<br>`izler/un-izi.png`<br>`izler/izmarit.png`<br>`izler/kehribar-tespih.png`<br>`izler/altin-bilezik.png`<br>`izler/anahtar-destesi.png`<br>`izler/sedef-cakmak.png` | 03 | istek |  | |
+| B31 | iz nesnesi | 4x3 | `izler/muhtar-muhru.png`<br>`izler/kasket.png`<br>`izler/mor-oya.png`<br>`izler/mektup-destesi.png`<br>`izler/kiraz-baston.png`<br>`izler/mesin-kese.png`<br>`izler/dolma-kalem.png`<br>`izler/tel-gozluk.png`<br>`izler/tufek-kovani.png`<br>`izler/pirinc-duduk.png`<br>`izler/boynuz-kama.png`<br>`izler/tutun-tabakasi.png` | 03 | istek |  | |
+| B32 | iz nesnesi | 4x3 | `izler/mavi-boncuk.png`<br>`izler/bakir-gugum.png`<br>`izler/asker-dugmesi.png`<br>`izler/ot-torbasi.png`<br>`izler/gobek-makasi.png`<br>`izler/veresiye-defteri.png`<br>`izler/kopya-kalemi.png`<br>`izler/raki-sisesi.png`<br>`izler/kaval.png`<br>`izler/kirmizi-yun-yumagi.png`<br>`izler/keci-cingiragi.png`<br>`izler/teneke-masrapa.png` | 03 | istek |  | |
+| B33 | iz nesnesi | 4x3 | `izler/gaz-lambasi.png`<br>`izler/orme-kirbac.png`<br>`izler/gemici-feneri.png`<br>`izler/orak.png`<br>`izler/bakir-sini.png`<br>`izler/pirinc-can.png`<br>`izler/kama.png`<br>`izler/balta.png`<br>`izler/kazma.png`<br>`izler/kurek.png`<br>`izler/dirgen.png`<br>`izler/urgan.png` | 03 | istek |  | |
+| B34 | iz nesnesi | 4x3 | `izler/bag-bicagi.png`<br>`izler/demir-cubuk.png`<br>`izler/sican-otu.png`<br>`izler/av-kovani.png`<br>`izler/kumas-lifi.png`<br>`izler/kece-tuyu.png`<br>`izler/kan-lekesi.png`<br>`izler/kan-damlalari.png` | 03 | istek |  | |
+| B35 | kayıp sahnesi | 2x2 | `kayip/mahmut.webp`<br>`kayip/zeliha.webp`<br>`kayip/cemil.webp`<br>`kayip/dursun.webp` | 05 | istek |  | |
+| B36 | kayıp sahnesi | 2x2 | `kayip/naciye.webp`<br>`kayip/elif.webp`<br>`kayip/abdullah.webp`<br>`kayip/nihat.webp` | 05 | istek |  | |
+| B37 | kayıp sahnesi | 2x2 | `kayip/riza.webp`<br>`kayip/halil.webp`<br>`kayip/fadime.webp`<br>`kayip/bekir.webp` | 05 | istek |  | |
+| B38 | kayıp sahnesi | 2x2 | `kayip/yusuf.webp`<br>`kayip/hatice.webp`<br>`kayip/arif.webp`<br>`kayip/kazim.webp` | 05 | istek |  | |
+| B39 | kayıp sahnesi | 2x2 | `kayip/hasan.webp`<br>`kayip/gulsum.webp`<br>`kayip/bektas.webp`<br>`kayip/kadir.webp` | 05 | istek |  | |
+| B40 | kayıp sahnesi | 2x2 | `kayip/ismail.webp`<br>`kayip/emine.webp`<br>`kayip/suleyman.webp` | 05 | istek |  | |
+| B41 | pencere: meydan | tek | `pencere/meydan.webp` | 05 | istek |  | |
+| B42 | pencere: öfkeli kalabalık | tek | `pencere/kalabalik-ofke.png` | 05 | istek |  | |
+| B43 | pencere: coşkulu kalabalık (öfkeli resmi düzenle, yerleşim aynı) | tek | `pencere/kalabalik-cosku.png` | 05 | istek |  | |
+| B44 | pencere: oda ve müfettiş | tek | `pencere/oda.png` | 05 | istek |  | |
+| B45 | arayüz | 2x2 | `arayuz/fotograf-cercevesi.png`<br>`arayuz/defter-kapak.png`<br>`arayuz/daktilo-kagidi.png`<br>`arayuz/baslik.png` | 06 | istek |  | |
+| B46 | arayüz: masa zemini | tek | `arayuz/masa-zemini.webp` | 06 | istek |  | |
+| B47 | sorgu odası arka | tek | `oda/arka.webp` | 04 | beklemede | ışık kararı bekleniyor | |
+| B48 | sorgu odası parçaları | 2x2 | `oda/kapi.png`<br>`oda/lamba.png`<br>`oda/sandalye.png`<br>`oda/masa.png` | 04 | beklemede | ışık kararı bekleniyor | |
 
 ## main2'den alınanlar
 

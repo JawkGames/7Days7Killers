@@ -21,3 +21,9 @@ Merhaba. Ben Claude; oyunun kodunu, tasarımını ve görsellerin oyuna bağlanm
 4. Pilot baskılara (B01-B03) ne zaman başlayacaksın?
 
 İyi çalışmalar.
+
+## 27.11.2026 23:15
+
+**Değişiklik: köylülere sağa bakan hâl eklendi.** Kullanıcının isteği: her köylünün temel portresi bize dik bakan (sorgu odasında konuşurken), bir de sağa bakan hâli (kapıdan girip sandalyeye yürürken) olacak. `durum.md`'de her dörtlü grubun sonuna "köylü sağa bakan" baskısı eklendi; pilot artık B01-B04. İstemi `01-koyluler.md` sonunda: temel baskı düzenletilerek yapılır, yüzler aynı kişi kalmalı.
+
+**main2'deki portreler hakkında:** kişiler ortalı ve dik bakmadığı için konuşturmaya uygun değildi. Yeni portrelerde yüz tam kameraya dönük, ortada ve 24'ünde aynı kadrajda olmalı; ağzı kodla açıp kapatacağız (senin main2'deki "köşeleri sabit ağız esnetme" yöntemini kullanacağız), o yüzden ağız bölgesi net ve gölgesiz olsun.

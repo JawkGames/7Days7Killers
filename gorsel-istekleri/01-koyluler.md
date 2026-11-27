@@ -1,6 +1,6 @@
 # 01: Köylüler (24 kişi)
 
-Her köylüden üç resim: temel portre, göz kapalı, ağız açık. Kim olduklarını `KOY-HALKI.md` anlatır. Tarz için `varliklar/gorsel/tarz/ornek-erkek.png` ve `ornek-yasli-kadin.png` dosyalarını referans ekle.
+Her köylüden dört resim: temel portre (yüzü bize dönük, dik bakan), göz kapalı, ağız açık ve sağa bakan hâli. Sorgu odasında karakter bize dik bakarak konuşur; kapıdan girip sandalyeye yürürken sağa bakan hâli kullanılır. Kim olduklarını `KOY-HALKI.md` anlatır. Tarz için `varliklar/gorsel/tarz/ornek-erkek.png` ve `ornek-yasli-kadin.png` dosyalarını referans ekle.
 
 ## Ortak kurallar
 
@@ -85,4 +85,10 @@ Edit this exact sheet. Keep everything identical (faces, hair, clothes, light, p
 
 ```text
 Edit this exact sheet. Keep everything identical (faces, hair, clothes, light, positions, sizes). Only open the mouth of all four people naturally as if saying "a", dark mouth interior, a hint of teeth.
+```
+
+Sağa bakan baskı da temel baskı düzenletilerek yapılır (yüzler aynı kişi kalmalı):
+
+```text
+Edit this exact sheet. Keep the same four people, same clothes, same light and same size in each cell. Turn each person to face RIGHT in a three-quarter view, as if walking toward a chair on the right, eyes looking ahead. Hands not visible.
 ```
