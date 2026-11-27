@@ -47,6 +47,7 @@ Bu dosya projenin hafızasıdır. Yeni bir oturum önce `README.md`, `PLAN.md` v
 - **Görseller:** Gemini üretir, Claude oyuna bağlar. Gemini'nin görev tanımı `GEMINI.md`, iş listesi `gorsel-istekleri/durum.md`. Tarz kilidi: `main2` dalındaki resimlerin tarzı (kalın titrek mürekkep hat, tarama, soluk palet); örnekler `varliklar/gorsel/tarz/`. Gemini `gemini-gorsel` dalına teslim eder, Claude birleştirir. `main2` dalındaki ayrı oyun kodu kullanılmaz; işe yarayan 17 resim alındı. Kodla çizilen sahneler yedek ve hareket katmanı olarak kalır.
 - **Konuşma dili:** normal günümüz Türkçesi; dönem ağzı ya da eski Türkçe yok. Sonra İngilizce eklenecek.
 - **Seslendirme:** köylüler yerel, ücretsiz bir metinden sese (TTS) sistemiyle sesli konuşacak; mümkünse her karaktere ayrı ses, değilse temel seslerin perde/tını çeşitlemesi. Bu, ilk karar listesindeki "konuşmada ses yok" maddesinin yerine geçer. Hazırlık araştırması: `arastirma/yerel-yapay-zeka-ve-ses.md`.
+- **Eskitme efektleri her görselin üstünde:** film kumu ve çizikleri, lambanın titremesi ve sönüp yanması, titreyen çizgiler, eski ekran bandı. Gemini'nin resimleri de bu katmanın altında gösterilecek. Varsayılan hepsi açık; oyuncu Ayarlar > Görüntü'den tek tek kapatabilir (`src/platform/goruntu.js`). Tarayıcıda az hareket tercihi varsa hareketli olanlar kapalı başlar.
 - **Ajan kullanımı:** çok ajan kotayı hızlı bitiriyor; kullanıcı istemedikçe paralel ajan açılmaz.
 
 ## Denenip vazgeçilenler

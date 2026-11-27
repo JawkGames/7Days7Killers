@@ -53,6 +53,11 @@ export default {
 
   // yapay zekâ ayarı
   'yz.ayar':'Ayarlar',
+  'goruntu.baslik':'Görüntü',
+  'goruntu.film':'Film kumu ve çizikler',
+  'goruntu.titreme':'Lambanın titremesi ve sönüp yanması',
+  'goruntu.kaynama':'Titreyen çizgiler',
+  'goruntu.bant':'Eski ekran bandı',
   'yz.baslik':'Yapay zekâ',
   'yz.kapali':'Kapalı (hazır kalıplar)',
   'yz.yerel':'Yerel sunucu (LM Studio, Ollama)',

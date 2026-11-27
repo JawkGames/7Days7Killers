@@ -13,6 +13,7 @@ import {hedefAyarla} from '../../teknik/tuval.js';
 import {rgba,lerp,clamp,yumusak} from '../../../cekirdek/matematik.js';
 import {rng} from '../../../cekirdek/rastgele.js';
 import {azHareket} from '../../../platform/tercih.js';
+import {goruntu} from '../../../platform/goruntu.js';
 import {OLCU,DERINLIK,ZAMAN,KAMERA,KAYNAMA} from './ayar.js';
 import {gk,olc,onBellek,gorunurKutu} from './gorunum.js';
 import {R,DURUM,leke} from './cizer.js';
@@ -197,11 +198,11 @@ function kaplama(c,t,W,H){
   // alt yazı bandı: sahnenin altı zemine doğru kararır
   const b=c.createLinearGradient(0,H*.74,0,H); b.addColorStop(0,'rgba(2,3,3,0)'); b.addColorStop(1,'rgba(2,3,3,.78)');
   c.fillStyle=b; c.fillRect(0,H*.74,W,H*.26);
-  if(!azHareket){
+  if(goruntu.film){
     const r=rng(Math.floor(t*11)+700);
     for(let i=0;i<3;i++) if(r()<.5){const x=r()*W; c.strokeStyle=`rgba(210,205,180,${.03+r()*.05})`; c.lineWidth=(.6+r())*gk.dpr; c.beginPath(); c.moveTo(x,r()*H*.3); c.lineTo(x+(r()-.5)*6,H*(.5+r()*.5)); c.stroke();}
     for(let i=0;i<4;i++){c.fillStyle=`rgba(${r()<.5?'220,214,190':'0,0,0'},${.05+r()*.12})`; c.beginPath(); c.arc(r()*W,r()*H,(.6+r()*1.6)*gk.dpr,0,Math.PI*2); c.fill();}
   }
-  const kx=azHareket?0:(Math.floor(t*12)*89)%256, ky=azHareket?0:(Math.floor(t*12)*53)%256;
+  const kx=goruntu.film?(Math.floor(t*12)*89)%256:0, ky=goruntu.film?(Math.floor(t*12)*53)%256:0;
   c.save(); c.globalAlpha=.13; c.globalCompositeOperation='overlay'; c.translate(-kx,-ky); c.fillStyle=kumDeseni(c); c.fillRect(0,0,W+256,H+256); c.restore();
 }

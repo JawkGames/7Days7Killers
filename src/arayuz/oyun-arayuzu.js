@@ -10,6 +10,7 @@ import {gorunusBul} from '../icerik/gorunus/index.js';
 import {baglamKur,oyunBaslat,acilis,secenekler,uygula,durumKur,ekran,kisiListesi,hukumAdaylari,sonGoster,defterGorunumu,sorular as soruListesi} from '../oyun/oyun.js';
 import {kaydet,yukle,sil,kayitVerisi} from '../platform/kayit.js';
 import {azHareket} from '../platform/tercih.js';
+import {goruntu,goruntuAyarla,EFEKTLER} from '../platform/goruntu.js';
 import {DIL_TR} from '../diyalog/adlar.js';
 import {sorguZamani} from '../diyalog/cevap.js';
 import {konus,sus,konusmaOlay} from '../diyalog/konusma.js';
@@ -644,6 +645,12 @@ export function oyunArayuzuKur(){
         alanlar,
         el('p',{sinif:'kucuk',yazi:M('yz.bilgi')}),
         durum,
+        el('h2',{yazi:M('goruntu.baslik')}),
+        el('div',{sinif:'yz-secimler goruntu-secimler'},...EFEKTLER.map(e=>{
+          const k=el('input',{ozellik:{type:'checkbox',checked:goruntu[e]}});
+          k.addEventListener('change',ev=>{ev.stopPropagation(); goruntuAyarla(e,k.checked);});
+          return el('label',{sinif:'yz-secim'},k,el('span',{yazi:M('goruntu.'+e)}));
+        })),
         el('div',{sinif:'dugme-sira'},
           dugme(M('yz.dene'),async()=>{durum.textContent=M('yz.deneniyor'); const r=await baglantiDene(oku()); durum.textContent=r.tamam?M('yz.baglandi',{model:r.model}):M('yz.baglanamadi',{neden:r.neden});}),
           dugme(M('yz.kaydet'),()=>{yzAyar=oku(); yzAyarYaz(yzAyar); yz=yzOlustur(yzAyar,{kisiler:koy.kisiler}); soruYenile?.(); kapa();},'ana'),

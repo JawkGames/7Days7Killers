@@ -6,6 +6,7 @@ import {kumOlustur,kaplama} from '../../teknik/kaplama.js';
 import {PAL} from '../../teknik/palet.js';
 import {lerp,clamp} from '../../../cekirdek/matematik.js';
 import {azHareket} from '../../../platform/tercih.js';
+import {goruntu} from '../../../platform/goruntu.js';
 import {isaretciDinle} from '../../../platform/girdi.js';
 import {sozGuncelle} from '../../../diyalog/konusma.js';
 import {poz} from '../../rig/poz.js';
@@ -61,11 +62,11 @@ function guncelle(t,dt){
   poz.kam+=(durum.imX-poz.kam)*(1-Math.exp(-dt*3.2)); // kamera imleci yumuşakça izler
   let I=.94+.05*Math.sin(t*9.1)*Math.sin(t*2.3)+.02*Math.sin(t*31);
   const ks=t-durum.kesinti; if(ks>=0&&ks<.34) I*=(Math.sin(ks*70)>.1?.35:1);
-  poz.isik=azHareket?1:I;
+  poz.isik=goruntu.titreme?I:1;
   const g=azHareket?0:1;
   poz.nefes=g*(Math.sin(t*.95)*.5+.5);
   poz.sallanti=g*(Math.sin(t*.8)*2.2+Math.sin(t*1.6+1)*.9)-poz.hgx*5;
-  poz.kaynama=azHareket?0:Math.floor(t*OLCU.kaynamaHizi)%64;
+  poz.kaynama=goruntu.kaynama?Math.floor(t*OLCU.kaynamaHizi)%64:0;
 }
 
 function katman(d,fn){c.save(); c.translate(-poz.kam*d,0); fn(); c.restore();}
