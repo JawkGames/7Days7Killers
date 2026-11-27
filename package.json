@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint src testler araclar",
     "halk": "node araclar/koy-halki.js",
-    "vaka": "node araclar/vaka.js"
+    "vaka": "node araclar/vaka.js",
+    "oyna": "node araclar/oyna.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

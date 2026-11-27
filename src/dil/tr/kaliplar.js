@@ -408,7 +408,7 @@ export default {
     ],
     saf:[
       '{yer:de} {kimler} vardı! Beraber oturduk.',
-      '{kimler} vardı beyim. Hepsi iyi insanlardır.',
+      '{kimler} vardı beyim. Başka kimse yoktu.',
     ],
   },
 
@@ -1072,7 +1072,7 @@ export default {
       'Bilmem kimin.',
     ],
     saf:[
-      'Tanımadım beyim. Güzelmiş ama.',
+      'Tanımadım beyim. Kimin olduğunu bilmem.',
       'Bilmiyorum kimin. Hiç görmedim.',
     ],
   },

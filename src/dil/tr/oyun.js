@@ -36,6 +36,10 @@ export default {
       'anahtar':'demir anahtar', 'gozluk-cami':'kırık gözlük camı', 'bos-kovan':'boş kovan', 'duduk':'pirinç düdük',
       'asker-dugmesi':'asker düğmesi', 'bilezik':'altın burma bilezik', 'cingirak':'keçi çıngırağı', 'masrapa':'teneke maşrapa',
       'muska':'meşin muska kesesi', 'defter-yapragi':'veresiye defteri yaprağı', 'cekic':'demirci çekici',
+      // mekânın aletleri (kimsenin kendi eşyası değil)
+      'av-tufegi':'av tüfeği', 'av-kovani':'av tüfeği kovanı', 'degirmen-demiri':'değirmen demiri', 'demir-cubuk':'demir çubuk',
+      'dirgen':'dirgen', 'urgan':'urgan', 'bag-bicagi':'bağ bıçağı', 'kazma':'kazma', 'mezarci-kuregi':'mezarcı küreği', 'kurek':'kürek',
+      'sican-otu':'sıçan otu', 'sungu':'süngü', 'demir-masa':'demirci maşası', 'masa':'demirci maşası', 'balta':'odun baltası',
     },
     tur:{nesne:'yerde bir eşya', lif:'bir lif', 'ayak-izi':'bir ayak izi', leke:'bir leke', kirinti:'kırıntılar'},
     // İncelenmeden önce fotoğrafta nasıl göründüğü.

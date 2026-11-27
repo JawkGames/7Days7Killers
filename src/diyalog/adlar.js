@@ -59,12 +59,21 @@ export function kimlerDeger(ids,dil=DIL_TR){
 }
 // "A'da da B'de de" gibi tekrar: eşyanın kimlerde olduğunu söylerken.
 export function kimlerdeDeger(ids,dil=DIL_TR){
-  const l=ids.map(id=>ekle(kisiDeger(id,dil),'de')+' de');
+  // "de" bağlacı da ünlü uyumuna uyar: "Hanımağada da", "Elif'te de".
+  const bag=s=>(/[aıou][^aıoueiöü]*$/i.test(s)?' da':' de');
+  const l=ids.map(id=>{const w=ekle(kisiDeger(id,dil),'de'); return w+bag(w);});
   return {metin:l.join(', '),ozelAd:false,iyelikli:false};
 }
 
+// Eşyanın adı: kişinin eşyası, yoksa mekânın aleti, o da yoksa genel ad (kimlik asla metne düşmez).
+// Veride bazı eşya adları yer bildiren bir önekle yazılmış ("kuşağında anahtar destesi", "kulağının arkasında
+// kopya kalemi"); "{sahip:in} {esya:si}" kalıbında bozulmasın diye önek atılır: "Hanımağanın anahtar destesi".
 export function esyaYazi(sahip,esya,dil=DIL_TR){
-  return dil.kisiler[sahip]?.esyalar?.[esya]??esya;
+  const ad=dil.kisiler[sahip]?.esyalar?.[esya]??dil.oyun.iz.ad[esya]??dil.oyun.iz.tur.nesne;
+  const k=ad.split(' ');
+  let son=-1;
+  k.forEach((w,i)=>{if(i<k.length-1&&/n[dt][ae]$/.test(w)) son=i;});
+  return son>=0?k.slice(son+1).join(' '):ad;
 }
 export function ortuYazi(ortu,dil=DIL_TR){
   return dil.terimler.ortu[ortu]??ortu;
@@ -78,7 +87,7 @@ export function izAdi(iz,dil=DIL_TR){
   const O=dil.oyun.iz;
   if(iz.alt==='yara') return O.yara[iz.anahtar]??O.yara.genel;
   if(iz.anahtar==='durmus-saat') return O.durmusSaat;
-  if(O.ad[iz.anahtar]) return O.ad[iz.anahtar];
+  if(O.ad[iz.anahtar]&&iz.alt!=='kurban-esyasi') return O.ad[iz.anahtar];
   if((iz.alt==='silah'||iz.alt==='kurban-esyasi'||iz.alt==='esya')&&iz.esya) return esyaYazi(iz.sahip,iz.esya,dil);
   if(iz.ortu) return ortuYazi(iz.ortu,dil)+' '+O.lif;
   return O.tur[iz.iztur]??O.tur.nesne;
