@@ -40,6 +40,13 @@ Bu dosya projenin hafızasıdır. Yeni bir oturum önce `README.md`, `PLAN.md` v
 - `esyalar`: kişinin iz bırakabilecek ayırt edici eşyaları. Kırmızı yün hem Elif'in hırkasında hem Gülsüm'ün yumağında var: bilerek, yanıltıcı iz için.
 - Metin ya da kişi değişince `npm run halk` ile `KOY-HALKI.md` yeniden üretilir.
 
+## Alınan kararlar (2026-11-27)
+
+- **Hedef: Steam, PC.** İnternet ve anahtar gerektirmeyen, kendi içinde çalışan oyun. Asgari ekran kartı RTX 2060-2070 sınıfı (6-8 GB VRAM).
+- **Konuşmayı oyunun içindeki yerel yapay zekâ yapacak.** Bu, "oyunun içinde canlı yapay zekâ yok" kararının yerine geçer. Karma yapı: gerçek ve karar motorda kalır (kim katil, ne söylenecek, doğru mu yalan mı, nerede ağzından kaçıracak); model yalnızca o kararı karakterin ağzıyla söyler. Kalıp sistemi düşük donanım ve yedek kipi olarak kalır.
+- **Görseller:** Gemini ile üretilip depoya konacak (`gorsel-istekleri/`). Kodla çizilen sahneler yedek ve hareket katmanı olarak kalır.
+- **Ajan kullanımı:** çok ajan kotayı hızlı bitiriyor; kullanıcı istemedikçe paralel ajan açılmaz.
+
 ## Denenip vazgeçilenler
 
 Bunlar tekrar önerilmesin diye yazıldı.
