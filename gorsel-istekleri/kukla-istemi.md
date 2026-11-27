@@ -15,7 +15,7 @@ Face: realistic adult features, natural nose and lips, tired serious expression,
 SHEET (fixed layout, do not change):
 One single image, pure flat black background #000000, no shadow on the background, no text, no labels, no frame, no watermark. All parts separated by wide black gaps, nothing touches or overlaps, everything at the same scale and same lighting.
 Top row, left to right:
-1. Head, front view, eyes open: the EYE WHITES ARE EMPTY (plain off-white almond shapes with NO iris and NO pupil). Head ends at the bottom of the chin, NO neck.
+1. Head, front view, eyes open: the EYE WHITES ARE EMPTY (plain off-white almond shapes with NO iris and NO pupil). Head ends EXACTLY at the bottom edge of the chin and jaw line: NO neck, NO throat, NO skin below the jaw at all (the neck belongs only to the torso part).
 2. The same head, front view, eyes CLOSED (lids drawn as curved ink lines with lashes). Identical size and position to part 1.
 Middle row:
 3. Two separate round irises (dark brown, with a black pupil and a tiny highlight), drawn alone, about the size of the eye whites.
