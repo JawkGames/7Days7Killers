@@ -3,8 +3,9 @@
 //   - her katile (cinayetin asıl failine) en az `enAzZincir` bağımsız ipucu zinciri gider,
 //   - hiçbir masuma (katil olmayan) zincir gitmez,
 //   - her yanıltıcı izin gösterdiği her masum için en az bir çürütme yolu vardır (ya da iz oyuncuya hiç ulaşmaz),
-//   - çok kolay değildir: en az `enAzSorgu` sorgu gerekir, tek tanıkla çözülen cinayet `tekTanikEnCok`u, yalnızca
-//     fotoğrafla (sorgusuz) çözülen cinayet `fotografEnCok`u aşmaz,
+//   - çok kolay değildir: en az `enAzSorgu` sorgu gerekir; yalnızca fotoğrafla (sorgusuz) çözülen cinayet `fotografEnCok`u,
+//     iki zinciri de akla ilk gelen kişilerden kurulan cinayet `acikEnCok`u, tek sahipli eşya iziyle çözülen cinayet
+//     `tekSahipliEnCok`u aşmaz,
 //   - çok zor değildir: en az sorgu, günlük sorgu hakkıyla 7 güne sığar.
 
 import {oyuncuGorunumu} from './gorunum.js';
@@ -12,9 +13,12 @@ import {coz} from './coz.js';
 
 export const KALITE_AYAR=Object.freeze({
   enAzZincir:2,
-  enAzSorgu:3, // bundan az sorguyla (iki bağımsız zincirle) çözülen vaka çok kolaydır
-  tekTanikEnCok:5, // tek bir tanığın tek ifadesiyle çözülebilen cinayet sayısı bunu aşarsa vaka çok kolaydır
-  fotografEnCok:3, // hiç sorgusuz, yalnızca fotoğraftan iki zincirle çözülen cinayet sayısı bunu aşarsa vaka çok kolaydır
+  enAzSorgu:5, // bundan az sorguyla (iki bağımsız zincirle) çözülen vaka çok kolaydır
+  fotografEnCok:1, // hiç sorgusuz, yalnızca fotoğraftan iki zincirle çözülen cinayet sayısı bunu aşarsa vaka çok kolaydır
+  acikEnCok:2, // iki zinciri de "akla ilk gelen" kişilerden (cesedi bulan, kurbanın ev halkı, fotoğraftaki izin tek sahibi)
+               // ya da fotoğraftan kurulan cinayet sayısı bunu aşarsa vaka çok kolaydır
+  tekSahipliEnCok:3, // çözümünde tek sahipli eşya izi zinciri olan cinayet sayısı bunu aşarsa vaka çok kolaydır
+  tekTanikEnCok:Infinity, // (eski ölçü; tanık artık genel soruda ad vermediği için kapalı)
 });
 
 // Döner: {gecti, nedenler:[...], zorluk, katiller, yanilticilar, celiskiler, enAzSorgu, cozum}
@@ -52,12 +56,27 @@ export function kaliteRaporu(vaka,ayar={}){
   });
 
   const s=cz.enAzSorgu;
+  // Açık kaynak: oyuncunun ilk soracağı kişiler (cesedi bulan, kurbanın ev halkı, fotoğraftaki izin tek sahibi).
+  let acik=0, tekSahipli=0;
+  for(const p of s.plan){
+    if(!p.zincirler) continue;
+    const c=cozC[p.cinayet], f=gorunum.fotograflar().find(x=>x.cinayet===p.cinayet);
+    const kurbanEv=gorunum.kisiler[c.kurban].ev;
+    const tekler=new Set(f.izler.filter(i=>i.adaylar.length===1&&i.alt!=='kurban-esyasi').flatMap(i=>i.adaylar));
+    const tekIz=new Set(f.izler.filter(i=>i.adaylar.length===1).map(i=>'iz:'+i.id));
+    const acikKisi=k=>k===f.bulan||gorunum.kisiler[k].ev===kurbanEv||tekler.has(k);
+    const zl=p.zincirler.map(id=>c.zincirler.find(z=>z.id===id));
+    if(zl.length>=2&&zl.every(z=>z.kaynaklar.every(x=>x.startsWith('iz:')||acikKisi(x.slice(2))))) acik++;
+    if(zl.some(z=>z.tur==='iz'&&z.sabit.some(x=>tekIz.has(x)))) tekSahipli++;
+  }
+  s.acik=acik; s.tekSahipli=tekSahipli;
   if(!s.sigar) nedenler.push({tur:'cok-zor',sorgu:s.sorgu});
-  if(s.sorgu<A.enAzSorgu||s.tekTanik>A.tekTanikEnCok||s.fotograf>A.fotografEnCok) nedenler.push({tur:'cok-kolay',sorgu:s.sorgu,tekTanik:s.tekTanik,fotograf:s.fotograf});
+  if(s.sorgu<A.enAzSorgu||s.tekTanik>A.tekTanikEnCok||s.fotograf>A.fotografEnCok||acik>A.acikEnCok||tekSahipli>A.tekSahipliEnCok)
+    nedenler.push({tur:'cok-kolay',sorgu:s.sorgu,fotograf:s.fotograf,acik,tekSahipli});
   return {
     gecti:!nedenler.length,
     nedenler,
-    zorluk:{adim:s.adim,sorgu:s.sorgu,tekTanik:s.tekTanik,fotograf:s.fotograf,sigar:s.sigar},
+    zorluk:{adim:s.adim,sorgu:s.sorgu,tekTanik:s.tekTanik,fotograf:s.fotograf,acik,tekSahipli,sigar:s.sigar},
     katiller,yanilticilar,
     celiskiler:cz.celiskiler,
     enAzSorgu:s,

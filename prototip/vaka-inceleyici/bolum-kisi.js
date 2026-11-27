@@ -43,10 +43,10 @@ export function kisiCiz(B,k){
   if(gizli.length) h.push(`<h3>${esc(T.kisi.gizliIsler)}</h3><ul class="liste">${gizli.join('')}</ul>`);
   // Gördükleri
   const gor=(v.izler||[]).filter(i=>(i.tur==='tanik'&&i.tanik===k)||(i.tur==='dolayli'&&i.fark_eden===k));
-  if(gor.length) h.push(`<h3>${esc(T.kisi.gordukleri)}</h3><ul class="liste">${gor.map(i=>`<li class="${i.yaniltici?'yaniltici':''}"><span class="iz-id">${esc(i.cinayet)} ${esc(i.id)}</span> ${esc(i.tur==='tanik'?tanikCumle(i):dolayliCumle(i))}</li>`).join('')}</ul>`);
+  if(gor.length) h.push(`<h3>${esc(T.kisi.gordukleri)}</h3><ul class="liste">${gor.map(i=>`<li class="${i.yaniltici?'yaniltici':''}"><span class="iz-id">${esc(i.cinayet)} ${esc(i.id)}</span> ${esc(i.tur==='tanik'?tanikCumle(i,B):dolayliCumle(i))}</li>`).join('')}</ul>`);
   // Onu gösteren izler
   const gos=(v.izler||[]).filter(i=>(i.tur==='fiziksel'&&i.alt!=='yara'&&(i.sahip===k||(i.adaylar||[]).includes(k)))||(i.tur==='tanik'&&i.gorulen===k)||(i.tur==='dolayli'&&i.kisi===k));
-  if(gos.length) h.push(`<h3>${esc(T.kisi.izleri)}</h3><ul class="liste">${gos.map(i=>`<li class="${i.yaniltici?'yaniltici':''}"><span class="iz-id">${esc(i.cinayet)} ${esc(i.id)}</span> ${i.tur==='fiziksel'?fizikselSatir(B,i):esc(i.tur==='tanik'?tanikCumle(i):dolayliCumle(i))}</li>`).join('')}</ul>`);
+  if(gos.length) h.push(`<h3>${esc(T.kisi.izleri)}</h3><ul class="liste">${gos.map(i=>`<li class="${i.yaniltici?'yaniltici':''}"><span class="iz-id">${esc(i.cinayet)} ${esc(i.id)}</span> ${i.tur==='fiziksel'?fizikselSatir(B,i):esc(i.tur==='tanik'?tanikCumle(i,B):dolayliCumle(i))}</li>`).join('')}</ul>`);
   // Yalanları
   const yal=B.ifadeler.hepsi.filter(f=>f.konusan===k);
   h.push(`<h3>${esc(T.kisi.yalanlari)}</h3>${yal.length?`<ul class="liste">${yal.map(f=>ifadeSatiri(B,f,{konusanGoster:false})).join('')}</ul>`:`<p class="soluk">${esc(T.kisi.yalanYok)}</p>`}`);

@@ -39,9 +39,9 @@ export function silahCumle(c){
 }
 
 // Mekân değeri: kurbanın kendi eviyse "evinde", konuşanın kendi eviyse "evdeydim".
-const yerD=(m,{konusan,konu}={},v)=>{try{return mekanDeger(m,{konusanEv:v?.kisiler?.[konusan]?.ev,konuEv:v?.kisiler?.[konu]?.ev});}catch{return md(m);}};
-export function cinayetCumle(c,v){
-  const y=T.yontem[c.yontem], yr=yerD(c.mekan,{konu:c.kurban},v);
+const yerD=(m,{konusan,konu}={},v,B)=>{if(B?.koy?.mekanlar?.[m]?.tur!=='ev') return md(m); try{return mekanDeger(m,{konusanEv:v?.kisiler?.[konusan]?.ev,konuEv:v?.kisiler?.[konu]?.ev});}catch{return md(m);}};
+export function cinayetCumle(c,v,B){
+  const y=T.yontem[c.yontem], yr=yerD(c.mekan,{konu:c.kurban},v,B);
   return y?cumle(T.ozet.cinayetCumlesi,{katil:kd(c.katil),kurban:kd(c.kurban),yer:yr,yontem:y})
     :cumle(T.ozet.cinayetCumlesiYontemsiz,{katil:kd(c.katil),kurban:kd(c.kurban),yer:yr})+' ('+ham(c.yontem)+')';
 }
@@ -60,11 +60,11 @@ export function bagCumle(b){
   }
 }
 
-function kart(c,v){
+function kart(c,v,B){
   const p=[];
   const sebep=c.sebep||{};
   p.push(`<p class="buyuk">${kisiBag(c.katil)} <span class="ok">→</span> ${kisiBag(c.kurban)}</p>`);
-  p.push(`<p class="cumle">${esc(cinayetCumle(c,v))} ${c.cagrildi?esc(T.ozet.cagrildi):''}</p>`);
+  p.push(`<p class="cumle">${esc(cinayetCumle(c,v,B))} ${c.cagrildi?esc(T.ozet.cagrildi):''}</p>`);
   const sil=silahCumle(c);
   let zehir='';
   if(c.zehirKaynagi) zehir=cumle(T.ozet.zehirKaynagi,{kisi:kd(c.zehirKaynagi.kisi),esya:esya(c.zehirKaynagi.kisi,c.zehirKaynagi.esya)});
@@ -76,7 +76,7 @@ function kart(c,v){
   if(c.yardimci) bag.push(cumle(T.ozet.yardimciCumlesi,{kim:kd(c.yardimci)}));
   if(c.zorlayan) bag.push(cumle(T.ozet.zorlayanCumlesi,{kim:kd(c.zorlayan)}));
   if(bag.length) p.push(`<p><span class="etiket">${esc(T.ozet.baglar)}</span> ${esc(bag.join(' '))}</p>`);
-  const maz=Object.entries(c.iddialar||{}).map(([k,m])=>cumle(T.ozet.mazeretCumlesi,{kim:kd(k),yer:yerD(m,{konusan:k},v)})+(c.ortan&&k===c.katil?' '+cumle(T.ozet.ortanDogrular,{ortan:kd(c.ortan)}):''));
+  const maz=Object.entries(c.iddialar||{}).map(([k,m])=>cumle(T.ozet.mazeretCumlesi,{kim:kd(k),yer:yerD(m,{konusan:k},v,B)})+(c.ortan&&k===c.katil?' '+cumle(T.ozet.ortanDogrular,{ortan:kd(c.ortan)}):''));
   if(maz.length) p.push(`<p><span class="etiket">${esc(T.ozet.mazeret)}</span> ${esc(maz.join(' '))}</p>`);
   if(c.kacanTanik) p.push(`<p><span class="etiket">${esc(T.ozet.kacanTanik)}</span> ${esc(cumle(T.ozet.kacanCumlesi,{kim:kd(c.kacanTanik.kisi),nereden:md(c.kacanTanik.nereden)}))}</p>`);
   const goz=(c.gozTaniklari||[]).filter(k=>k!==c.katil&&k!==c.yardimci&&k!==c.kurban&&k!==c.kacanTanik?.kisi);
@@ -93,7 +93,7 @@ export function ozetCiz(B,kok){
   const katiller=(v.katiller||[]);
   h.push(`<div class="satirlar"><p><span class="etiket">${esc(T.ozet.katiller)}</span> ${katiller.map(k=>kisiBag(k.kisi)+(k.engellendi?` <span class="rozet">${esc(T.rol.engellendi)}</span>`:'')+(k.yardimEttigi?` <span class="soluk">(${esc(T.rol.yardimci)} ${esc(k.yardimEttigi)})</span>`:'')).join(', ')}</p>`);
   h.push(`<p><span class="etiket">${esc(T.ozet.kurbanlar)}</span> ${(v.cinayetler||[]).map(c=>kisiBag(c.kurban)).join(', ')}</p></div>`);
-  h.push(`<div class="kartlar">${(v.cinayetler||[]).map(c=>{try{return kart(c,v);}catch(e){console.warn(e); return `<article class="kart hata">${esc(c.id)}: ${esc(e.message)}</article>`;}}).join('')}</div>`);
+  h.push(`<div class="kartlar">${(v.cinayetler||[]).map(c=>{try{return kart(c,v,B);}catch(e){console.warn(e); return `<article class="kart hata">${esc(c.id)}: ${esc(e.message)}</article>`;}}).join('')}</div>`);
   h.push(`<h3>${esc(T.ozet.baglar)}</h3>`);
   h.push((v.baglar||[]).length?`<ul class="liste">${v.baglar.map(b=>`<li><span class="rozet">${etiket(T.bagAd,b.tur)}</span> ${esc(bagCumle(b))} <span class="soluk">(${esc(b.cinayet??T.bos)})</span></li>`).join('')}</ul>`:`<p class="soluk">${esc(T.ozet.bagYok)}</p>`);
   if(v.mudahaleler?.length||v.engellenen?.length){
