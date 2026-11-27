@@ -312,10 +312,10 @@ export function kirZemin(P,isik,{x:[x0,x1],z:[z0,z1],renk,R,yogun=3000,doku=1,ca
   const ez=(X,Z)=>{const p=P.n(X,y,Z), p2=P.n(X,y,Z+20); return Math.max(.08,Math.min(.9,(p[1]-p2[1])/(20*P.olcek(X,y,Z))));};
   for(let i=0;i<90*doku;i++){const Z=z0+(z1-z0)*Math.pow(R(),1.7), X=x0+(x1-x0)*R(), p=P.n(X,y,Z), o=P.olcek(X,y,Z), rx=(30+R()*140)*o;
     leke(p[0],p[1],rx,rx*ez(X,Z),R()<.55?[0,0,0]:sisle(golgele(renk,1.35),Z,yogun),.06+R()*.12);}
-  for(let i=0;i<cakil*doku;i++){const Z=z0+(z1-z0)*Math.pow(R(),2), X=x0+(x1-x0)*R(), p=P.n(X,y,Z), o=P.olcek(X,y,Z), rr=(1+R()*4.5)*o, e=ez(X,Z);
+  for(let i=0;i<cakil*doku;i++){const Z=z0+(z1-z0)*Math.pow(R(),2), X=x0+(x1-x0)*R(), p=P.n(X,y,Z), o=P.olcek(X,y,Z), rr=(1+R()*3)*o, e=ez(X,Z);
     if(p[1]>770||p[0]<-20||p[0]>1020) continue;
     leke(p[0]+rr*.2,p[1]+rr*e*.6,rr*1.4,rr*e*1.2+.5,[0,0,0],.4);
-    c.fillStyle=rgba(sisle(golgele([190,184,166],.6+R()*.45),Z,yogun),1); c.beginPath(); c.ellipse(p[0],p[1]-rr*e*.3,rr,Math.max(.5,rr*(e+.25)),0,0,TAU); c.fill();}
+    const hh=Math.max(.5,rr*(e+.25)); c.fillStyle=rgba(sisle(golgele([176,170,150],.45+R()*.35),Z,yogun),1); c.beginPath(); c.moveTo(p[0]-rr,p[1]); c.lineTo(p[0]-rr*(.2+R()*.5),p[1]-hh*(.8+R()*.5)); c.lineTo(p[0]+rr*(.1+R()*.5),p[1]-hh*(.7+R()*.6)); c.lineTo(p[0]+rr,p[1]-hh*.2); c.closePath(); c.fill();}
   const ust=s1[1]-5, alt=Math.min(770,s0[1]+10);
   for(let i=0;i<600*doku;i++){const x=R()*1000, yy=ust+Math.pow(R(),.7)*(alt-ust), t=(yy-ust)/(alt-ust); c.fillStyle=R()<.5?`rgba(0,0,0,${.2+t*.2})`:rgba(golgele(renk,1.5),.2); c.fillRect(x,yy,.6+t*2*R(),.5+t*R());}
   tara(0,ust,1000,alt,.05,8,MUREKKEP,.09,tohum,1);

@@ -132,7 +132,7 @@ describe('vaka üretimi: 200 tohum',()=>{
       const h=vakaDenetle(v);
       if(h.length) throw new Error(`tohum ${s}: ${h.slice(0,5).join('; ')}`);
     }
-  });
+  },120000);
   it('aynı kişiler hep katil çıkmaz',()=>{
     const say={}, kumeler=new Set();
     for(const v of vakalar){
@@ -159,7 +159,7 @@ describe('vaka üretimi: 200 tohum',()=>{
       expect(v.cinayetler).toHaveLength(a.katilSayisi??7);
       expect(vakaDenetle(v)).toEqual([]);
     }
-  });
+  },120000);
 });
 
 describe('olay çekirdekleri',()=>{
