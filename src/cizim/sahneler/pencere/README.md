@@ -36,24 +36,25 @@ sahne.bitis;      // sahnenin son durumuna vardığı saniye
 | Dosya | İçerik |
 | --- | --- |
 | `ayar.js` | Bütün ayar nesneleri (aşağıda). |
-| `yerlesim.js` | `yerlesimKur()`: ekran genişliğine göre oda geometrisi (`Y`), `camNokta(a,b)`: cam üzerindeki noktayı perspektifle ekrana taşır. |
-| `oda.js` | `odaArka` (tavan, kirişler, arka duvar, kapı, taka, sol duvar, pencere boşluğu), `dograma` (kasa, dikme, kayıtlar, denizlik), `masa` (ön plandaki masa, bağlı yedi dosya, sönük gaz lambası), `odaIsigi` (tavana vuran pencere deseni, pervazlar), `masaIsigi`. |
-| `dis.js` | `disArka`: gök, toprak damlı evler, dut ağacı, kuyu, zemin. `disIsik`: ev cephelerine ve dumana vuran ışık. |
+| `yerlesim.js` | `yerlesimKur()`: ekran genişliğine göre oda geometrisi (`Y`; kaçış noktası sağda, PC'de ekran dışında: sol duvar ve büyük pencere neredeyse cepheden görünür), `camNokta(a,b)`: cam üzerindeki noktayı perspektifle ekrana taşır. |
+| `oda.js` | `odaArka` (tahta tavan, arka duvar şeridi ve kapı, taban, kirli sıvalı sol duvar, pencere boşluğunun iç yüzleri), `kirisler` (ayrı ön bellek: tavandaki ışık deseninin üstüne gelir), `dograma`, `masa` (sağ altta, alçak), `odaIsigi`, `masaIsigi`. |
+| `dis.js` | `disArka`: gök, minare, meydanın karşı ucundaki toprak damlı evler (`Z_EV` derinliğinde), dut ağacı, kuyu, zemin. `disIsik`: her meşale/fenerin ev cephelerine ve kuyuya vurduğu ışık, içi yanan birkaç pencere, duman. |
 | `kalabalik.js` | `kalabalikKur(dogru,tohum)`: tohumlu kalabalık; `kalabalikCiz`, `zeminIsigi`, `alevler`, `titre`, `ortalamaIsik`. |
-| `tas.js` | `tasPlani`: atış çizelgesi ve çatlak geometrisi; `ucanlar`, `camIzleri`, `irkilme`. |
-| `mufettis.js` | Müfettişin silueti (ortak iskelete bağlı değil). |
+| `tas.js` | `tasPlani`: atış çizelgesi ve çatlak geometrisi; `ucanlar` (hareket izi, gölge kopyalar, sıcak kenar), `camIzleri`, `camTozu` (çarpmada odaya savrulan toz ve kıymık), `irkilme`. |
+| `vinyet.js` | Sahnenin kendi kaplaması: ortak kaplamanın film çizikleri ve kumu, ama vinyet pencere merkezli. |
+| `mufettis.js` | Müfettişin silueti (ortak iskelete bağlı değil). Paltonun alt üçte biri karanlığa gömülür; irkilmede pencereden geri sıçrar. |
 | `sahne.js` | `pencereBaslat`, kare döngüsü, çizim sırası. |
 
 Çizim sırası (her kare):
 
 1. `odaArka` (ön bellek).
-2. `odaIsigi`: tavandaki pencere deseni, pervazlar, odaya taşan parıltı.
+2. `odaIsigi`: tavandaki pencere deseni, pervazlar, odaya taşan parıltı; ardından `kirisler` (ön bellek).
 3. Cam şekline kırpılmış dışarısı: `disArka` (ön bellek), `disIsik`, zemine düşen ışık, kalabalık (uzaktan yakına; her ışığın havadaki parıltısı kendinden öndeki sıralardan önce çizilir, öndekiler ona karşı siluet kalır), alevler, uçan taşlar, eski camın kiri.
 4. `camIzleri`: çatlaklar ve çamur.
-5. `dograma` (ön bellek).
+5. `dograma` (ön bellek), `camTozu`.
 6. Müfettiş.
 7. `masa` (ön bellek) ve `masaIsigi`.
-8. Açılış kararması, ortak `kaplama`.
+8. Açılış kararması, `vinyet.js` içindeki pencere merkezli `kaplama`.
 
 ## Ayar nesneleri (`ayar.js`)
 

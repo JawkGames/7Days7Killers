@@ -299,7 +299,7 @@ describe('ses motoru',()=>{
     for(const ad of ORTAMLAR) expect(m.ortam(ad,{gecis:1}),ad).toBe(true);
     expect(m.durum()).toMatchObject({ortam:'pencere-ofke',oran:1});
     expect(m.ortam('pencere-cosku')).toBe(true);
-    expect(m.durum().ortam).toBe('pencere-ofke');   // aynı kurulum, oran 0'a kayıyor
+    expect(m.durum().ortam).toBe('pencere-cosku');  // aynı kurulum, yalnızca oran 0'a kayıyor
     expect(m.durum().oran).toBe(0);
     expect(m.oran(.4)).toBe(true);
     expect(m.durum().oran).toBe(.4);

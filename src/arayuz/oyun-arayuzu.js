@@ -18,7 +18,7 @@ import {girisOlay} from '../cizim/sahneler/sorgu-odasi/giris.js';
 import {sorguEtki} from '../cizim/sahneler/sorgu-odasi/sahne.js';
 import {cv} from '../cizim/teknik/tuval.js';
 import {sahneYoneticisi} from './sahne-yoneticisi.js';
-import {masaSahnesi,durganSahne,sorguSahnesi,kayipSahne,pencereSahne,karanlikSahne,sonSahneleriHazirla} from './sahneler.js';
+import {sahneKur,sonSahneleriHazirla} from './sahneler.js';
 import {defterPaneliKur} from './defter-paneli.js';
 import {portreKoy,portreHazirla} from './portre.js';
 import {M,el,bekle,sonrakiKare,oturumOku,oturumYaz} from './yardim.js';
@@ -120,7 +120,7 @@ export function oyunArayuzuKur(){
   /* ---------- açılış ---------- */
   function acilisEkrani(kayit){
     yeniEkran(); b=null; d=null; ui=uiYeni(); ustYaz(); defter.kapa();
-    yonetici.gec('masa',masaSahnesi((k,w,h)=>{k.fillStyle='rgba(0,0,0,.35)'; k.fillRect(0,0,w,h);}));
+    yonetici.gec('masa',sahneKur('masa',{karart:.35}));
     const istenen=Number(new URLSearchParams(location.search).get('tohum'));
     const tohum=Number.isFinite(istenen)&&istenen>0?Math.floor(istenen):Math.floor(Math.random()*100000)+1;
     const kutu=el('div',{sinif:'acilis belir'},
@@ -164,7 +164,7 @@ export function oyunArayuzuKur(){
   /* ---------- kâğıt kartlı ekranlar ---------- */
   function kartEkrani(parcalar,dugmeler,{gece=false,sahne=null}={}){
     yeniEkran();
-    yonetici.gec('masa',sahne||masaSahnesi(gece?(k,w,h)=>{k.fillStyle='rgba(0,0,6,.62)'; k.fillRect(0,0,w,h);}:null));
+    yonetici.gec('masa',sahne||sahneKur('masa',{karart:gece?.62:0}));
     const kart=el('div',{sinif:'kagit belir'+(gece?' gece':''),ozellik:{'aria-live':'polite'}},
       ...parcalar.map(parcaYaz),
       el('div',{sinif:'dugme-sira'},...dugmeler));
@@ -214,11 +214,11 @@ export function oyunArayuzuKur(){
 
     const bulunanlar=()=>new Set(d.defter.izler.map(x=>x.iz));
     const etkin=()=>liste[ui.foto];
-    const sahne=durganSahne((k,w,h,dp)=>{
+    const sahne=sahneKur('foto',{ciz:(k,w,h,dp)=>{
       const cr=cv.getBoundingClientRect(), ar=alan.getBoundingClientRect();
       const a={x:ar.left-cr.left,y:ar.top-cr.top,w:Math.max(60,ar.width),h:Math.max(60,ar.height)};
       G.ciz(k,w,h,dp,{c:etkin(),alan:a,bulunanlar:bulunanlar()});
-    });
+    }});
     function panel(){
       const c=etkin();
       baslik.textContent=basliklar[ui.foto]??'';
@@ -291,7 +291,7 @@ export function oyunArayuzuKur(){
   /* ---------- çağırma ---------- */
   function cagirmaEkrani(parcalar){
     yeniEkran();
-    yonetici.gec('masa',masaSahnesi((k,w,h)=>{k.fillStyle='rgba(0,0,0,.5)'; k.fillRect(0,0,w,h);}));
+    yonetici.gec('masa',sahneKur('masa',{karart:.5}));
     const l=secenekler(b,d);
     const cagrilabilir=new Map(l.filter(s=>s.eylem.tur==='cagir').map(s=>[s.eylem.kisi,s]));
     const baslikMetin=ekran(b,d).find(p=>p.tur==='sistem')?.metin??'';
@@ -420,7 +420,7 @@ export function oyunArayuzuKur(){
     kokEl.classList.add('ekran-sorgu'); // dikey ekranda sahne kısalır (oyun.css)
     let girisBitti=Promise.resolve();
     if(girisOyna) girisBitti=new Promise(res=>{girisOlay.basla=null; girisOlay.bit=()=>{girisOlay.bit=null; res();}; setTimeout(res,9500);});
-    yonetici.gec('sorgu',sorguSahnesi({giris:girisOyna}));
+    yonetici.gec('sorgu',sahneKur('sorgu',{giris:girisOyna}));
     const anl=parcalar.filter(p=>p.tur==='anlatim').map(p=>p.metin).join(' ');
     anlatim.textContent=anl||(devam?(ekran(b,d).find(p=>p.tur==='anlatim')?.metin??''):'');
     (async()=>{
@@ -434,7 +434,7 @@ export function oyunArayuzuKur(){
   /* ---------- karar ve hüküm ---------- */
   function kararEkrani(parcalar){
     yeniEkran(); sonSahneleriHazirla();
-    yonetici.gec('masa',masaSahnesi((k,w,h)=>{k.fillStyle='rgba(0,0,0,.66)'; k.fillRect(0,0,w,h);}));
+    yonetici.gec('masa',sahneKur('masa',{karart:.66}));
     const g=(parcalar.length?parcalar:ekran(b,d)).filter(p=>p.tur==='baslik'||p.tur==='anlatim');
     const l=secenekler(b,d);
     const buyuk=(s,sinif)=>{
@@ -452,7 +452,7 @@ export function oyunArayuzuKur(){
 
   function hukumEkrani(){
     yeniEkran();
-    yonetici.gec('masa',masaSahnesi((k,w,h)=>{k.fillStyle='rgba(0,0,0,.6)'; k.fillRect(0,0,w,h);}));
+    yonetici.gec('masa',sahneKur('masa',{karart:.6}));
     const k=d.zaman.kural.finalSecimSayisi;
     const adaylar=hukumAdaylari(b,d);
     ui.hukum=(ui.hukum||[]).filter(id=>adaylar.includes(id));
@@ -523,8 +523,8 @@ export function oyunArayuzuKur(){
     const ilerle=dugme(M('son.atla'),()=>sonIlerle());
     katman.replaceChildren(el('div',{sinif:'son-ust'},el('p',{sinif:'kucuk',yazi:M('son.kayipSira',{i:i+1,n:secilen.length})}),el('p',{sinif:'ad',yazi:lakap(id)})),
       el('div',{sinif:'sorgu-bosluk'}),el('div',{sinif:'son-alt'},altyazi,el('div',{sinif:'dugme-sira'},ilerle)));
-    if(!kisi){altyazi.textContent=DIL_TR.kisiler[id]?.kayip??''; yonetici.gec('karanlik',karanlikSahne()); return;}
-    yonetici.gec('kayip',kayipSahne({
+    if(!kisi){altyazi.textContent=DIL_TR.kisiler[id]?.kayip??''; yonetici.gec('karanlik',sahneKur('karanlik')); return;}
+    yonetici.gec('kayip',sahneKur('kayip',{
       kisi,katilMi:katiller.has(id),tohum:(b.tohum+i*7)|0,
       metin:DIL_TR.kisiler[id]?.kayip??'',
       bekleyenler:(kisi.kayip?.bekleyenler||[]).map(x=>koy.kisiler[x]).filter(Boolean),
@@ -543,7 +543,7 @@ export function oyunArayuzuKur(){
     const ilerle=dugme(M('son.atla'),()=>sonIlerle());
     katman.replaceChildren(el('div',{sinif:'son-ust'},ustY),el('div',{sinif:'sorgu-bosluk'}),
       el('div',{sinif:'son-alt'},altyazi,el('div',{sinif:'dugme-sira'},ilerle)));
-    yonetici.gec('pencere',pencereSahne({dogru,tohum:b.tohum,bitince:()=>{
+    yonetici.gec('pencere',sahneKur('pencere',{dogru,tohum:b.tohum,bitince:()=>{
       if(no!==ekranNo) return;
       altyazi.textContent=anlatimlar.slice(1).join(' ');
       ilerle.textContent=M('oyun.devamDugme'); ilerle.classList.add('ana');
@@ -552,7 +552,7 @@ export function oyunArayuzuKur(){
   function gercekEkrani(parcalar){
     yeniEkran();
     kartEkrani(parcalar,[dugme(M('son.yeniden'),async()=>{await sil(); oturumYaz(OTURUM,null); karart(()=>acilisEkrani(null));},'ana')],
-      {sahne:karanlikSahne()});
+      {sahne:sahneKur('karanlik')});
   }
 
   /* ---------- canvas dokunma (fotoğraf) ---------- */

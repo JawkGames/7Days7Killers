@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><body><script type="module">
+import {fotografKur} from '/src/cizim/sahneler/olay-yeri/sahne.js';
+import {MEKANLAR} from '/src/cizim/sahneler/olay-yeri/kutuphane.js';
+const sonuc={};
+for(const id of Object.keys(MEKANLAR).sort()){
+  const ys=Object.keys(MEKANLAR[id].yuvalar).filter(y=>y!=='beden');
+  // değişmeyen iz türleri: ip, kan (zemin), saat/civi (duvar varsa)
+  const izler=[];
+  for(const y of ys){const d=MEKANLAR[id].yuvalar[y].duzlem;
+    if(d==='zemin'&&!izler.some(i=>i.tur==='kan')) izler.push({tur:'kan',yuva:y,kimlik:'k',buyukluk:'orta'});
+    else if((d==='zemin'||d==='ust')&&!izler.some(i=>i.tur==='ip')) izler.push({tur:'ip',yuva:y,kimlik:'i',renk:'kirmizi'});}
+  const f=fotografKur({mekan:id,tohum:1943,kurban:true,izler,cozunurluk:1.2});
+  sonuc[id]=f.tuval.toDataURL();
+}
+window.sonuc=sonuc;
+</script>

@@ -99,6 +99,22 @@ export function tepkidenDurum(tepki,mizac){
   return {durum:'sakin',siddet:.5};
 }
 
+/* Saf: tepkinin zaman planı (çizimden bağımsız). Hangi duygu, ne şiddette, konuşma ne kadar gecikmeli, hangi
+   hareket ne zaman başlar ve ne kadar sürer. Resimle verilen yüzler de bunu okuyabilir. Süreler saniye.
+   → {durum, siddet, bekle, olaylar:[{tur, bas, sure}]}  (tur: 'duraksa'|'flik'|'yutkun'|'kacir'|'islat') */
+export function tepkiPlani(tepki,mizac){
+  const T=tepki&&tepki.tepki?tepki.tepki:tepki;
+  if(!T) return {durum:'sakin',siddet:0,bekle:0,olaylar:[]};
+  const {durum,siddet}=tepkidenDurum(T,mizac);
+  const olaylar=[]; let bekle=0;
+  if(T.duraksama){ // söze başlamadan: dudak sıkılır, bakış iner, yutkunur
+    olaylar.push({tur:'duraksa',bas:0,sure:.75},{tur:'flik',bas:.05,sure:.2},{tur:'yutkun',bas:.22,sure:.8}); bekle=.75;
+  }
+  if(T.gozKacirma) olaylar.push({tur:'kacir',bas:T.duraksama?.4:.1,sure:mizac==='sert'?1.1:1.8});
+  if(T.tavirIpucu==='susar') olaylar.push({tur:'islat',bas:.1,sure:.62},{tur:'kacir',bas:.5,sure:1.2});
+  return {durum,siddet,bekle,olaylar};
+}
+
 /* Olay eğrileri (0→1→0) */
 const tepe=p=>p<=0||p>=1?0:Math.sin(p*Math.PI);
 const tepe2=p=>{const v=tepe(p); return v*v;};
@@ -118,7 +134,7 @@ export function ifadeKur({mizac=null,tohum=1,azHareket=false}={}){
   const olaylar=[]; // {tur,bas,sure,a,b}
   const sonraki={};
   const gurultu={}; // titreme ve canlılık için düğümlü değer gürültüsü (tohumlu)
-  let cikisBas=null;
+  let cikisBas=null, onceki={ad:'sakin',siddet:0}, gecis={x:1,v:0};
   const api={cikis:null};
 
   const ustel=hiz=>hiz>0?-Math.log(1-r()*.999)/hiz:1e9;
@@ -158,6 +174,7 @@ export function ifadeKur({mizac=null,tohum=1,azHareket=false}={}){
 
   api.hedefle=(ad,siddet=.6)=>{
     if(!PROFIL[ad]) ad='sakin';
+    if(ad!==durum.ad){onceki={ad:durum.ad,siddet:durum.siddet}; gecis={x:0,v:0};}
     durum.ad=ad; durum.siddet=siddet;
     hedef=hedefHesapla(ad,siddet,mizac);
     hepsiniZamanla();
@@ -167,23 +184,18 @@ export function ifadeKur({mizac=null,tohum=1,azHareket=false}={}){
   // Döner: {durum, siddet, bekle}: bekle saniye kadar konuşmayı geciktirmek duraksamayı okunur kılar.
   api.tepkiOyna=tepki=>{
     const T=tepki&&tepki.tepki?tepki.tepki:tepki;
-    if(!T) return {durum:durum.ad,siddet:durum.siddet,bekle:0};
-    const {durum:ad,siddet}=tepkidenDurum(T,mizac);
-    api.hedefle(ad,siddet);
-    let bekle=0;
-    if(T.duraksama){ // söze başlamadan: dudak sıkılır, bakış iner, yutkunur
-      olayEkle('duraksa'); olayEkle('flik',.05); olayEkle('yutkun',.22); bekle=.75;
-    }
-    if(T.gozKacirma){olayEkle('kacir',T.duraksama?.4:.1); olaylar[olaylar.length-1].sure+=.8;}
-    if(T.tavirIpucu==='susar'){olayEkle('islat',.1); olayEkle('kacir',.5);}
-    return {durum:ad,siddet,bekle};
+    if(!T) return {durum:durum.ad,siddet:durum.siddet,bekle:0,olaylar:[]};
+    const plan=tepkiPlani(T,mizac);
+    api.hedefle(plan.durum,plan.siddet);
+    for(const o of plan.olaylar){olayEkle(o.tur,o.bas); olaylar[olaylar.length-1].sure=o.sure;}
+    return plan;
   };
   // tek bir hareketi hemen oynat: 'kirp','agirKirp','kacir','flik','segir','yutkun','islat','salla','ikiYana','ic','duraksa'
   api.oynat=(tur,gecikme=0)=>{olayEkle(tur,gecikme); return api;};
   // hedefe hemen otur (durağan kare, karakter değişimi); olayları siler
   api.yerles=pozHedef=>{
     for(const k of KANALLAR){x[k]=k in hedef.poz?hedef.poz[k]:(POZ_NOTR[k]||0); v[k]=0;}
-    olaylar.length=0;
+    olaylar.length=0; gecis={x:1,v:0}; onceki={...durum};
     if(pozHedef) yaz(pozHedef,false);
     return api;
   };
@@ -261,9 +273,20 @@ export function ifadeKur({mizac=null,tohum=1,azHareket=false}={}){
       api.cikis=K.giris;
       cikisEk=K.poz; api.cikisBitti=K.bitti;
     }
+    {const w=W_YUZ; for(let i=0;i<n;i++){const a=w*w*(1-gecis.x)-2*w*gecis.v; gecis.v+=a*h; gecis.x+=gecis.v*h;} if(azHareket) gecis.x=1;}
     if(P) yaz(P,!azHareket);
     return api;
   };
+  /* Soyut ifade durumu (çizimden bağımsız): kodla çizilen yüz poz'u, resim kareleriyle verilen yüz bunu okur.
+     duygu/siddet: hedef; onceki + gecis (0→1, kritik sönümlü): resimde iki kare arasında karışım oranı.
+     bakis: kaçırma ve seğirmeyle eklenen bakış yönü (-1..1; y artı = yere). kirpma: göz kapanması 0..1.
+     yutkunma, dudakSikma, nefes (-1..1), konusuyor; olaylar: o an süren hareketler {tur, ilerleme 0..1}. */
+  api.soyut=()=>({
+    duygu:durum.ad, siddet:durum.siddet, onceki:{...onceki}, gecis:Math.max(0,Math.min(1,gecis.x)),
+    bakis:{x:sinirla('bakisX',x.bakisX), y:sinirla('bakisY',x.bakisY)}, kirpma:x.kirp, yutkunma:x.yutkun, seyirme:x.gozSegir,
+    dudakSikma:sinirla('dudakSik',x.dudakSik), nefes:x.nefesEk, konusuyor:t-konusmaSon<.3,
+    olaylar:olaylar.filter(o=>t>=o.bas).map(o=>({tur:o.tur,ilerleme:Math.min(1,(t-o.bas)/o.sure)}))
+  });
   api.hedefle('sakin',0);
   return api;
 }

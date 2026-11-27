@@ -1,6 +1,6 @@
 // Yalanlar: kişi × cinayet matrisi (her hücrede beş soru), seçilen hücrenin ifadeleri,
 // yalan söyleyen ya da susan masumlar ve bütün doğru olmayan ifadeler.
-import {T,esc,etiket,ad,kd,md,yer,ortu,sesAdi,izAdi,cumle,an,kisiBag,liste,ham} from './metin.js';
+import {T,esc,etiket,ad,kd,md,yer,ortu,sesAdi,izAdi,cumle,an,kisiBag,liste,ham,parca} from './metin.js';
 import {SORULAR,enIlginc} from './veri.js';
 import {siraliKisiler} from './bolum-cizelge.js';
 import {dolayliCumle} from './bolum-izler.js';
@@ -19,11 +19,11 @@ export function soruMetin(B,o,konusan){
   if(!o) return T.bos;
   const S=T.yalanlar.soru;
   switch(o.tur){
-    case 'konum': return o.kisi===konusan?cumle(S.konumKendi,{an:an(o.zaman)}):cumle(S.konum,{kisi:kd(o.kisi),an:an(o.zaman)});
-    case 'gorulen': return cumle(S.gorulen,{an:an(o.zaman)});
-    case 'fail': return cumle(S.fail,{c:o.cinayet??''});
-    case 'esya': return cumle(S.esya,{iz:izKisa(B,o.iz)});
-    case 'fark': return cumle(S.fark,{c:o.cinayet??''});
+    case 'konum': return o.kisi===konusan?parca(S.konumKendi,{an:an(o.zaman)}):parca(S.konum,{kisi:kd(o.kisi),an:an(o.zaman)});
+    case 'gorulen': return parca(S.gorulen,{an:an(o.zaman)});
+    case 'fail': return parca(S.fail,{c:o.cinayet??''});
+    case 'esya': return parca(S.esya,{iz:izKisa(B,o.iz)});
+    case 'fark': return parca(S.fark,{c:o.cinayet??''});
     default: return ham(JSON.stringify(o));
   }
 }

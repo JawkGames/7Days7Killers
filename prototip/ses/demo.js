@@ -65,7 +65,7 @@ function ciz(){
   const y1=Y*.25, y2=Y*.55;
   // dalga biçimi (±1 tam ölçek)
   c.strokeStyle='#8f8a74'; c.lineWidth=1; c.beginPath();
-  for(let i=0;i<zaman.length;i++){const x=i/(zaman.length-1)*G, y=y1/2-zaman[i]*y1/2; i?c.lineTo(x,y):c.moveTo(x,y);}
+  for(let i=0;i<zaman.length;i++){const x=i/(zaman.length-1)*G, y=Math.min(y1,Math.max(0,y1/2-zaman[i]*8*y1/2)); i?c.lineTo(x,y):c.moveTo(x,y);}
   c.stroke();
   // tayf (logaritmik frekans, 30 Hz - 12 kHz; -110..-20 dB)
   const sr=a.context.sampleRate, fx=f=>Math.log(f/30)/Math.log(12000/30)*G;
@@ -82,7 +82,7 @@ function ciz(){
   }
   c.drawImage(akis,0,Y-H);
   c.fillStyle='#8f8a74'; c.font=`${11*(devicePixelRatio||1)}px Courier New`;
-  c.fillText('dalga',6,14); c.fillText('tayf 30 Hz - 12 kHz',6,y1+14); c.fillText('akan tayf',6,Y-H+14);
+  c.fillText('dalga (×8)',6,14); c.fillText('tayf 30 Hz - 12 kHz',6,y1+14); c.fillText('akan tayf',6,Y-H+14);
 }
 ciz();
 durumYaz();

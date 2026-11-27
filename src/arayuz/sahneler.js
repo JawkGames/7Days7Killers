@@ -50,7 +50,8 @@ export function durganSahne(ciz){
   };
 }
 
-export const masaSahnesi=(ust=null)=>durganSahne((k,w,h,d)=>{masaCiz(k,w,h,d); if(ust) ust(k,w,h,d);});
+// karart: 0..1, masanın üstüne çekilen karanlık (gece, karar ekranı)
+export const masaSahnesi=({karart=0}={})=>durganSahne((k,w,h,d)=>{masaCiz(k,w,h,d); if(karart){k.fillStyle=`rgba(0,0,0,${karart})`; k.fillRect(0,0,w,h);}});
 export const karanlikSahne=()=>durganSahne((k,w,h)=>{k.fillStyle='#050606'; k.fillRect(0,0,w,h);});
 
 export const sorguSahnesi=({giris=true}={})=>({
@@ -90,3 +91,43 @@ export function pencereSahne(o){
 
 // Sona yaklaşınca (karar ekranı) önceden yükle.
 export function sonSahneleriHazirla(){kayipModul(); pencereModul();}
+
+// Resim dosyasından sahne: kodla çizilmiş bir sahnenin yerine hazır görsel konabilsin diye (ör. dışarıda üretilmiş
+// arka plan). Görsel canvas'ı kaplar (cover), isteğe bağlı karartılır. Döngü yok.
+export function resimSahnesi({kaynak,karart=0}){
+  const img=new Image(); let s=null;
+  s=durganSahne((k,w,h)=>{
+    k.fillStyle='#050606'; k.fillRect(0,0,w,h);
+    if(img.complete&&img.naturalWidth){
+      const o=Math.max(w/img.naturalWidth,h/img.naturalHeight), iw=img.naturalWidth*o, ih=img.naturalHeight*o;
+      k.drawImage(img,(w-iw)/2,(h-ih)/2,iw,ih);
+    }
+    if(karart){k.fillStyle=`rgba(0,0,0,${karart})`; k.fillRect(0,0,w,h);}
+  });
+  img.onload=()=>s.yenile(); img.src=kaynak;
+  return s;
+}
+
+/* ---------- sahne kataloğu ----------
+   Oyun akışı sahneleri adla ister (sahneKur('kayip', {...})); hangi modülün çizdiğini bilmez. Bir sahneyi
+   kodla çizilmiş olandan resim dosyasına (ya da başka bir çiziciye) çevirmek için yalnızca kaydı değiştirmek yeter:
+     sahneTanimla('masa', o=>resimSahnesi({kaynak:'gorseller/masa.webp', ...o}));
+   Her fabrika o (seçenekler) alır, {baslat, durdur} döndürür. Seçenekler:
+     masa {karart} · karanlik {} · foto {ciz(k,w,h,d)} · sorgu {giris} · kayip (kayipSahnesi seçenekleri) · pencere {dogru, tohum, bitince} */
+const KATALOG={
+  masa:masaSahnesi,
+  karanlik:()=>karanlikSahne(),
+  foto:({ciz})=>durganSahne(ciz),
+  sorgu:sorguSahnesi,
+  kayip:kayipSahne,
+  pencere:pencereSahne,
+};
+export function sahneTanimla(ad,fabrika){
+  if(typeof fabrika!=='function') throw new TypeError('sahneTanimla: fabrika işlev olmalı: '+ad);
+  KATALOG[ad]=fabrika;
+}
+export function sahneKur(ad,o={}){
+  const f=KATALOG[ad];
+  if(!f) throw new Error('Bilinmeyen sahne: '+ad);
+  return f(o);
+}

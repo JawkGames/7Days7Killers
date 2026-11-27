@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {ifadeKur,hedefHesapla,tepkidenDurum,DURUMLAR,PROFIL,MIZAC_SUZGEC,SINIR,KANALLAR} from '../src/cizim/rig/ifade.js';
+import {ifadeKur,hedefHesapla,tepkidenDurum,tepkiPlani,DURUMLAR,PROFIL,MIZAC_SUZGEC,SINIR,KANALLAR} from '../src/cizim/rig/ifade.js';
 import {cikisKaresi,CIKIS} from '../src/cizim/rig/cikis.js';
 import {POZ_NOTR,poz as rigPoz} from '../src/cizim/rig/poz.js';
 import {MIZACLAR} from '../src/icerik/kur.js';
@@ -147,6 +147,30 @@ describe('ifade: belirlenimcilik ve geçiş',()=>{
     f.sifirla(P);
     for(const k of KANALLAR) expect(P[k]).toBeCloseTo(POZ_NOTR[k]||0,9);
     for(const k of Object.keys(POZ_NOTR)) expect(rigPoz[k]).toBe(POZ_NOTR[k]); // rig pozunun varsayılanları nötr
+  });
+});
+
+describe('ifade: soyut durum (resim kareleri de sürebilsin)',()=>{
+  it('tepkiPlani saf: duraksamada önce yutkunur, sonra konuşur; göz kaçırma planlanır',()=>{
+    const p=tepkiPlani({gerginlik:.7,duzey:'cok-gergin',gozKacirma:true,duraksama:true},'korkak');
+    expect(p).toEqual(tepkiPlani({tepki:{gerginlik:.7,duzey:'cok-gergin',gozKacirma:true,duraksama:true}},'korkak'));
+    expect(p.durum).toBe('korkmus'); expect(p.bekle).toBe(.75);
+    const yut=p.olaylar.find(o=>o.tur==='yutkun'), kac=p.olaylar.find(o=>o.tur==='kacir');
+    expect(yut.bas).toBeLessThan(p.bekle); expect(kac).toBeTruthy();
+    expect(tepkiPlani({gerginlik:.1,duzey:'sakin',gozKacirma:false,duraksama:false},'sakin')).toEqual({durum:'sakin',siddet:.5,bekle:0,olaylar:[]});
+    expect(tepkiPlani(null).olaylar).toEqual([]);
+  });
+  it('soyut çıktı: duygu, geçiş oranı, bakış ve olaylar; poz verilmeden de çalışır',()=>{
+    const f=ifadeKur({mizac:'korkak',tohum:5});
+    f.hedefle('sakin',.5); for(let i=0;i<30;i++) f.guncelle(1/60);
+    f.tepkiOyna({gerginlik:.8,duzey:'cok-gergin',gozKacirma:true,duraksama:true});
+    const a=f.soyut(); expect(a.duygu).toBe('korkmus'); expect(a.onceki.ad).toBe('sakin'); expect(a.gecis).toBeLessThan(.05);
+    let kacti=false, yutkundu=false, once=a.gecis;
+    for(let i=0;i<180;i++){ f.guncelle(1/60); const s=f.soyut();
+      expect(s.gecis).toBeGreaterThanOrEqual(once-1e-9); once=s.gecis; // geçiş geri gitmez
+      if(s.olaylar.some(o=>o.tur==='kacir')&&s.bakis.y>.2) kacti=true;
+      if(s.yutkunma>.5) yutkundu=true; }
+    expect(once).toBeGreaterThan(.95); expect(kacti).toBe(true); expect(yutkundu).toBe(true);
   });
 });
 

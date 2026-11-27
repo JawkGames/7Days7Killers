@@ -142,7 +142,7 @@ export function sesMotoru({baglam=null,baglamUret,tohum=1943,duzey:ilkDuzey=.8,p
     const tarif=ortamTarifi(ad,ops);
     if(!tarif) return false;
     if(aktif&&aktif.temel===tarif.temel&&!ops.tohum){
-      if(aktif.temel==='pencere') aktif.oranAyarla(tarif.oran,simdi(),gecis);
+      if(aktif.temel==='pencere'){aktif.oranAyarla(tarif.oran,simdi(),gecis); aktif.ad=tarif.ad;}
       return true;
     }
     if(aktif) aktif.durdur(simdi(),gecis);

@@ -1,5 +1,5 @@
 // Kişi sayfası: bir kişinin bu vakadaki her şeyi (rolü, 7 günlük rotası, gördükleri, yalanları, sırları).
-import {T,trKisiler,trTerimler,esc,etiket,ad,kd,yer,ortu,esya,sirMetni,cumle,an,kisiBag,kisiBaglar,dilimSayisi,dilimler,ham} from './metin.js';
+import {T,trKisiler,trTerimler,esc,etiket,ad,kd,yer,ortu,esya,sirMetni,cumle,an,kisiBag,kisiBaglar,dilimSayisi,dilimler,ham,parca} from './metin.js';
 import {nedenSinif} from './veri.js';
 import {hucre,nedenMetin} from './bolum-cizelge.js';
 import {fizikselSatir,tanikCumle,dolayliCumle} from './bolum-izler.js';
@@ -16,16 +16,16 @@ export function kisiCiz(B,k){
     <p class="soluk">${esc(cumle(T.kisi.ev,{ev:yer(K.ev)}))}${K.is?' · '+esc(cumle(T.kisi.is,{is:yer(K.is)})):''} · ${esc(cumle(T.kisi.ortu,{ortu:ortu(K.ortu)}))} · ${esc(cumle(T.kisi.esyalar,{l:(K.esyalar||[]).map(e=>esya(k,e)).join(', ')||T.bos}))}</p></header>`);
   // Rol
   const rol=[];
-  for(const c of R.katil){const x=B.cinById[c]; rol.push(cumle(T.kisi.katil,{c,kurban:kd(x?.kurban)}));}
-  if(R.kurban){const x=B.cinById[R.kurban]; rol.push(cumle(T.kisi.kurban,{c:R.kurban,katil:kd(x?.katil)})); rol.push(cumle(T.kisi.oldu,{an:an(K.olum??x?.zaman),c:R.kurban}));}
-  for(const c of R.yardimci) rol.push(cumle(T.kisi.yardimci,{c,katil:kd(B.cinById[c]?.katil)}));
-  for(const c of R.ortan) rol.push(cumle(T.kisi.ortan,{c,katil:kd(B.cinById[c]?.katil)}));
-  for(const c of R.zorlayan) rol.push(cumle(T.kisi.zorlayan,{c,katil:kd(B.cinById[c]?.katil)}));
+  for(const c of R.katil){const x=B.cinById[c]; rol.push(parca(T.kisi.katil,{c,kurban:kd(x?.kurban)}));}
+  if(R.kurban){const x=B.cinById[R.kurban]; rol.push(parca(T.kisi.kurban,{c:R.kurban,katil:kd(x?.katil)})); rol.push(cumle(T.kisi.oldu,{an:an(K.olum??x?.zaman),c:R.kurban}));}
+  for(const c of R.yardimci) rol.push(parca(T.kisi.yardimci,{c,katil:kd(B.cinById[c]?.katil)}));
+  for(const c of R.ortan) rol.push(parca(T.kisi.ortan,{c,katil:kd(B.cinById[c]?.katil)}));
+  for(const c of R.zorlayan) rol.push(parca(T.kisi.zorlayan,{c,katil:kd(B.cinById[c]?.katil)}));
   if(R.engellendi) rol.push(T.rol.engellendi);
-  for(const x of R.tanik) rol.push(cumle(T.kisi.tanik,{c:x.c,alt:T.izAlt[x.alt]??x.alt}));
-  for(const c of R.kacan) rol.push(cumle(T.kisi.kacan,{c}));
-  for(const c of R.bulan) rol.push(cumle(T.kisi.bulan,{c}));
-  for(const c of R.isaret) rol.push(cumle(T.kisi.isaret,{c}));
+  for(const x of R.tanik) rol.push(parca(T.kisi.tanik,{c:x.c,alt:T.izAlt[x.alt]??x.alt}));
+  for(const c of R.kacan) rol.push(parca(T.kisi.kacan,{c}));
+  for(const c of R.bulan) rol.push(parca(T.kisi.bulan,{c}));
+  for(const c of R.isaret) rol.push(parca(T.kisi.isaret,{c}));
   const rs=B.rolSinif(k);
   h.push(`<h3>${esc(T.kisi.rolu)} <span class="rozet r-${rs}">${esc(T.rol[rs]??rs)}</span></h3><ul class="liste">${(rol.length?rol:[T.kisi.masum]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`);
   // Rota

@@ -1,5 +1,5 @@
 // Köy haritası: 22 mekânın komşuluk şeması (SVG) ve zaman kaydırıcısıyla o dilimde kim nerede.
-import {T,esc,ad,yer,cumle,an,anSaat,kisiBag} from './metin.js';
+import {T,esc,ad,yer,an,anSaat,kisiBag,parca} from './metin.js';
 import {KOORD} from './yerlesim.js';
 import {renk,kisa} from './bolum-cizelge.js';
 
@@ -68,7 +68,7 @@ export function haritaCiz(B,kok,durum){
     svg.innerHTML=g;
     const sirali=Object.keys(burada).sort((a,b)=>burada[b].length-burada[a].length||yer(a).localeCompare(yer(b),'tr'));
     liste.innerHTML=`<h4>${esc(T.harita.buDilimde)} · ${esc(an(t))}</h4>`+
-      simdi.map(c=>`<p class="cin-not">${esc(cumle(T.harita.cinayetBurada,{c:c.id,kurban:ad(c.kurban)}))} (${esc(yer(c.mekan))})</p>`).join('')+
+      simdi.map(c=>`<p class="cin-not">${esc(parca(T.harita.cinayetBurada,{c:c.id,kurban:ad(c.kurban)}))} (${esc(yer(c.mekan))})</p>`).join('')+
       `<ul class="liste sik">${sirali.map(m=>`<li><span class="mek-rozet" style="--z:${renk(B,m).zemin};--k:${renk(B,m).kenar}">${esc(kisa(m))}</span> <b>${esc(yer(m))}</b>: ${burada[m].map(k=>kisiBag(k)).join(', ')}</li>`).join('')}</ul>`;
   }
   ciz();

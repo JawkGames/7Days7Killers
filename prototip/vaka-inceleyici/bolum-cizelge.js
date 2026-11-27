@@ -1,6 +1,6 @@
 // Zaman çizelgesi: kişi × dilim ızgarası. Hücre = o dilimdeki mekân (renk + kısaltma), nedeni ipucunda.
 // Ada tıklamak satırları süzer, mekâna tıklamak mekânı vurgular, cinayet sütununa tıklamak ilgilileri süzer.
-import {T,esc,ad,kd,yer,esya,sirMetni,cumle,an,gunu,dilimi,dilimSayisi,ham} from './metin.js';
+import {T,esc,ad,kd,yer,esya,sirMetni,cumle,an,gunu,dilimi,dilimSayisi,ham,parca} from './metin.js';
 import {nedenParca,nedenSinif} from './veri.js';
 import {mekanRenkleri,BILINMEZ_RENK} from './yerlesim.js';
 
@@ -27,7 +27,7 @@ export function nedenMetin(B,k,n){
     const o=B.olayById[arg];
     d.sahip=kd(o?.sahip); d.esya=o?esya(o.sahip,o.esya):ham(arg);
   }
-  return cumle(kal,d);
+  return parca(kal,d);
 }
 
 const ROL_SIRA={katil:0,kurban:1,masum:2};

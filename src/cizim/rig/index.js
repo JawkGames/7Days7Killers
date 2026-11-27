@@ -5,5 +5,5 @@ export {G,karakterSec,gorunusKur,etkinGorunus,tenPaleti,karistir,hexYaz,SAC_BICI
 export {kafa,goz,kas,yuzYolu} from './yuz.js';
 export {arkaSac,onSac} from './sac.js';
 export {govde,altGovde} from './govde.js';
-export {ifadeKur,hedefHesapla,tepkidenDurum,DURUMLAR,DURUM_ADLARI,PROFIL,MIZAC_SUZGEC,SINIR,KANALLAR} from './ifade.js';
+export {ifadeKur,hedefHesapla,tepkidenDurum,tepkiPlani,DURUMLAR,DURUM_ADLARI,PROFIL,MIZAC_SUZGEC,SINIR,KANALLAR} from './ifade.js';
 export {cikisKaresi,CIKIS} from './cikis.js';
