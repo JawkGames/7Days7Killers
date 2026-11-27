@@ -48,7 +48,7 @@ Bu dosyayı Gemini (Antigravity ya da Gemini CLI) her oturumun başında okur. C
 
 ## Teknik kurallar
 
-- **Arka plan:** kişi, nesne ve katman resimleri düz beyaz `#FFFFFF` zemin üzerine üretilir, sonra senin temizleme betiğinle (dıştan doldurma + kenar arındırma) saydam PNG yapılır. Beyaz hare kalmamalı.
+- **Arka plan:** kişi, nesne ve katman resimleri düz siyah `#000000` zemin üzerine üretilir (Gemini saydam veremiyor; oyunun sahneleri karanlık olduğu için siyah zeminden kalan kenar artığı göze batmaz). Saydam verebiliyorsan saydam ver. Zemini Claude siler.
 - **Ölçü ve konum tutarlılığı:** aynı türdeki resimler aynı ölçüde ve aynı kadrajda olur (her istek dosyasında yazıyor). 24 köylünün başı aynı yükseklikte, aynı büyüklükte durmalı; Claude yüzleri koda göre hizalayacak.
 - **Yasaklar:** yazı, imza, filigran, çerçeve yok (istekte ayrıca istenmedikçe). Yakın plan el yok. Bacak ve ayak görünmez. Modern hiçbir şey yok (elektrik direği, plastik, fermuar, lastik taban).
 - **Dosya adı:** tablodaki ad, aynen. Küçük harf, Türkçe karakter yok, boşluk yerine tire.
@@ -69,7 +69,7 @@ Resimler tek tek üretilmez. Her üretimde bir **baskı** (çok parçalı tek re
 | Arayüz parçası | parçanın istenen boyu | duruma göre | duruma göre |
 
   Baskı istenen boydan küçük gelirse ızgarayı küçült (2x2 yerine 1x2 ya da tek), parçaları sonraki baskıya kaydır ve gelen çözünürlüğü `yazisma/gemini.md`'ye yaz. Büyütünce pikselleşen parça kabul edilmez.
-- **Izgara kuralları:** parçalar eşit hücrelerde; hücreler arasında geniş düz beyaz boşluk (en az %4); hiçbir şey hücre dışına taşmaz; her hücrede aynı kadraj ve aynı ölçek. Sıra: soldan sağa, yukarıdan aşağı, tablodaki sırayla.
+- **Izgara kuralları:** parçalar eşit hücrelerde; hücreler arasında geniş düz siyah boşluk (en az %4); hiçbir şey hücre dışına taşmaz; her hücrede aynı kadraj ve aynı ölçek. Sıra: soldan sağa, yukarıdan aşağı, tablodaki sırayla.
 - **Kareler (göz kapalı, ağız açık):** kişiler tek tek değil, **bütün baskı düzenletilerek** üretilir: "bu baskıdaki herkesin gözlerini kapat". Dört kişi tek üretimde biter.
 - **Küçük resimler ayrıca üretilmez:** karakter simgeleri, defter küçük resimleri gibi her şeyi Claude büyük resimden küçültür.
 - **Teslim:** baskının kendisi `varliklar/gorsel/baski/<baskı kimliği>.png` (ya da `.webp`) olarak konur. Kesmek isteğe bağlı; kesersen parçaları tablodaki adlarla koy. Claude her hâlde baskıdan kendisi de keser.

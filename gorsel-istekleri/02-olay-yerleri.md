@@ -57,5 +57,5 @@ Top-left: <A>
 Top-right: <B>
 Bottom-left: <C>
 Bottom-right: <D>
-Thin white gutters between the cells. Highest resolution available (4K if possible). No text, no labels, no frame.
+Thin black gutters between the cells. Highest resolution available (4K if possible). No text, no labels, no frame.
 ```

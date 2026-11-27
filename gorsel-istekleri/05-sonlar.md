@@ -71,7 +71,7 @@ Top-left: <A>
 Top-right: <B>
 Bottom-left: <C>
 Bottom-right: <D>
-Thin white gutters between the cells. Highest resolution available (4K if possible). No text, no labels, no frame.
+Thin black gutters between the cells. Highest resolution available (4K if possible). No text, no labels, no frame.
 ```
 
 Pencere katmanları birbirine oturmak zorunda olduğu için baskı yapılmaz; her biri tek resim. Coşkulu kalabalık, öfkeli kalabalık resmi düzenletilerek yapılır (yerleşim ve boyut aynı kalsın).

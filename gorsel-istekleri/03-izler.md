@@ -7,7 +7,7 @@ main2'den reddedilenler: `muddy_boot` (modern lastik taban), `cigar_stub` (köyd
 
 ## Ortak kurallar
 
-- **Ölçü:** 512x512, nesne ortada, kenarlarda boşluk. Düz beyaz zemin, sonra saydam PNG.
+- **Ölçü:** 512x512, nesne ortada, kenarlarda boşluk. Düz siyah zemin (#000000); zemini Claude siler.
 - **Bakış:** yerde duruyormuş gibi, yukarıdan yaklaşık 45 derece.
 - **Ölçek:** nesneler kendi gerçek boylarıyla oranlı; küçük nesne (düğme, yüzük) resmin ortasında küçük kalır.
 - **Dosya:** `varliklar/gorsel/izler/<ad>.png`
@@ -17,7 +17,7 @@ main2'den reddedilenler: `muddy_boot` (modern lastik taban), `cigar_stub` (köyd
 ```text
 A single object for a dark detective game set in a village near Gaziantep, Turkey, in 1943, to be placed on the floor of a crime scene. Match the attached style reference exactly (thick trembling ink outline, hatching, muted palette).
 Object: <NESNE>
-Seen from above at about 45 degrees, lying on the ground, centered, no cast shadow, plain flat white background, 512x512. No text.
+Seen from above at about 45 degrees, lying on the ground, centered, no cast shadow, plain flat pure black (#000000) background, 512x512. No text.
 ```
 
 ## Liste
@@ -87,5 +87,5 @@ Seen from above at about 45 degrees, lying on the ground, centered, no cast shad
 A 4x3 sheet of twelve separate objects for a dark detective game set in a village near Gaziantep, Turkey, in 1943, each to be placed on the floor of a crime scene. Match the attached style reference exactly (thick trembling ink outline, hatching, muted palette).
 Each object seen from above at about 45 degrees, lying on the ground, centered in its own cell, no cast shadow, true relative scale (small objects stay small).
 In order, left to right, top to bottom: <1>, <2>, <3>, <4>, <5>, <6>, <7>, <8>, <9>, <10>, <11>, <12>.
-Plain flat white background, wide white gutters, nothing crosses a cell border. Highest resolution available. No text, no labels.
+Plain flat pure black (#000000) background, wide black gutters, nothing crosses a cell border. Highest resolution available. No text, no labels.
 ```

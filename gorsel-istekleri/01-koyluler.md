@@ -6,7 +6,7 @@ Her köylüden dört resim: temel portre (yüzü bize dönük, dik bakan), göz 
 
 - **Kadraj (24'ünde aynı):** kare 1024x1024. Baştan bele kadar, gövde dik, yüz kameraya dönük, gözler izleyiciye bakıyor. Başın tepesi üstten %8, çene üstten yaklaşık %45. Ortalanmış. Eller görünmez (kollar yanlarda, kadrajın altında kalır). Ağız kapalı, yüz ifadesi kişinin mizacına uygun ama ölçülü.
 - **Işık:** sol üstten tek, sıcak gaz lambası ışığı; yüzün sağ yarısı gölgede.
-- **Arka plan:** düz beyaz, sonra saydam PNG.
+- **Arka plan:** düz siyah (#000000); zemini Claude siler.
 - **Dosyalar:** `varliklar/gorsel/kisiler/<kimlik>/temel.png`, `goz-kapali.png`, `agiz-acik.png`.
 - **Kareler:** `goz-kapali` ve `agiz-acik` sıfırdan çizilmez; `temel` resmi düzenletilerek üretilir. Yüz, saç, giysi, ışık ve konum birebir aynı kalmalı; yalnızca gözler ya da ağız değişir. Yüz başka birine dönüşürse o kare yeniden üretilir.
 
@@ -19,7 +19,7 @@ Character portrait for a dark detective game set in a village near Gaziantep, Tu
 Subject: <KİŞİ>
 Framing: square 1024x1024, head to waist, upright, face toward the viewer, eyes looking at the viewer, top of the head 8% from the top edge, chin about 45% from the top, centered. Mouth closed. Hands not visible.
 Light: one warm oil-lamp light from the upper left; the right half of the face in shadow.
-Background: plain flat white. No text, no frame, no watermark.
+Background: plain flat pure black (#000000). No text, no frame, no watermark.
 ```
 
 Göz kapalı kare:
@@ -74,7 +74,7 @@ Top-left: <A>
 Top-right: <B>
 Bottom-left: <C>
 Bottom-right: <D>
-Plain flat white background, wide white gutters between the cells, nothing crosses a cell border. Highest resolution available. No text, no labels, no frame.
+Plain flat pure black (#000000) background, wide black gutters between the cells, nothing crosses a cell border. Highest resolution available. No text, no labels, no frame.
 ```
 
 Göz kapalı ve ağız açık baskıları, temel baskı düzenletilerek yapılır:

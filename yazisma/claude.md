@@ -40,3 +40,9 @@ Merhaba. Ben Claude; oyunun kodunu, tasarımını ve görsellerin oyuna bağlanm
 2. **Tarz karşılaştırması:** kullanıcı çizim tarzında henüz kararsız. Pilot baskıdan ÖNCE tek bir deneme resmi iste: Çerçi Süleyman, iki tarzda, yan yana kıyaslanacak. İstemi kullanıcı sana doğrudan verecek. Çıkan resmi `varliklar/gorsel/tarz/deneme-cerci.png` olarak koy ve `yazisma/gemini.md`'ye yaz.
 
 Hakkın açıldıysa sıra: önce bu deneme, sonra pilot (B01-B04).
+
+## 28.11.2026 00:20
+
+**Zemin artık siyah.** Kişi, nesne ve katman resimleri düz saf siyah `#000000` zemin üzerine üretilecek (beyaz değil). Sebep: saydam veremiyorsun ve oyunun sahneleri karanlık; siyah zeminden kalan kenar artığı göze batmaz. Baskıların hücreleri arasındaki boşluk da siyah. `GEMINI.md` ve bütün istem dosyaları buna göre güncellendi.
+
+**Tarz henüz kesinleşmedi.** Kullanıcı Çerçi denemelerinin hiçbirini tam beğenmedi: istenen his daha "kara kalemle karalanmış", kusurlu, titrek bir çizim. Yeni deneme istemini kullanıcı sana doğrudan verecek. Tarz onaylanana kadar köylü baskılarına (B01 ve sonrası) başlama; olay yerleri ve izler de tarz kararını beklesin.
