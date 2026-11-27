@@ -4,6 +4,8 @@
 
 **27.11 teslimi:** mahmut, halil, elif (temel, göz kapalı, ağız açık) → üretildi, tarz kararı bekliyor (köylü baskıları durdu). aga-konagi, koy-odasi, cami, okul, karakol → kabul (geçici). Gemini'nin aracı en çok 1024x1024 / 1376x768 veriyor: köylüler için 2x2 baskı yetersiz, mekânlar tek tek üretilecek, izler 4x3 sürer.
 
+**28.11 karar: köylüler artık kukla parçası olarak üretilecek.** Eski köylü baskıları (istem 01) iptal. Yeni iş: `07-kukla.md`, 24 kişi sırayla, kişi başına A (baş/göz/ağız) + B (gövde) resmi. Çerçi referans resmini kullanıcı verir. Durum: **istek**. Mekân ve iz işleri bundan sonra.
+
 Gemini her oturumda bu tabloya bakar, `istek` durumundaki baskıları sırayla üretir ve teslimi `yazisma/gemini.md`'ye yazar. Bu tabloyu yalnızca Claude günceller (`üretildi`, `kabul`, `ret`). Baskı kuralları (çözünürlük, ızgara, parça boyu) `GEMINI.md` içinde. Yollar `varliklar/gorsel/` altındadır; istemler "İstem" sütunundaki numaralı dosyadadır.
 
 Durumlar: `istek` (üret), `sırada` (henüz üretme), `beklemede` (karar bekleniyor), `üretildi` (Claude bakacak), `kabul`, `ret` (sebep notta; düzeltip yeniden üret).
@@ -14,30 +16,30 @@ Durumlar: `istek` (üret), `sırada` (henüz üretme), `beklemede` (karar beklen
 
 | Baskı | Tür | Izgara | Parçalar (sırayla) | İstem | Durum | Not | Gemini notu |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B01 | köylü temel | 2x2 | `kisiler/mahmut/temel.png`<br>`kisiler/halil/temel.png`<br>`kisiler/elif/temel.png`<br>`kisiler/zeliha/temel.png` | 01 | istek | PİLOT | |
-| B02 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/mahmut/goz-kapali.png`<br>`kisiler/halil/goz-kapali.png`<br>`kisiler/elif/goz-kapali.png`<br>`kisiler/zeliha/goz-kapali.png` | 01 | istek | PİLOT | |
-| B03 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/mahmut/agiz-acik.png`<br>`kisiler/halil/agiz-acik.png`<br>`kisiler/elif/agiz-acik.png`<br>`kisiler/zeliha/agiz-acik.png` | 01 | istek | PİLOT | |
-| B04 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/mahmut/goz-kacir.png`<br>`kisiler/halil/goz-kacir.png`<br>`kisiler/elif/goz-kacir.png`<br>`kisiler/zeliha/goz-kacir.png` | 01 | istek | PİLOT | |
-| B05 | köylü temel | 2x2 | `kisiler/cemil/temel.png`<br>`kisiler/dursun/temel.png`<br>`kisiler/naciye/temel.png`<br>`kisiler/abdullah/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B06 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/goz-kapali.png`<br>`kisiler/dursun/goz-kapali.png`<br>`kisiler/naciye/goz-kapali.png`<br>`kisiler/abdullah/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B07 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/agiz-acik.png`<br>`kisiler/dursun/agiz-acik.png`<br>`kisiler/naciye/agiz-acik.png`<br>`kisiler/abdullah/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B08 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/cemil/goz-kacir.png`<br>`kisiler/dursun/goz-kacir.png`<br>`kisiler/naciye/goz-kacir.png`<br>`kisiler/abdullah/goz-kacir.png` | 01 | sırada | pilot onaylanınca | |
-| B09 | köylü temel | 2x2 | `kisiler/nihat/temel.png`<br>`kisiler/riza/temel.png`<br>`kisiler/fadime/temel.png`<br>`kisiler/bekir/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B10 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/goz-kapali.png`<br>`kisiler/riza/goz-kapali.png`<br>`kisiler/fadime/goz-kapali.png`<br>`kisiler/bekir/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B11 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/agiz-acik.png`<br>`kisiler/riza/agiz-acik.png`<br>`kisiler/fadime/agiz-acik.png`<br>`kisiler/bekir/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B12 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/nihat/goz-kacir.png`<br>`kisiler/riza/goz-kacir.png`<br>`kisiler/fadime/goz-kacir.png`<br>`kisiler/bekir/goz-kacir.png` | 01 | sırada | pilot onaylanınca | |
-| B13 | köylü temel | 2x2 | `kisiler/yusuf/temel.png`<br>`kisiler/hatice/temel.png`<br>`kisiler/arif/temel.png`<br>`kisiler/kazim/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B14 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/goz-kapali.png`<br>`kisiler/hatice/goz-kapali.png`<br>`kisiler/arif/goz-kapali.png`<br>`kisiler/kazim/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B15 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/agiz-acik.png`<br>`kisiler/hatice/agiz-acik.png`<br>`kisiler/arif/agiz-acik.png`<br>`kisiler/kazim/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B16 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/yusuf/goz-kacir.png`<br>`kisiler/hatice/goz-kacir.png`<br>`kisiler/arif/goz-kacir.png`<br>`kisiler/kazim/goz-kacir.png` | 01 | sırada | pilot onaylanınca | |
-| B17 | köylü temel | 2x2 | `kisiler/hasan/temel.png`<br>`kisiler/gulsum/temel.png`<br>`kisiler/bektas/temel.png`<br>`kisiler/sultan/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B18 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/goz-kapali.png`<br>`kisiler/gulsum/goz-kapali.png`<br>`kisiler/bektas/goz-kapali.png`<br>`kisiler/sultan/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B19 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/agiz-acik.png`<br>`kisiler/gulsum/agiz-acik.png`<br>`kisiler/bektas/agiz-acik.png`<br>`kisiler/sultan/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B20 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/hasan/goz-kacir.png`<br>`kisiler/gulsum/goz-kacir.png`<br>`kisiler/bektas/goz-kacir.png`<br>`kisiler/sultan/goz-kacir.png` | 01 | sırada | pilot onaylanınca | |
-| B21 | köylü temel | 2x2 | `kisiler/kadir/temel.png`<br>`kisiler/ismail/temel.png`<br>`kisiler/emine/temel.png`<br>`kisiler/suleyman/temel.png` | 01 | sırada | pilot onaylanınca | |
-| B22 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/goz-kapali.png`<br>`kisiler/ismail/goz-kapali.png`<br>`kisiler/emine/goz-kapali.png`<br>`kisiler/suleyman/goz-kapali.png` | 01 | sırada | pilot onaylanınca | |
-| B23 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/agiz-acik.png`<br>`kisiler/ismail/agiz-acik.png`<br>`kisiler/emine/agiz-acik.png`<br>`kisiler/suleyman/agiz-acik.png` | 01 | sırada | pilot onaylanınca | |
-| B24 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/kadir/goz-kacir.png`<br>`kisiler/ismail/goz-kacir.png`<br>`kisiler/emine/goz-kacir.png`<br>`kisiler/suleyman/goz-kacir.png` | 01 | sırada | pilot onaylanınca | |
+| B01 | köylü temel | 2x2 | `kisiler/mahmut/temel.png`<br>`kisiler/halil/temel.png`<br>`kisiler/elif/temel.png`<br>`kisiler/zeliha/temel.png` | 01 | iptal | yerine 07-kukla | |
+| B02 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/mahmut/goz-kapali.png`<br>`kisiler/halil/goz-kapali.png`<br>`kisiler/elif/goz-kapali.png`<br>`kisiler/zeliha/goz-kapali.png` | 01 | iptal | yerine 07-kukla | |
+| B03 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/mahmut/agiz-acik.png`<br>`kisiler/halil/agiz-acik.png`<br>`kisiler/elif/agiz-acik.png`<br>`kisiler/zeliha/agiz-acik.png` | 01 | iptal | yerine 07-kukla | |
+| B04 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/mahmut/goz-kacir.png`<br>`kisiler/halil/goz-kacir.png`<br>`kisiler/elif/goz-kacir.png`<br>`kisiler/zeliha/goz-kacir.png` | 01 | iptal | yerine 07-kukla | |
+| B05 | köylü temel | 2x2 | `kisiler/cemil/temel.png`<br>`kisiler/dursun/temel.png`<br>`kisiler/naciye/temel.png`<br>`kisiler/abdullah/temel.png` | 01 | iptal | yerine 07-kukla | |
+| B06 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/goz-kapali.png`<br>`kisiler/dursun/goz-kapali.png`<br>`kisiler/naciye/goz-kapali.png`<br>`kisiler/abdullah/goz-kapali.png` | 01 | iptal | yerine 07-kukla | |
+| B07 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/cemil/agiz-acik.png`<br>`kisiler/dursun/agiz-acik.png`<br>`kisiler/naciye/agiz-acik.png`<br>`kisiler/abdullah/agiz-acik.png` | 01 | iptal | yerine 07-kukla | |
+| B08 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/cemil/goz-kacir.png`<br>`kisiler/dursun/goz-kacir.png`<br>`kisiler/naciye/goz-kacir.png`<br>`kisiler/abdullah/goz-kacir.png` | 01 | iptal | yerine 07-kukla | |
+| B09 | köylü temel | 2x2 | `kisiler/nihat/temel.png`<br>`kisiler/riza/temel.png`<br>`kisiler/fadime/temel.png`<br>`kisiler/bekir/temel.png` | 01 | iptal | yerine 07-kukla | |
+| B10 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/goz-kapali.png`<br>`kisiler/riza/goz-kapali.png`<br>`kisiler/fadime/goz-kapali.png`<br>`kisiler/bekir/goz-kapali.png` | 01 | iptal | yerine 07-kukla | |
+| B11 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/nihat/agiz-acik.png`<br>`kisiler/riza/agiz-acik.png`<br>`kisiler/fadime/agiz-acik.png`<br>`kisiler/bekir/agiz-acik.png` | 01 | iptal | yerine 07-kukla | |
+| B12 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/nihat/goz-kacir.png`<br>`kisiler/riza/goz-kacir.png`<br>`kisiler/fadime/goz-kacir.png`<br>`kisiler/bekir/goz-kacir.png` | 01 | iptal | yerine 07-kukla | |
+| B13 | köylü temel | 2x2 | `kisiler/yusuf/temel.png`<br>`kisiler/hatice/temel.png`<br>`kisiler/arif/temel.png`<br>`kisiler/kazim/temel.png` | 01 | iptal | yerine 07-kukla | |
+| B14 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/goz-kapali.png`<br>`kisiler/hatice/goz-kapali.png`<br>`kisiler/arif/goz-kapali.png`<br>`kisiler/kazim/goz-kapali.png` | 01 | iptal | yerine 07-kukla | |
+| B15 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/yusuf/agiz-acik.png`<br>`kisiler/hatice/agiz-acik.png`<br>`kisiler/arif/agiz-acik.png`<br>`kisiler/kazim/agiz-acik.png` | 01 | iptal | yerine 07-kukla | |
+| B16 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/yusuf/goz-kacir.png`<br>`kisiler/hatice/goz-kacir.png`<br>`kisiler/arif/goz-kacir.png`<br>`kisiler/kazim/goz-kacir.png` | 01 | iptal | yerine 07-kukla | |
+| B17 | köylü temel | 2x2 | `kisiler/hasan/temel.png`<br>`kisiler/gulsum/temel.png`<br>`kisiler/bektas/temel.png`<br>`kisiler/sultan/temel.png` | 01 | iptal | yerine 07-kukla | |
+| B18 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/goz-kapali.png`<br>`kisiler/gulsum/goz-kapali.png`<br>`kisiler/bektas/goz-kapali.png`<br>`kisiler/sultan/goz-kapali.png` | 01 | iptal | yerine 07-kukla | |
+| B19 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/hasan/agiz-acik.png`<br>`kisiler/gulsum/agiz-acik.png`<br>`kisiler/bektas/agiz-acik.png`<br>`kisiler/sultan/agiz-acik.png` | 01 | iptal | yerine 07-kukla | |
+| B20 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/hasan/goz-kacir.png`<br>`kisiler/gulsum/goz-kacir.png`<br>`kisiler/bektas/goz-kacir.png`<br>`kisiler/sultan/goz-kacir.png` | 01 | iptal | yerine 07-kukla | |
+| B21 | köylü temel | 2x2 | `kisiler/kadir/temel.png`<br>`kisiler/ismail/temel.png`<br>`kisiler/emine/temel.png`<br>`kisiler/suleyman/temel.png` | 01 | iptal | yerine 07-kukla | |
+| B22 | köylü göz kapalı (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/goz-kapali.png`<br>`kisiler/ismail/goz-kapali.png`<br>`kisiler/emine/goz-kapali.png`<br>`kisiler/suleyman/goz-kapali.png` | 01 | iptal | yerine 07-kukla | |
+| B23 | köylü ağız açık (önceki baskıyı düzenle) | 2x2 | `kisiler/kadir/agiz-acik.png`<br>`kisiler/ismail/agiz-acik.png`<br>`kisiler/emine/agiz-acik.png`<br>`kisiler/suleyman/agiz-acik.png` | 01 | iptal | yerine 07-kukla | |
+| B24 | köylü göz kaçıran (temel baskıyı düzenle) | 2x2 | `kisiler/kadir/goz-kacir.png`<br>`kisiler/ismail/goz-kacir.png`<br>`kisiler/emine/goz-kacir.png`<br>`kisiler/suleyman/goz-kacir.png` | 01 | iptal | yerine 07-kukla | |
 | B25 | olay yeri | 2x2 | `mekanlar/aga-konagi.webp`<br>`mekanlar/koy-odasi.webp`<br>`mekanlar/muhtar-evi.webp`<br>`mekanlar/cami.webp` | 02 | istek |  | |
 | B26 | olay yeri | 2x2 | `mekanlar/okul.webp`<br>`mekanlar/karakol.webp`<br>`mekanlar/bakkal.webp`<br>`mekanlar/cesme.webp` | 02 | istek |  | |
 | B27 | olay yeri | 2x2 | `mekanlar/mezarlik.webp`<br>`mekanlar/harman-yeri.webp`<br>`mekanlar/fistiklik.webp`<br>`mekanlar/bag-evi.webp` | 02 | istek |  | |

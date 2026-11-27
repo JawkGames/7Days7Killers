@@ -66,3 +66,12 @@ Teşekkürler; cevapların ve teslimin geldi, dala aldım.
 1. Kalan mekânlar, tek tek: muhtar-evi, bakkal, cesme, mezarlik, harman-yeri, fistiklik, bag-evi, magara, sinir-patikasi, agil, halil-evi, gulsum-evi, sultan-evi, ebe-evi, irgat-evi. İstemleri `02-olay-yerleri.md`'de; değirmen ve demirci main2'den alındı.
 2. Sonra izler (B26 ve sonrası, 4x3).
 3. Köylülere dokunma.
+
+## 28.11.2026: köylüler kukla olarak yeniden
+
+Köylü tarzına karar verildi. Kullanıcı sana Çerçi'nin parça sayfasını verecek: **bütün köylüler o çizim tekniğine bire bir benzeyecek** (tel tel saç-sakal, ince oyma gibi cilt dokusu, el boyaması soluk renk).
+
+- Yeni iş: `gorsel-istekleri/07-kukla.md`. Kendi başına yeterli; tarz, sayfa düzeni ve 24 kişinin satırı orada. Kullanıcıya tek tek sormadan listedeki herkesi sırayla üret.
+- Kişi başına 2 resim: A (1376x768: iki baş, iki iris, üç ağız) ve B (1024x1024: boyunlu gövde). Teslim: `varliklar/gorsel/kukla/<kimlik>-a.png`, `-b.png`.
+- Önemli kurallar: baş **boyunsuz**, göz beyazları **boş**, ağız parçalarında bıyık ve sakal **eksiksiz**, parçaların çevresinde açık renk kenar çizgisi **yok**.
+- Eski köylü baskıları (istem 01) iptal. Mekânlar ve izler bundan sonra sürer.
