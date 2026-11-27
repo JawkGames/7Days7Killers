@@ -52,7 +52,7 @@ export default {
     'esik':       {duzlem:'zemin', konum:[146,0,ARKA-10], yuzey:'tas', alan:4},
     'duvar':      {duzlem:'arka', konum:[22,124,ARKA], yuzey:'siva', alan:5},
     'sandik-ustu':{duzlem:'ust', konum:[-168,54,404], yuzey:'tahta', alan:4},
-    'tas-dibi':   {duzlem:'zemin', konum:[110,0,372], yuzey:'toprak', alan:5},
+    'tas-dibi':   {duzlem:'zemin', konum:[84,0,350], yuzey:'toprak', alan:5},
     'beden':      {duzlem:'zemin', konum:[-40,0,298], aci:.32, ortu:'cul'}
   },
   ciz(P,r){

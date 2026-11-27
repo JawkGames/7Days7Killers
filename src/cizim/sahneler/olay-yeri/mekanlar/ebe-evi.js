@@ -109,7 +109,7 @@ export default {
     'zemin-kose':  {duzlem:'zemin', konum:[-228,0,330], yuzey:'toprak', alan:5},
     'duvar':       {duzlem:'arka', konum:[14,142,ARKA], yuzey:'siva', alan:5},
     'raf-ustu':    {duzlem:'ust', konum:[-160,RAF.y,ARKA-11], yuzey:'tahta', alan:3, uygunsuz:['un']},
-    'ocak-onu':    {duzlem:'zemin', konum:[86,0,362], yuzey:'toprak', alan:7},
+    'ocak-onu':    {duzlem:'zemin', konum:[110,0,352], yuzey:'toprak', alan:6},
     'iskemle-dibi':{duzlem:'zemin', konum:[104,0,256], yuzey:'toprak', alan:5},
     'beden':       {duzlem:'zemin', konum:[-34,0,322], aci:-.18, ortu:'kilim'}
   },
@@ -152,7 +152,7 @@ export default {
     kazan(P,R,120,ARKA-34);
     // solda havan; önde leğen ve katlı temiz bezler; iskemle
     havan(P,-150,272);
-    tas(P,isik,118,0,330,{r:24,h:9,ic:[60,50,40],tohum:9230,renk:BAKIR});
+    tas(P,isik,206,0,392,{r:22,h:9,ic:[60,50,40],tohum:9230,renk:BAKIR});
     yumusakKutu(P,isik,R,[200,244],[0,7],[338,370],[200,196,182],9231,{yuvarlak:.3,cizgi:.55});
     yumusakKutu(P,isik,R,[202,240],[7,13],[340,366],[190,186,170],9232,{yuvarlak:.3,cizgi:.55});
     yumusakKutu(P,isik,R,[204,242],[13,18],[341,368],[206,200,186],9233,{yuvarlak:.3,cizgi:.55});

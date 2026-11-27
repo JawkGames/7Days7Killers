@@ -106,7 +106,7 @@ export default {
     'zemin-kose': {duzlem:'zemin', konum:[-206,0,418], yuzey:'toprak', alan:4},
     'duvar':      {duzlem:'arka', konum:[-96,118,ARKA], yuzey:'siva', alan:5},
     'masa-ustu':  {duzlem:'ust', konum:[38,SEHPA.y[1],ARKA-34], yuzey:'tahta', alan:3},
-    'hasir':      {duzlem:'zemin', konum:[150,0,360], yuzey:'toprak', alan:8},
+    'hasir':      {duzlem:'zemin', konum:[206,0,404], yuzey:'toprak', alan:4},
     'sandik-ustu':{duzlem:'ust', konum:[194,66,334], yuzey:'tahta', alan:3, uygunsuz:['un']},
     'beden':      {duzlem:'zemin', konum:[-36,0,300], aci:-.14, ortu:'kilim'}
   },
