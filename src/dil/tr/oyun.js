@@ -260,6 +260,44 @@ export default {
     hukumOnay:'Hükmü ver',
     bos:'Henüz bir şey yok.',
     kayitHata:'Kayıt yazılamadı.',
+    // sorgu (sade görünüm) ve yapay zekâ
+    baskaSoru:'Başka soru ({n})',
+    kendiSorun:'Kendi sorunu sor…',
+    sor:'Sor',
+    dusunuyor:'…',
+    yzAyar:'Yapay zekâ',
+    yzKapali:'kapalı',
+    yzYerel:'yerel sunucu',
+    yzAdres:'Adres',
+    yzModel:'Model (boş: sunucuda yüklü olan)',
+    yzKaydet:'Kaydet',
+    yzDurumKapali:'Yapay zekâ kapalı: cevaplar hazır kalıplardan gelir.',
+    yzDurumAcik:'Yapay zekâ: {adres}',
+  },
+
+  // ---- Yapay zekâ (src/yz) ----
+  // Model cevap veremezse ya da oyuncunun serbest sorusu hiçbir hazır soruya denk gelmezse kullanılan kaçamak sözler.
+  // Ad, yer, zaman içermez (denetimden geçmesi gerekmez, zaten bilgi taşımaz).
+  yz:{
+    kacamak:[
+      'Ne demek istediğini anlamadım, müfettiş bey.',
+      'Bunu bana niye soruyorsun, beyim?',
+      'Benim aklım böyle şeylere ermez.',
+      'Sen asıl derdini söyle, müfettiş bey.',
+      'Bilmem ki... Ne diyeyim?',
+      'Ben öyle şeylerden anlamam, beyim.',
+    ],
+    // Denetim: mekânların kısa söylenişleri (model "su değirmeni" yerine "değirmen" diyebilir).
+    mekanKok:{
+      'aga-konagi':['konak'], 'koy-odasi':['köy odası'], cami:['cami'], okul:['okul','mektep'], karakol:['karakol'],
+      'demirci-dukkani':['demirci dükkânı'], degirmen:['değirmen'], cesme:['çeşme'], mezarlik:['mezarlık'],
+      'harman-yeri':['harman'], fistiklik:['fıstıklık'], 'bag-evi':['bağ evi'], magara:['mağara'],
+      'sinir-patikasi':['patika','sınır'], agil:['ağıl'],
+    },
+    // Denetim: anlamda (ya da soruda) geçmiyorsa modelin ekleyemeyeceği zaman sözleri.
+    zamanSozleri:['gece','sabah','öğle','öğleyin','ikindi','akşam','yatsı','dün','bugün','evvelsi','evvelki','ezan','şafak','sabaha karşı','gün ağar'],
+    // Denetim: anlamda geçmiyorsa söylenemeyecek suçlama kökleri.
+    suclama:['katil','öldür','vurdu','vurmuş','boğdu','boğmuş','zehirle','bıçakla'],
   },
   yontem:{bicak:'bıçaklayarak', darbe:'başına vurarak', bogma:'boğarak', zehir:'zehirleyerek', tufek:'vurarak', 'suda-bogma':'suda boğarak',
     itme:'iterek', asma:'asarak', genel:''},

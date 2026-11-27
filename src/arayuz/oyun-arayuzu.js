@@ -7,7 +7,7 @@
 import {koy as koyTemel} from '../icerik/index.js';
 import {cekirdekListesi} from '../icerik/olay-cekirdekleri/index.js';
 import {gorunusBul} from '../icerik/gorunus/index.js';
-import {baglamKur,oyunBaslat,acilis,secenekler,uygula,durumKur,ekran,kisiListesi,hukumAdaylari,sonGoster,defterGorunumu} from '../oyun/oyun.js';
+import {baglamKur,oyunBaslat,acilis,secenekler,uygula,durumKur,ekran,kisiListesi,hukumAdaylari,sonGoster,defterGorunumu,sorular as soruListesi} from '../oyun/oyun.js';
 import {kaydet,yukle,sil,kayitVerisi} from '../platform/kayit.js';
 import {azHareket} from '../platform/tercih.js';
 import {DIL_TR} from '../diyalog/adlar.js';
@@ -22,6 +22,8 @@ import {sahneKur,sonSahneleriHazirla} from './sahneler.js';
 import {defterPaneliKur} from './defter-paneli.js';
 import {portreKoy,portreHazirla} from './portre.js';
 import {M,el,bekle,sonrakiKare,oturumOku,oturumYaz} from './yardim.js';
+import {onerilenSorular} from './soru-oneri.js';
+import {yzAyarOku,yzAyarYaz,yzOlustur,baglantiDene,sozSoylet} from './yz-ayar.js';
 
 const koy={...koyTemel,cekirdekler:cekirdekListesi};
 const OY=DIL_TR.oyun;
@@ -41,6 +43,10 @@ export function oyunArayuzuKur(){
   cv.setAttribute('aria-label',M('oyun.sahneAciklama'));
 
   const yonetici=sahneYoneticisi();
+  // Yapay zekâ: kapalıysa yz.acik false, her söz kalıptan gelir ve serbest soru kutusu görünmez.
+  let yzAyar=yzAyarOku(), yz=yzOlustur(yzAyar,{kisiler:koy.kisiler});
+  const ayarDugme=el('button',{sinif:'dugme ayar-dugme',yazi:M('yz.ayar'),tik:()=>ayarPaneliAc()});
+  ust.insertBefore(ayarDugme,ust.querySelector('#defterDugme'));
   let b=null, d=null, ui=uiYeni(), ekranNo=0, foto=null, dokunma=null, soruYenile=null, fotoNoktalari=()=>[];
   function uiYeni(){return {foto:0,hukum:null,son:null};}
 
@@ -129,6 +135,7 @@ export function oyunArayuzuKur(){
       kayit?dugme(M('oyun.devam'),()=>devamEt(kayit),'ana'):null,
       kayit?el('p',{sinif:'kucuk',yazi:M('oyun.devamBilgi',{gun:kayit.zaman.gun,n:kayit.zaman.dongu})}):null,
       dugme(M('oyun.yeni'),()=>yeniOyun(tohum),kayit?'':'ana'),
+      dugme(M('yz.ayar'),()=>ayarPaneliAc(),'kucuk-dugme'),
       el('p',{sinif:'kucuk',yazi:M('oyun.tohum',{tohum})}));
     katman.replaceChildren(kutu);
     kutu.querySelector('button')?.focus({preventScroll:true});
@@ -345,12 +352,29 @@ export function oyunArayuzuKur(){
     const altyazi=el('p',{sinif:'altyazi',ozellik:{'aria-live':'polite'}});
     const tepki=el('p',{sinif:'tepki-not'});
     const sistem=el('div',{sinif:'sistem-kutu'});
-    const sorular=el('div',{sinif:'sorular gizli'});
-    let atla=null;
+    const soruKutu=el('div',{sinif:'sorular gizli'});
+    let atla=null, onceki=null;
     altyazi.addEventListener('click',()=>atla?.());
     katman.replaceChildren(el('div',{sinif:'sorgu-ust'},anlatim),el('div',{sinif:'sorgu-bosluk'}),
-      el('div',{sinif:'sorgu-alt'},konusan,altyazi,tepki,sistem,sorular));
+      el('div',{sinif:'sorgu-alt'},konusan,altyazi,tepki,sistem,soruKutu));
     const canli=()=>no===ekranNo;
+
+    // Yapay zekâ sözü önceden ister (giriş ve soru gösterilirken hazırlanır); aynı parça için tek istek.
+    const sozler=new WeakMap();
+    const sozAl=(p,oyuncuSorusu=null)=>{
+      if(!sozler.has(p)) sozler.set(p,sozSoylet(yz,p,{tohum:b.tohum,dongu:d.zaman.dongu,oyuncuSorusu}));
+      return sozler.get(p);
+    };
+    // Karakter "düşünüyor": söz gelene kadar alt yazıda üç nokta (kısa sürerse hiç görünmez).
+    async function dusunBekle(kisi,soz){
+      let geldi=false;
+      const z=setTimeout(()=>{
+        if(geldi||!canli()) return;
+        konusan.textContent=lakap(kisi); altyazi.classList.remove('soru-yazi'); tepki.textContent='';
+        altyazi.replaceChildren(el('span',{sinif:'dusunuyor',ozellik:{'aria-label':M('sorgu.dusunuyor')}},el('i'),el('i'),el('i')));
+      },160);
+      try{ return await soz; } finally{ geldi=true; clearTimeout(z); }
+    }
 
     function konusBekle(p){
       return new Promise(res=>{
@@ -372,11 +396,17 @@ export function oyunArayuzuKur(){
         if(p.tepki?.duraksama&&!azHareket) setTimeout(basla,750); else basla();
       });
     }
-    async function oyna(liste){
+    function soruYaz(metin){konusan.textContent=M('sorgu.sen'); altyazi.classList.add('soru-yazi'); altyazi.textContent=metin; tepki.textContent='';}
+    async function oyna(liste,{oyuncuSorusu=null}={}){
+      for(const p of liste) if(p.tur==='soz') sozAl(p,oyuncuSorusu);
       for(const p of liste){
         if(!canli()) return;
-        if(p.tur==='soru'){konusan.textContent=M('sorgu.sen'); altyazi.classList.add('soru-yazi'); altyazi.textContent=p.metin; tepki.textContent=''; await bekle(azHareket?150:650);}
-        else if(p.tur==='soz') await konusBekle(p);
+        if(p.tur==='soru'){soruYaz(p.metin); await bekle(azHareket?150:650);}
+        else if(p.tur==='soz'){
+          const s=await dusunBekle(p.kisi,sozAl(p,oyuncuSorusu));
+          if(!canli()) return;
+          await konusBekle({...p,metin:s.metin});
+        }
         else if(p.tur==='sahne') tepki.textContent=p.metin;
         else if(p.tur==='sistem') sistem.append(el('p',{sinif:'sistem-not',yazi:p.metin}));
         else if(p.tur==='anlatim') anlatim.textContent=p.metin;
@@ -385,29 +415,68 @@ export function oyunArayuzuKur(){
     function sorulariGoster(){
       if(!canli()||d.zaman.adim!=='sorgu') return;
       const l=secenekler(b,d);
-      sorular.replaceChildren(...l.map(s=>{
-        if(s.eylem.tur==='sor') return dugme(s.etiket,()=>sor(s));
-        if(s.eylem.tur==='ilerle') return dugme(s.etiket,()=>ayril(s),'cik');
-        return dugme(s.etiket,()=>{const r=uygulaKaydet(s.eylem); if(d.zaman.adim==='sorgu'){oyna(r.goster).then(sorulariGoster);} else ekranGoster(r.goster);});
-      }));
-      sorular.classList.remove('gizli');
+      const sorS=new Map(l.filter(s=>s.eylem.tur==='sor').map(s=>[s.eylem.soru,s]));
+      const liste=soruListesi(b,d).filter(q=>sorS.has(q.id));
+      const {oneri,diger}=onerilenSorular(liste,onceki);
+      onceki=new Set(liste.map(q=>q.id));
+      const sd=q=>dugme(q.etiket,()=>sor(sorS.get(q.id).eylem));
+      const parcalar=[el('div',{sinif:'oneri'},...oneri.map(sd))];
+      if(diger.length){
+        const dt=el('details',{sinif:'baska-soru'},el('summary',{yazi:M('sorgu.baskaSoru',{n:diger.length})}),el('div',{sinif:'baska-liste'},...diger.map(sd)));
+        parcalar.push(dt);
+      }
+      if(yz.acik){
+        const giris=el('input',{ozellik:{type:'text',maxlength:'200',placeholder:M('sorgu.kendiSorun'),'aria-label':M('sorgu.kendiSorunEtiket'),autocomplete:'off',enterkeyhint:'send'}});
+        const gonder=el('button',{sinif:'dugme',yazi:M('sorgu.sor'),tur:'submit'});
+        const form=el('form',{sinif:'serbest'},giris,gonder);
+        form.addEventListener('submit',e=>{e.preventDefault(); const m=giris.value.trim(); if(m) dene(()=>serbestSor(m));});
+        parcalar.push(form);
+      }
+      const alt=[];
+      for(const s of l){
+        if(s.eylem.tur==='sor') continue;
+        if(s.eylem.tur==='ilerle') alt.push(dugme(s.etiket,()=>ayril(s),'cik'));
+        else alt.push(dugme(s.etiket,()=>{const r=uygulaKaydet(s.eylem); if(d.zaman.adim==='sorgu'){oyna(r.goster).then(sorulariGoster);} else ekranGoster(r.goster);}));
+      }
+      parcalar.push(el('div',{sinif:'sorgu-bitir'},...alt));
+      soruKutu.replaceChildren(...parcalar);
+      soruKutu.classList.remove('gizli');
     }
-    soruYenile=()=>{if(!sorular.classList.contains('gizli')) sorulariGoster();};
-    async function sor(s){
-      sorular.classList.add('gizli'); sistem.replaceChildren(); anlatim.textContent='';
-      const r=uygulaKaydet(s.eylem);
-      const bitti=d.zaman.adim!=='sorgu';
-      if(!bitti){await oyna(r.goster); sorulariGoster(); return;}
-      // sabır bitti: kalkıp gider; çağırma bildirimi (son "sistem" parçaları) çağırma ekranında zaten yazar
-      const i=r.goster.map(p=>p.tur).lastIndexOf('anlatim');
-      await oyna(r.goster.slice(0,i<0?r.goster.length:i));
+    soruYenile=()=>{if(!soruKutu.classList.contains('gizli')) sorulariGoster();};
+    // Oyuncunun kendi sorusu: yapay zekâ hazır sorulardan birine eşler, cevabı motor verir. Eşlenmezse karakter kaçamak
+    // bir söz söyler; deftere bir şey girmez.
+    async function serbestSor(metin){
+      soruKutu.classList.add('gizli'); sistem.replaceChildren(); anlatim.textContent='';
+      soruYaz(metin);
+      const kisi=d.zaman.sorgudaki;
+      const adaylar=soruListesi(b,d).map(q=>({id:q.id,etiket:q.etiket}));
+      const esle=yz.soruEsle({metin,adaylar,kisi}).catch(()=>({id:'yok'}));
+      await bekle(azHareket?150:650);
+      const e=await dusunBekle(kisi,esle);
       if(!canli()) return;
-      if(i>=0) anlatim.textContent=r.goster[i].metin;
+      if(e.id!=='yok'&&adaylar.some(a=>a.id===e.id)){ await sor({tur:'sor',soru:e.id,metin},{oyuncuSorusu:metin}); return; }
+      const k=await dusunBekle(kisi,yz.kacamak({kisi,metin,anahtar:`${b.tohum}|${d.zaman.dongu}|${d.zaman.gun}`}));
+      if(!canli()) return;
+      await konusBekle({kisi,metin:k.metin,tepki:null});
+      sorulariGoster();
+    }
+    async function sor(eylem,{oyuncuSorusu=null}={}){
+      soruKutu.classList.add('gizli'); sistem.replaceChildren(); anlatim.textContent='';
+      const r=uygulaKaydet(eylem);
+      // Serbest soruda soru zaten ekranda: tekrar gösterilmez.
+      const goster=oyuncuSorusu?r.goster.filter(p=>p.tur!=='soru'):r.goster;
+      const bitti=d.zaman.adim!=='sorgu';
+      if(!bitti){await oyna(goster,{oyuncuSorusu}); sorulariGoster(); return;}
+      // sabır bitti: kalkıp gider; çağırma bildirimi (son "sistem" parçaları) çağırma ekranında zaten yazar
+      const i=goster.map(p=>p.tur).lastIndexOf('anlatim');
+      await oyna(goster.slice(0,i<0?goster.length:i),{oyuncuSorusu});
+      if(!canli()) return;
+      if(i>=0) anlatim.textContent=goster[i].metin;
       await bekle(azHareket?200:1400);
-      karart(()=>ekranGoster(r.goster.slice(i)));
+      karart(()=>ekranGoster(goster.slice(i)));
     }
     async function ayril(s){
-      sorular.classList.add('gizli');
+      soruKutu.classList.add('gizli');
       const r=uygulaKaydet(s.eylem);
       const a=r.goster.find(p=>p.tur==='anlatim');
       if(a) anlatim.textContent=a.metin;
@@ -421,6 +490,7 @@ export function oyunArayuzuKur(){
     let girisBitti=Promise.resolve();
     if(girisOyna) girisBitti=new Promise(res=>{girisOlay.basla=null; girisOlay.bit=()=>{girisOlay.bit=null; res();}; setTimeout(res,9500);});
     yonetici.gec('sorgu',sahneKur('sorgu',{giris:girisOyna}));
+    for(const p of parcalar) if(p.tur==='soz') sozAl(p); // selam giriş sürerken hazırlanır
     const anl=parcalar.filter(p=>p.tur==='anlatim').map(p=>p.metin).join(' ');
     anlatim.textContent=anl||(devam?(ekran(b,d).find(p=>p.tur==='anlatim')?.metin??''):'');
     (async()=>{
@@ -555,6 +625,37 @@ export function oyunArayuzuKur(){
       {sahne:sahneKur('karanlik')});
   }
 
+  /* ---------- yapay zekâ ayarı ---------- */
+  function ayarPaneliAc(){
+    kokEl.querySelector('.yz-ayar')?.remove();
+    const ad='yzKip'+Math.random().toString(36).slice(2,7);
+    const secim=(deger,yazi)=>el('label',{sinif:'yz-secim'},el('input',{ozellik:{type:'radio',name:ad,value:deger,checked:yzAyar.kip===deger}}),el('span',{yazi}));
+    const adres=el('input',{ozellik:{type:'url',value:yzAyar.adres,spellcheck:'false',autocomplete:'off'}});
+    const model=el('input',{ozellik:{type:'text',value:yzAyar.model,spellcheck:'false',autocomplete:'off'}});
+    const durum=el('p',{sinif:'yz-durum',ozellik:{'aria-live':'polite'}});
+    const oku=()=>({kip:panel.querySelector(`input[name="${ad}"]:checked`)?.value==='yerel'?'yerel':'kapali',adres:adres.value.trim()||'http://localhost:1234',model:model.value.trim()});
+    const alanlar=el('div',{sinif:'yz-alanlar'},el('label',{},el('span',{yazi:M('yz.adres')}),adres),el('label',{},el('span',{yazi:M('yz.model')}),model));
+    const guncelle=()=>{alanlar.hidden=oku().kip!=='yerel';};
+    const kapa=()=>{panel.remove(); ayarDugme.focus({preventScroll:true});};
+    const panel=el('div',{sinif:'yz-ayar belir',ozellik:{role:'dialog','aria-modal':'true','aria-label':M('yz.baslik')}},
+      el('div',{sinif:'kagit'},
+        el('h2',{yazi:M('yz.baslik')}),
+        el('div',{sinif:'yz-secimler'},secim('kapali',M('yz.kapali')),secim('yerel',M('yz.yerel'))),
+        alanlar,
+        el('p',{sinif:'kucuk',yazi:M('yz.bilgi')}),
+        durum,
+        el('div',{sinif:'dugme-sira'},
+          dugme(M('yz.dene'),async()=>{durum.textContent=M('yz.deneniyor'); const r=await baglantiDene(oku()); durum.textContent=r.tamam?M('yz.baglandi',{model:r.model}):M('yz.baglanamadi',{neden:r.neden});}),
+          dugme(M('yz.kaydet'),()=>{yzAyar=oku(); yzAyarYaz(yzAyar); yz=yzOlustur(yzAyar,{kisiler:koy.kisiler}); soruYenile?.(); kapa();},'ana'),
+          dugme(M('yz.kapat'),kapa))));
+    panel.addEventListener('change',guncelle);
+    panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation(); kapa();}});
+    panel.addEventListener('click',e=>{if(e.target===panel) kapa();});
+    guncelle();
+    kokEl.append(panel);
+    panel.querySelector('input:checked')?.focus({preventScroll:true});
+  }
+
   /* ---------- canvas dokunma (fotoğraf) ---------- */
   cv.addEventListener('pointerdown',e=>{if(dokunma){cv.setPointerCapture?.(e.pointerId); dokunma.asagi(e);}});
   cv.addEventListener('pointermove',e=>{if(dokunma) dokunma.hareket(e);});
@@ -572,6 +673,6 @@ export function oyunArayuzuKur(){
   })();
 
   // geliştirici ve sınama için: durum ve fotoğraftaki izlerin ekran konumları
-  return {durum:()=>({b,d,ui}),yonetici,fotoNoktalari:()=>fotoNoktalari()};
+  return {durum:()=>({b,d,ui}),yonetici,fotoNoktalari:()=>fotoNoktalari(),yz:()=>yz};
 }
 

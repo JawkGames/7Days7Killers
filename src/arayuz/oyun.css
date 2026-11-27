@@ -118,9 +118,45 @@ button{font:inherit}
 .altyazi.soru-yazi{color:#9fb3b5;font-weight:400;font-size:clamp(16px,2vw,20px)}
 .tepki-not{margin:0;min-height:1.2em;color:var(--soluk);font-style:italic;font-size:14px;text-align:center}
 .sistem-not{margin:0;color:var(--morluk);font-size:14px;text-align:center;max-width:820px}
-.sorular{pointer-events:auto;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:1180px;max-height:34vh;overflow:auto;overscroll-behavior:contain;padding:2px}
-.sorular .dugme{font-size:15px;padding:8px 13px;flex:0 1 auto;max-width:100%}
+/* sorular: en çok 3 öneri, katlanmış "Başka soru", kendi sorusu (yapay zekâ açıkken), sorguyu bitir */
+.sorular{pointer-events:auto;display:flex;flex-direction:column;align-items:stretch;gap:7px;width:100%;max-width:720px;max-height:40vh;overflow:auto;overscroll-behavior:contain;padding:2px}
+.sorular .dugme{font-size:15px;padding:8px 13px;max-width:100%}
+.sorular .oneri{display:flex;flex-direction:column;gap:6px}
+.sorular .oneri .dugme{text-align:left;width:100%;border-color:rgba(221,213,187,.42)}
+.baska-soru{border:1px solid var(--cizgi);background:rgba(8,9,8,.6)}
+.baska-soru>summary{cursor:pointer;min-height:40px;display:flex;align-items:center;padding:6px 13px;color:var(--soluk);font-size:14px;list-style:none}
+.baska-soru>summary::-webkit-details-marker{display:none}
+.baska-soru>summary::before{content:"+";display:inline-block;width:1.2em;color:var(--lamba)}
+.baska-soru[open]>summary::before{content:"−"}
+.baska-liste{display:flex;flex-direction:column;gap:5px;padding:0 6px 6px;max-height:22vh;overflow:auto;overscroll-behavior:contain}
+.baska-liste .dugme{text-align:left;font-size:14px;padding:7px 11px}
+.serbest{display:flex;gap:6px}
+.serbest input{flex:1;min-width:0;min-height:44px;padding:8px 12px;font:inherit;font-size:15px;color:var(--yazi);background:var(--koyu);border:1px solid var(--cizgi);border-radius:0;user-select:text;-webkit-user-select:text}
+.serbest input::placeholder{color:var(--soluk);font-style:italic}
+.serbest input:focus-visible{outline:2px solid var(--lamba);outline-offset:1px}
+.sorgu-bitir{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
 .sorular .dugme.cik{color:var(--soluk)}
+/* karakter düşünüyor: alt yazıda yavaşça yanıp sönen üç nokta */
+.dusunuyor{display:inline-flex;gap:.28em;align-items:center;height:1.1em}
+.dusunuyor i{width:.32em;height:.32em;border-radius:50%;background:currentColor;opacity:.25;animation:dusun 1.2s infinite ease-in-out}
+.dusunuyor i:nth-child(2){animation-delay:.2s}
+.dusunuyor i:nth-child(3){animation-delay:.4s}
+@keyframes dusun{0%,80%,100%{opacity:.2}40%{opacity:.95}}
+@media (prefers-reduced-motion:reduce){.dusunuyor i{animation:none;opacity:.7}}
+/* yapay zekâ ayarı */
+.ayar-dugme{font-size:13px;padding:7px 12px;min-height:40px;margin-left:auto}
+.acilis .dugme.kucuk-dugme{min-width:0;font-size:14px;color:var(--soluk);border-color:transparent;background:transparent;margin-top:4px}
+.yz-ayar{position:absolute;inset:0;z-index:35;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.6);pointer-events:auto;user-select:text;-webkit-user-select:text}
+.yz-ayar .kagit{width:min(520px,100%);max-height:100%;overflow:auto}
+.yz-ayar h2{margin-top:0}
+.yz-secimler{display:flex;flex-direction:column;gap:6px;margin:8px 0 12px}
+.yz-secim{display:flex;gap:8px;align-items:center;cursor:pointer;min-height:32px}
+.yz-secim input{accent-color:#2a1d10;width:18px;height:18px}
+.yz-alanlar{display:flex;flex-direction:column;gap:10px}
+.yz-alanlar[hidden]{display:none}
+.yz-alanlar label{display:flex;flex-direction:column;gap:3px;font-size:14px}
+.yz-alanlar input{font:inherit;font-size:15px;padding:8px 10px;min-height:42px;background:#efe6cc;color:var(--murekkep);border:1px solid #8c805f;border-radius:0}
+.yz-durum{min-height:1.3em;font-size:14px;margin:6px 0 0}
 .gizli{visibility:hidden}
 .sorular.gizli{display:none}
 /* dikey ekranda sorgu odası kısalır: yüz yukarı çıkar, alttaki boşluğu alt yazı ve sorular alır */
@@ -197,8 +233,10 @@ button.defter-satir.secili{background:rgba(226,194,122,.35)}
   .kagit{padding:20px 16px 16px;font-size:15px}
   .kisi-izgara{grid-template-columns:repeat(3,1fr);gap:7px}
   .kisi-kart img{width:76px;height:86px}
-  .sorular{max-height:30vh}
+  .sorular{max-height:40vh}
   .sorular .dugme{font-size:14px;padding:7px 10px;width:100%}
+  .serbest .dugme{width:auto}
+  .sorgu-bitir .dugme{width:auto}
   .foto-baslik{font-size:13px}
 }
 @media (max-height:520px){
@@ -210,6 +248,6 @@ button.defter-satir.secili{background:rgba(226,194,122,.35)}
   .defter-liste{flex:none;overflow:visible}
   .yan-kagit{max-height:70px}
   .defter-sekmeler .sekme{min-height:40px}
-  .sorular{max-height:28vh}
+  .sorular{max-height:34vh}
   .katman{padding-top:52px}
 }

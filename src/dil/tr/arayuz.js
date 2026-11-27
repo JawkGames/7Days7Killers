@@ -45,6 +45,26 @@ export default {
 
   // sorgu
   'sorgu.sen':'Sen',
+  'sorgu.baskaSoru':'Başka soru ({n})',
+  'sorgu.kendiSorun':'Kendi sorunu sor…',
+  'sorgu.kendiSorunEtiket':'Kendi sorun',
+  'sorgu.sor':'Sor',
+  'sorgu.dusunuyor':'düşünüyor',
+
+  // yapay zekâ ayarı
+  'yz.ayar':'Ayarlar',
+  'yz.baslik':'Yapay zekâ',
+  'yz.kapali':'Kapalı (hazır kalıplar)',
+  'yz.yerel':'Yerel sunucu (LM Studio, Ollama)',
+  'yz.adres':'Adres',
+  'yz.model':'Model adı (boş: sunucuda yüklü olan)',
+  'yz.kaydet':'Kaydet',
+  'yz.kapat':'Kapat',
+  'yz.dene':'Bağlantıyı dene',
+  'yz.deneniyor':'Deneniyor…',
+  'yz.baglandi':'Bağlandı: {model}',
+  'yz.baglanamadi':'Bağlanamadı ({neden}).',
+  'yz.bilgi':'Karakterler cevabı motorun verdiği anlamla, kendi ağızlarıyla söyler. Sunucu cevap vermezse hazır cümle kullanılır.',
 
   // karar ve hüküm
   'karar.hukumBaslik':'Katil olduğuna inandığın {k} kişiyi seç ({n}/{k})',

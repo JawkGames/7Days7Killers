@@ -9,7 +9,10 @@
 //   ({durum:d, goster:g} = uygula(b, d, eylem));   // eylem: secenekler'den biri ya da defter eylemi
 //   defterGorunumu(b, d)                           // defter paneli için hazır satırlar
 //
-// Gösterilecek parça: {tur:'baslik'|'anlatim'|'soru'|'soz'|'sahne'|'sistem'|'ayrac', metin, kisi?, tepki?}
+// Gösterilecek parça: {tur:'baslik'|'anlatim'|'soru'|'soz'|'sahne'|'sistem'|'ayrac', metin, kisi?, tepki?, anlam?}
+// 'soz' parçasının anlam alanı ({id, soru, tavir, gerginlik}) oyuncuya gösterilmez: arayüz bunu yapay zekâya verip
+// kalıp cümleyi karakterin ağzından söyletir (src/yz). soru: motorun soru etiketi (selamda null), id: soru kimliği.
+// Serbest soru: {tur:'sor', soru, metin} — metin oyuncunun yazdığıdır; soru olarak o gösterilir, cevap motorundur.
 // Defter eylemleri her adımda geçerlidir: {tur:'karsilastir', a, b}, {tur:'isaretle', kisi, isaret}.
 
 import {zamanBaslat,ilerle,cagir,geriSar,hukumVer,kalanSorgu} from '../cekirdek/zaman.js';
@@ -100,6 +103,9 @@ export function tedbirAlinabilir(b,d){
 function tedbirSozu(b,t,tablo){
   return doldur(tablo[t.tur],t.tur==='nobet'?{yer:mekanDeger(t.mekan,{},b.dil)}:{kim:kisiDeger(t.kisi,b.dil)});
 }
+
+// Yapay zekânın söyleyiş için kullanacağı anlam (oyuncuya gösterilmez).
+const anlamKur=(id,soru,c)=>({id,soru,tavir:c.tavir??'dogru',gerginlik:c.gerginlik??c.tepki?.gerginlik??.2});
 
 function sabir(b,kisi){return OYUN_AYAR.sabir[b.vaka.kisiler[kisi].mizac]??5;}
 
@@ -259,7 +265,7 @@ export function uygula(b,d,eylem){
       const zaman=cagir(z,eylem.kisi);
       const sel=selamUret({vaka:V(b,d),kisi:eylem.kisi,gun:z.gun,dil:b.dil});
       return {durum:{...d,zaman},goster:[parca('ayrac',''),parca('anlatim',doldur(A.giris,{kim:kisiDeger(eylem.kisi,b.dil)})),
-        parca('soz',sel.metin,{kisi:eylem.kisi,tepki:sel.tepki}),parca('sahne',sel.tepki.not,{kisi:eylem.kisi,tepki:sel.tepki})]};
+        parca('soz',sel.metin,{kisi:eylem.kisi,tepki:sel.tepki,anlam:anlamKur('selam@'+z.gun,null,sel)}),parca('sahne',sel.tepki.not,{kisi:eylem.kisi,tepki:sel.tepki})]};
     }
     case 'sor':{
       if(z.adim!=='sorgu') throw new Error('sor yalnızca sorgu adımında');
@@ -269,14 +275,16 @@ export function uygula(b,d,eylem){
       const c=cevapUret({vaka:V(b,d),kisi:K,soru:q,gun:z.gun,defter:d.defter,dil:b.dil});
       const soru={id:q.id,tur:q.tur,etiket:q.etiket};
       for(const k of ['kisi','zaman','iz','cinayet','celiski']) if(q[k]!=null) soru[k]=q[k];
+      const yazilan=typeof eylem.metin==='string'&&eylem.metin.trim()?eylem.metin.trim().slice(0,200):null;
+      if(yazilan) soru.yazilan=yazilan;
       const tepki={gerginlik:c.tepki.gerginlik,duzey:c.tepki.duzey,gozKacirma:c.tepki.gozKacirma,duraksama:c.tepki.duraksama,not:c.tepki.not};
       const {defter}=ifadeEkle(d.defter,{kisi:K,soru,olgu:c.olgu,iddialar:c.iddialar,metin:c.metin,tepki},kimlik(d));
-      const g=[parca('soru',q.etiket),parca('soz',c.metin,{kisi:K,tepki}),parca('sahne',tepki.not,{kisi:K,tepki}),...c.notlar.map(n=>parca('sistem',n))];
+      const g=[parca('soru',yazilan??q.etiket),parca('soz',c.metin,{kisi:K,tepki,anlam:anlamKur(q.id,q.etiket,c)}),parca('sahne',tepki.not,{kisi:K,tepki}),...c.notlar.map(n=>parca('sistem',n))];
       let yeni={...d,defter};
       const kalan=sabir(b,K)-bugunSorulan(defter,K,kimlik(d));
       if(kalan<=0){
         const mz=b.vaka.kisiler[K].mizac;
-        g.push(parca('soz',cumleKur(b.dil.kaliplar,'sabir-bitti',{mizac:mz,rng:r(b,'sabir',K,z.gun,z.dongu)}),{kisi:K}));
+        g.push(parca('soz',cumleKur(b.dil.kaliplar,'sabir-bitti',{mizac:mz,rng:r(b,'sabir',K,z.gun,z.dongu)}),{kisi:K,anlam:{id:'sabir@'+z.gun,soru:null,tavir:'dogru',gerginlik:c.gerginlik}}));
         g.push(parca('anlatim',doldur(A.sabirBitti,{kim:kisiDeger(K,b.dil)})));
         yeni={...yeni,zaman:ilerle(yeni.zaman)};
         g.push(...cagirmaGoster(b,yeni));
@@ -405,7 +413,7 @@ export function defterGorunumu(b,d){
     return {id:x.iz,metin:doldur(D.izSatiri,{cinayet:c?ad(b,c.kurban):'?',iz:iz?izMetni(b,iz,d):x.iz})};
   });
   const ifadeler=df.ifadeler.map(f=>({id:f.id,kisi:f.kisi,gun:f.gun,dongu:f.dongu,
-    metin:doldur(D.ifadeSatiri,{gun:f.gun,kim:ad(b,f.kisi),soru:f.soru.etiket??'',metin:f.metin})+(f.dongu>1?' '+doldur(D.dongu,{n:f.dongu}):'')}));
+    metin:doldur(D.ifadeSatiri,{gun:f.gun,kim:ad(b,f.kisi),soru:f.soru.yazilan??f.soru.etiket??'',metin:f.metin})+(f.dongu>1?' '+doldur(D.dongu,{n:f.dongu}):'')}));
   const celiskiler=df.celiskiler.map(k=>({id:k.id,a:k.a,b:k.b,metin:doldur(D.celiskiSatiri,{a:ozet(b,ifadeBul(df,k.a)),b:ozet(b,ifadeBul(df,k.b))})}));
   const sirlar=ogrenilenSirlar(df).map(s=>({sahip:s.sahip,metin:ad(b,s.sahip)+': '+(b.dil.kisiler[s.sahip]?.sirlar?.[s.sir]??s.sir)}));
   const isaretler=Object.entries(df.isaretler).map(([k,v])=>({kisi:k,metin:ad(b,k)+': '+D[v]}));
