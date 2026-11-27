@@ -1,8 +1,12 @@
 // Metin arayüzü: aynı oyun katmanını (src/oyun/oyun.js) tarayıcıda oynatır. Görsel yok; defter paneli,
 // soru seçenekleri düğme olarak. Kayıt src/platform/kayit.js ile (localStorage). Metinler src/dil/tr/oyun.js'te.
+// Sorguda en çok 3 önerilen soru (src/arayuz/soru-oneri.js), kalanlar katlanmış "Başka soru" listesinde; yapay zekâ
+// açıksa (src/arayuz/yz-ayar.js) oyuncu kendi sorusunu yazabilir ve sözler karakterin ağzından söylenir.
 import {koy as koyTemel} from '/src/icerik/index.js';
 import {cekirdekListesi} from '/src/icerik/olay-cekirdekleri/index.js';
-import {baglamKur,oyunBaslat,acilis,secenekler,uygula,defterGorunumu,durumKur,ekran,kisiListesi,hukumAdaylari} from '/src/oyun/oyun.js';
+import {baglamKur,oyunBaslat,acilis,secenekler,uygula,defterGorunumu,durumKur,ekran,kisiListesi,hukumAdaylari,sorular} from '/src/oyun/oyun.js';
+import {onerilenSorular} from '/src/arayuz/soru-oneri.js';
+import {yzAyarOku,yzAyarYaz,yzOlustur,sozSoylet} from '/src/arayuz/yz-ayar.js';
 import {kaydet,yukle,sil,kayitVerisi} from '/src/platform/kayit.js';
 import {doldur} from '/src/diyalog/kalip.js';
 import {DIL_TR} from '/src/diyalog/adlar.js';
@@ -13,6 +17,10 @@ const $=id=>document.getElementById(id);
 const el=(etiket,ozellik={},...cocuk)=>{const e=document.createElement(etiket); Object.assign(e,ozellik); for(const c of cocuk) e.append(c); return e;};
 
 let b=null, d=null, sekme='ifadeler', secili=[], hukumSecimi=new Set(), hukumKipi=false;
+// Sorgu: önceki turda listede olan sorular (yeni açılanları öne almak için) ve yapay zekâ beklerken kilit.
+let onceki=null, oncekiSorgu=null, kilit=false;
+let yzAyar=yzAyarOku(), yz=yzOlustur(yzAyar,{kisiler:koy.kisiler});
+const azHareket=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch{return false;}})();
 
 $('baslik').textContent=A.baslik;
 $('defterBaslik').textContent=A.defter;
@@ -22,17 +30,64 @@ $('yeni').textContent=A.yeniOyun;
 $('defterAc').onclick=()=>$('defter').classList.add('acik');
 $('defterKapat').onclick=()=>$('defter').classList.remove('acik');
 $('yeni').onclick=()=>{sil(); girisEkrani();};
+$('yzAc').textContent=A.yzAyar;
+$('yzAc').onclick=()=>{const k=$('yzAyar'); k.hidden=!k.hidden; if(!k.hidden) ayarCiz();};
+
+// Yapay zekâ ayarı: kapalı / yerel sunucu (adres, model). localStorage'da durur.
+function ayarCiz(){
+  const k=$('yzAyar'); k.replaceChildren();
+  const ad='yzKip';
+  const secim=(deger,yazi)=>{const r=el('input',{type:'radio',name:ad,value:deger,checked:yzAyar.kip===deger}); return el('label',{className:'secim'},r,el('span',{textContent:yazi}));};
+  const adres=el('input',{type:'url',value:yzAyar.adres,spellcheck:false});
+  const model=el('input',{type:'text',value:yzAyar.model,spellcheck:false});
+  const alan=el('div',{className:'alanlar'},el('label',{},el('span',{textContent:A.yzAdres}),adres),el('label',{},el('span',{textContent:A.yzModel}),model));
+  const kip=()=>k.querySelector('input[name="yzKip"]:checked')?.value==='yerel'?'yerel':'kapali';
+  const guncelle=()=>{alan.hidden=kip()!=='yerel';};
+  const kaydet=el('button',{type:'button',className:'ana',textContent:A.yzKaydet});
+  kaydet.onclick=()=>{
+    yzAyar={kip:kip(),adres:adres.value.trim()||'http://localhost:1234',model:model.value.trim()};
+    yzAyarYaz(yzAyar); yz=yzOlustur(yzAyar,{kisiler:koy.kisiler}); k.hidden=true; yzDurumYaz(); if(d) ciz();
+  };
+  k.append(el('div',{className:'secimler'},secim('kapali',A.yzKapali),secim('yerel',A.yzYerel)),alan,kaydet);
+  k.onchange=guncelle; guncelle();
+}
+function yzDurumYaz(){ $('yzAc').title=yz.acik?doldur(A.yzDurumAcik,{adres:yzAyar.adres}):A.yzDurumKapali; $('yzAc').classList.toggle('acik',yz.acik); }
+yzDurumYaz();
+
+function satirKur(p){
+  const e=el('p',{className:p.tur+' yeni'});
+  if(p.tur==='soz') e.append(el('b',{textContent:DIL_TR.kisiler[p.kisi]?.lakap+': '}),'«'+p.metin+'»');
+  else if(p.tur!=='ayrac') e.textContent=p.metin;
+  if(p.tepki) e.dataset.gerginlik=p.tepki.gerginlik;
+  return e;
+}
+// Yapay zekâ söyletirken: söz satırı önce "…" ile açılır, cümle gelince harf harf yazılır.
+async function sozYaz(p,soz){
+  const g=$('gunluk');
+  const e=el('p',{className:'soz yeni'},el('b',{textContent:DIL_TR.kisiler[p.kisi]?.lakap+': '}));
+  const m=el('span',{className:'dusunuyor',textContent:A.dusunuyor});
+  e.append(m); g.append(e);
+  if(p.tepki) e.dataset.gerginlik=p.tepki.gerginlik;
+  e.scrollIntoView({block:'nearest'});
+  const s=await soz;
+  m.className='';
+  const metin='«'+s.metin+'»';
+  if(azHareket){m.textContent=metin; return;}
+  for(let i=1;i<=metin.length;i++){ m.textContent=metin.slice(0,i); await new Promise(r=>setTimeout(r,18)); }
+}
+async function yazYz(goster,{oyuncuSorusu=null,soruGizle=false}={}){
+  const sozler=new Map((goster||[]).filter(p=>p.tur==='soz').map(p=>[p,sozSoylet(yz,p,{tohum:b.tohum,dongu:d.zaman.dongu,oyuncuSorusu})]));
+  for(const p of goster||[]){
+    if(soruGizle&&p.tur==='soru') continue;
+    if(p.tur==='soz') await sozYaz(p,sozler.get(p));
+    else $('gunluk').append(satirKur(p));
+  }
+}
 
 function yaz(goster,temizle=false){
   const g=$('gunluk');
   if(temizle) g.replaceChildren();
-  for(const p of goster||[]){
-    const e=el('p',{className:p.tur+' yeni'});
-    if(p.tur==='soz') e.append(el('b',{textContent:DIL_TR.kisiler[p.kisi]?.lakap+': '}),'«'+p.metin+'»');
-    else if(p.tur!=='ayrac') e.textContent=p.metin;
-    if(p.tepki) e.dataset.gerginlik=p.tepki.gerginlik; // çizim katmanı için hazır veri
-    g.append(e);
-  }
+  for(const p of goster||[]) g.append(satirKur(p));
   // Günlük çok uzamasın: son 220 satır kalır (her şey zaten defterde).
   while(g.children.length>220) g.firstChild.remove();
 }
@@ -42,14 +97,34 @@ async function kaydetSessiz(){
   if(!r.tamam) console.warn(A.kayitHata,r);
 }
 
-function eylemYap(e){
+async function eylemYap(e,{oyuncuSorusu=null,soruGizle=false}={}){
   const r=uygula(b,d,e);
   d=r.durum;
-  yaz(r.goster);
   if(e.tur==='karsilastir'&&r.celiski) secili=[];
   kaydetSessiz();
+  if(yz.acik&&r.goster.some(p=>p.tur==='soz'&&p.anlam)){
+    kilit=true; ciz();
+    try{ await yazYz(r.goster,{oyuncuSorusu,soruGizle}); } finally{ kilit=false; }
+  }else yaz(soruGizle?r.goster.filter(p=>p.tur!=='soru'):r.goster);
   ciz();
   if(e.tur!=='karsilastir'&&e.tur!=='isaretle') $('secenekler').scrollIntoView({block:'end',behavior:'smooth'});
+}
+
+// Oyuncunun kendi sorusu: yapay zekâ hazır sorulardan birine eşler (cevabı motor verir); eşlenmezse karakter kaçamak
+// konuşur ve deftere bir şey girmez.
+async function serbestSor(metin){
+  kilit=true; ciz();
+  try{
+    yaz([{tur:'soru',metin}]);
+    const kisi=d.zaman.sorgudaki;
+    const adaylar=sorular(b,d).map(q=>({id:q.id,etiket:q.etiket}));
+    const g=$('gunluk'), bekle=el('p',{className:'sahne yeni'},el('span',{className:'dusunuyor',textContent:A.dusunuyor}));
+    g.append(bekle);
+    const e=await yz.soruEsle({metin,adaylar,kisi}).catch(()=>({id:'yok'}));
+    bekle.remove();
+    if(e.id!=='yok'&&adaylar.some(a=>a.id===e.id)){ kilit=false; await eylemYap({tur:'sor',soru:e.id,metin},{oyuncuSorusu:metin,soruGizle:true}); return; }
+    await sozYaz({kisi},yz.kacamak({kisi,metin,anahtar:`${b.tohum}|${d.zaman.dongu}|${d.zaman.gun}`}));
+  }finally{ kilit=false; ciz(); }
 }
 
 function durumCiz(){
@@ -77,6 +152,8 @@ function seceneklerCiz(){
     k.append(onay);
     return;
   }
+  if(kilit) return;
+  if(d.zaman.adim==='sorgu') return sorguSecenekleri(k);
   // Çağırma seçenekleri (24 kişi) sıkışık ızgarada, öbürleri alt alta.
   const izgara=el('div',{className:'izgara'});
   for(const s of secenekler(b,d)){
@@ -87,6 +164,37 @@ function seceneklerCiz(){
     };
     if(s.eylem.tur==='cagir'){ if(!izgara.parentNode) k.append(izgara); izgara.append(bt); }
     else k.append(bt);
+  }
+}
+
+// Sorgu: en çok 3 önerilen soru, kalanlar katlanmış "Başka soru" listesinde, kendi sorusu (yapay zekâ açıkken), bitir.
+function sorguSecenekleri(k){
+  const z=d.zaman, sorgu=`${z.dongu}|${z.gun}|${z.sorgudaki}`;
+  if(sorgu!==oncekiSorgu){onceki=null; oncekiSorgu=sorgu;}
+  const l=secenekler(b,d);
+  const sorS=new Map(l.filter(s=>s.eylem.tur==='sor').map(s=>[s.eylem.soru,s]));
+  const liste=sorular(b,d).filter(q=>sorS.has(q.id));
+  const {oneri,diger}=onerilenSorular(liste,onceki);
+  onceki=new Set(liste.map(q=>q.id));
+  const sd=q=>{const bt=el('button',{type:'button',textContent:q.etiket}); bt.onclick=()=>eylemYap(sorS.get(q.id).eylem); return bt;};
+  for(const q of oneri) k.append(sd(q));
+  if(diger.length){
+    const dt=el('details',{className:'baska'},el('summary',{textContent:doldur(A.baskaSoru,{n:diger.length})}));
+    const ic=el('div',{className:'baska-liste'}); for(const q of diger) ic.append(sd(q));
+    dt.append(ic); k.append(dt);
+  }
+  if(yz.acik){
+    const giris=el('input',{type:'text',maxLength:200,placeholder:A.kendiSorun,autocomplete:'off'});
+    giris.setAttribute('aria-label',A.kendiSorun);
+    const form=el('form',{className:'serbest'},giris,el('button',{type:'submit',textContent:A.sor}));
+    form.onsubmit=ev=>{ev.preventDefault(); const m=giris.value.trim(); if(m) serbestSor(m);};
+    k.append(form);
+  }
+  for(const s of l){
+    if(s.eylem.tur==='sor') continue;
+    const bt=el('button',{type:'button',textContent:s.etiket,className:'ana'});
+    bt.onclick=()=>eylemYap(s.eylem);
+    k.append(bt);
   }
 }
 

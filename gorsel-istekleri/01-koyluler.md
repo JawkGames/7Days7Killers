@@ -87,8 +87,8 @@ Edit this exact sheet. Keep everything identical (faces, hair, clothes, light, p
 Edit this exact sheet. Keep everything identical (faces, hair, clothes, light, positions, sizes). Only open the mouth of all four people naturally as if saying "a", dark mouth interior, a hint of teeth.
 ```
 
-Sağa bakan baskı da temel baskı düzenletilerek yapılır (yüzler aynı kişi kalmalı):
+Göz kaçıran baskı da temel baskı düzenletilerek yapılır. Gövde, omuzlar, kadraj ve ışık birebir aynı kalır; yalnızca baş hafifçe sağa döner ve gözler izleyiciden kaçar. İki resim üst üste konup geçiş yapılacağı için başın yeri ve büyüklüğü değişmemeli:
 
 ```text
-Edit this exact sheet. Keep the same four people, same clothes, same light and same size in each cell. Turn each person to face RIGHT in a three-quarter view, as if walking toward a chair on the right, eyes looking ahead. Hands not visible.
+Edit this exact sheet. Keep the same four people, same clothes, same body, shoulders, light, position and size in each cell. Only turn each person's head slightly to the RIGHT (about 25 degrees) and move the eyes further right and a little down, avoiding eye contact with the viewer, as if uneasy or hiding something. The head stays in the same place and size. Hands not visible.
 ```
