@@ -7,8 +7,7 @@ import {rng} from '../../../../cekirdek/rastgele.js';
 import {kutu,silindir,cokgen3,hat3,golgele,tabana} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,duzlemYol,zemin,karanlik,atmosfer,leke,titrek,MUREKKEP} from '../mekan-yardim.js';
-import {RENK_EV,odaDuvarlari,odaKenarlari,tavanCiz,bosluk,duvarBoslugu,isikDusmesi,huzme,yuzDoku,tabanGolgesi,
-  yumusakKutu,yatakYigini,tas,gugum,agacCivi} from './halil-evi.js';
+import {RENK_EV,odaDuvarlari,odaKenarlari,tavanCiz,bosluk,duvarBoslugu,isikDusmesi,huzme,yuzDoku,tabanGolgesi,yumusakKutu,yatakYigini,tas,gugum,agacCivi} from '../ic-yardim.js';
 
 const SOL=-250, SAG=250, ARKA=420, TAVAN=226, ON=60;
 const PEN={x0:-176, x1:-112, y0:108, y1:164};

@@ -2,30 +2,49 @@
 // NESNE[ad] = {ciz(o), canli?(o,t,I,ilerleme)}. canli kısımlar (alev, buhar, su) her karede çizilir.
 import {c} from '../../teknik/tuval.js';
 import {karalama} from '../../teknik/firca.js';
+import {dokuIci} from './mekan.js';
 import {TAU,rgba,clamp} from '../../../cekirdek/matematik.js';
 import {rng} from '../../../cekirdek/rastgele.js';
-import {R,hat,leke,tara,yerel,sekil,elips,tabanGolge,parilti} from './cizer.js';
+import {R,DURUM,hat,leke,tara,yerel,sekil,elips,tabanGolge,parilti,isikYonu} from './cizer.js';
 
 const Y=(o,fn)=>yerel(o.x,o.y,o.s||1,fn,o.don);
 
 /* ───── ev içi ───── */
 
-// yer minderi; bos: ortasında oturulmuş çukur kalmış; yastik: arkasında duvara dayalı yastık
-function minder(o){Y(o,()=>{
-  const renk=o.renk||[74,40,34];
-  if(o.yastik){
-    const yy=()=>{c.moveTo(-84,-26); c.bezierCurveTo(-90,-60,-84,-82,-70,-84); c.quadraticCurveTo(0,-90,70,-84); c.bezierCurveTo(84,-82,90,-60,84,-26); c.closePath();};
-    sekil(yy,[renk[0]*.8|0,renk[1]*.8|0,renk[2]*.8|0],[-90,-90,90,-26],{seed:12,aci:1.2,aralik:8});
-    for(let i=0;i<2;i++) hat(()=>{c.moveTo(-76,-68+i*22); c.quadraticCurveTo(0,-72+i*22,76,-68+i*22);},R.kirliSari,.2,2,13+i,1,1);
-  }
-  tabanGolge(0,2,110,16);
-  const ust=()=>{c.moveTo(-74,-30); c.quadraticCurveTo(0,-38,74,-30); c.lineTo(84,-6); c.quadraticCurveTo(0,4,-84,-6); c.closePath();};
-  sekil(ust,renk,[-84,-38,84,4],{seed:14,aci:.15,aralik:6,isik:.18});
-  const yan=()=>{c.moveTo(-84,-6); c.quadraticCurveTo(0,4,84,-6); c.lineTo(84,2); c.quadraticCurveTo(0,10,-84,2); c.closePath();};
-  sekil(yan,[renk[0]*.5|0,renk[1]*.5|0,renk[2]*.5|0],null,{seed:15});
-  for(const d of[-.55,.55]) hat(()=>{c.moveTo(d*120,-34+Math.abs(d)*6); c.lineTo(d*134,-2);},R.kirliSari,.35,2.2,16,1,1); // kilim çizgileri
-  for(const d of[-1,1]) for(let i=0;i<3;i++) hat(()=>{c.moveTo(d*84,-6+i*2); c.lineTo(d*(92+i*2),2+i*3);},R.kirliSari,.4,1.2,17+i,1,1); // püskül
-  if(o.bos){leke(0,-18,40,9,R.siyah,.45); hat(()=>{c.ellipse(0,-17,36,7,0,Math.PI*1.05,Math.PI*1.95);},R.murekkep,.5,1.2,18,1,1);}
+// yer minderi: yere serili, alçak, üstten hafif görülen kilim kaplı döşek. bos: ortasında oturulmuş çukur kalmış.
+// yastik: arkasında duvara dayalı tek, kabarık yastık (koltuk sırtı gibi değil: köşeleri büzülmüş, püsküllü)
+function minder(o){
+  if(o.yastik) yastik({...o,y:o.y-26*(o.s||1),z:null});
+  Y(o,()=>{
+  const renk=o.renk||[92,44,34], koyu=[renk[0]*.55|0,renk[1]*.55|0,renk[2]*.55|0];
+  tabanGolge(0,4,118,16,.8);
+  const ust=()=>{c.moveTo(-82,-30); c.quadraticCurveTo(0,-35,82,-30); c.quadraticCurveTo(92,-29,96,-18); c.lineTo(100,-8); c.quadraticCurveTo(0,-3,-100,-8); c.lineTo(-96,-18); c.quadraticCurveTo(-92,-29,-82,-30); c.closePath();};
+  const yan=()=>{c.moveTo(-100,-8); c.quadraticCurveTo(0,-3,100,-8); c.lineTo(100,4); c.quadraticCurveTo(0,10,-100,4); c.closePath();};
+  sekil(yan,koyu,[-100,-8,100,10],{seed:15,aralik:4,aci:.1,isik:.08});
+  sekil(ust,renk,[-100,-35,100,-3],{seed:14,aci:.15,aralik:6,isik:.2});
+  // kilim deseni: kenara koşut iki bant ve ortada eşkenar dörtgenler
+  for(const k of[.78,.56]) hat(()=>{c.moveTo(-82*k-6,-30+ (1-k)*4); c.lineTo(82*k+6,-30+(1-k)*4); c.lineTo(96*k+4,-10); c.lineTo(-96*k-4,-10); c.closePath();},R.kirliSari,.32,1.4,16+k*10|0,2,1.2);
+  for(let i=-2;i<=2;i++){const x=i*26; hat(()=>{c.moveTo(x-9,-19); c.lineTo(x,-24); c.lineTo(x+9,-19); c.lineTo(x,-14); c.closePath();},[40,14,10],.55,1.2,20+i,1,.8);}
+  for(const d of[-1,1]) for(let i=0;i<3;i++) hat(()=>{c.moveTo(d*100,-6+i*4); c.lineTo(d*(110+i*2),-2+i*5);},R.kirliSari,.4,1.2,25+i,1,1); // püskül
+  if(o.bos){leke(0,-18,44,8,R.siyah,.5); hat(()=>{c.ellipse(0,-18,40,6,0,Math.PI*1.05,Math.PI*1.95);},R.murekkep,.55,1.2,18,1,1);}
+});}
+function yastik(o){Y(o,()=>{ // duvara dayalı, köşeleri büzük kabarık yastık
+  const renk=o.yastikRenk||o.renk&&[o.renk[0]*.85|0,o.renk[1]*.85|0,o.renk[2]*.85|0]||[78,40,30];
+  leke(0,-30,70,46,R.siyah,.45); // duvardaki gölgesi
+  const yol=()=>{c.moveTo(-58,-6); c.quadraticCurveTo(-48,-36,-62,-70); c.quadraticCurveTo(0,-60,62,-74); c.quadraticCurveTo(50,-38,60,-4); c.quadraticCurveTo(0,-14,-58,-6); c.closePath();};
+  sekil(yol,renk,[-62,-74,62,-4],{seed:31,aralik:5,aci:1.1,isik:.2});
+  hat(()=>{c.moveTo(-50,-40); c.quadraticCurveTo(0,-34,52,-42);},R.kirliSari,.28,1.4,32,1,1); // dikiş
+  for(const [x,y] of[[-62,-70],[62,-74],[-58,-6],[60,-4]]) for(let i=0;i<3;i++) hat(()=>{c.moveTo(x,y); c.lineTo(x+Math.sign(x)*(6+i*2),y+(i-1)*4+(y<-30?-4:4));},R.kirliSari,.45,1.2,33+i,1,.6); // köşe püskülleri
+});}
+// bakır tepsi: doğrudan yerde, kenarı kalkık; üstündeki fincanlar ayrı öğe
+function tepsi(o){Y(o,()=>{
+  const rx=o.rx||92, ry=rx*.26;
+  tabanGolge(0,3,rx*1.05,ry*.9,.8);
+  sekil(()=>{c.ellipse(0,0,rx,ry,0,0,Math.PI); c.lineTo(-rx,-7); c.ellipse(0,-7,rx,ry,0,Math.PI,0,true); c.closePath();},R.bakir,[-rx,-7,rx,ry],{seed:41,isik:.3,aralik:4});
+  sekil(elips(0,-7,rx,ry),[96,62,32],[-rx,-7-ry,rx,-7+ry],{seed:42,isik:.3,aci:.1,aralik:7,taraA:.3});
+  for(const k of[.82,.5]) hat(elips(0,-7,rx*k,ry*k),[40,22,10],.45,1.1,43+k*10|0,2,1.2); // kalem işi halkalar
+  karalama(0,-7,rx*.3,ry*.3,[40,22,10],.25,45,8);
+  parilti(()=>{c.ellipse(0,-7,rx,ry,0,Math.PI*1.1,Math.PI*1.7);},.35,2);
 });}
 
 // yer sofrası: alçak tahta ayak üstünde bakır sini
@@ -191,6 +210,12 @@ function kapi(o){Y(o,()=>{
     c.save(); c.beginPath(); c.rect(x,-h,ww-2,h); c.clip(); leke(x+ww/2,-h*.5,ww,h*.6,R.siyah,.35); tara(x,-h,x+ww,0,1.52,7,R.murekkep,.35,133+x|0); c.restore();
     hat(()=>{c.moveTo(x+ww-1,-h); c.lineTo(x+ww-1,0);},R.murekkep,.9,1.8,(x|0)+134,2,1);
     x+=ww;}
+  // kapının kiri: ışıktan uzak yarı koyu, eşik dibi kararmış, el değen yer cilalı; üstüne çapraz tarama
+  c.save(); c.beginPath(); c.rect(-w/2,-h,w,h); c.clip();
+  const yon=isikYonu(0); leke(-yon*w*.5,-h*.5,w*.7,h*.8,R.siyah,.55); leke(0,0,w*.8,60,R.siyah,.6); leke(yon*w*.2,-h*.5,30,40,DURUM.isikRenk,.08);
+  for(let i=0;i<3;i++) leke((r()-.5)*w,-r()*h,40+r()*40,50+r()*60,[R.kufYesil,R.morluk,R.kirliSari][i],.12);
+  tara(-w/2,-h,w/2,0,.5,8,R.murekkep,.3,139);
+  c.restore();
   for(const yy of[-h*.82,-h*.2]){c.fillStyle='#1c1814'; c.fillRect(-w/2,yy-9,w,18); hat(()=>{c.rect(-w/2,yy-9,w,18);},R.murekkep,.8,1.4,(yy|0)+135,2,1); for(let x=-w/2+12;x<w/2;x+=28){c.fillStyle='#0a0a0a'; c.beginPath(); c.arc(x,yy,2.6,0,TAU); c.fill();}}
   if(o.demir){for(const yy of[-h*.5]){c.fillStyle='#16171a'; c.fillRect(-w/2,yy-7,w,14);}}
   hat(()=>{c.rect(-w/2,-h,w,h);},R.murekkep,.95,2.2,136,2,1.5);
@@ -242,14 +267,22 @@ function ors(o){Y(o,()=>{
 });}
 const NAL=()=>{c.moveTo(-26,0); c.bezierCurveTo(-34,-30,-18,-40,0,-40); c.bezierCurveTo(18,-40,34,-30,26,0);};
 function nal(o){Y(o,()=>{ // yarım kalmış nal, örsün üstünde yatar: kızıllığı canlı kısımda söner
-  c.save(); c.scale(1,.42); hat(NAL,[40,36,34],.95,8,161,2,1); c.restore();
+  leke(0,-2,40,10,R.siyah,.5);
+  c.save(); c.scale(1,.5); hat(NAL,[34,30,28],.98,11,161,2,1); hat(NAL,R.murekkep,.9,2,163,2,1.2); c.restore();
+  for(const d of[-1,1]) for(let i=0;i<3;i++){c.fillStyle='#050505'; c.beginPath(); c.arc(d*(18-i*3)+d*(i===2?-4:0),-6-i*5.2,1.8,0,TAU); c.fill();} // mıh delikleri
+});}
+// demirci maşası: ağzı nalı tutar, kolları örsün kenarından aşağı sarkar
+function demirMasa(o){Y(o,()=>{
+  hat(()=>{c.moveTo(-4,-6); c.lineTo(70,-14); c.lineTo(200,60); c.moveTo(-2,2); c.lineTo(72,-6); c.lineTo(214,52);},[34,34,34],.98,5,165,2,1);
+  hat(()=>{c.moveTo(70,-14); c.lineTo(214,52);},R.murekkep,.6,1.2,166,2,1.4);
+  parilti(()=>{c.moveTo(80,-14); c.lineTo(190,46);},.2,1.4);
 });}
 function nalCanli(o,t,I,ilerleme){ // örsün üstünde soğuyan nal: sahne boyunca kızıllık azalır
   const k=clamp(1-ilerleme*.9,0,1);
   Y(o,()=>{
     c.save(); c.globalCompositeOperation='lighter';
-    c.save(); c.scale(1,.42); hat(NAL,[220,80,24],.85*k,5,162,1,0); c.restore();
-    leke(0,-8,46,20,[200,60,20],.35*k);
+    c.save(); c.scale(1,.5); hat(NAL,[236,96,30],.9*k,7,162,1,0); hat(NAL,[255,190,90],.6*k*k,2.4,164,1,0); c.restore();
+    leke(0,-10,70,30,[210,70,20],.42*k); leke(0,-40,140,90,[200,80,30],.12*k);
     c.restore();
   });
 }
@@ -261,10 +294,11 @@ function cekic(o){Y(o,()=>{
 function korukOcak(o){Y(o,()=>{
   const w=300;
   const davl=()=>{c.moveTo(-w*.5,-150); c.lineTo(-w*.2,-470); c.lineTo(w*.2,-470); c.lineTo(w*.5,-150); c.closePath();};
-  sekil(davl,[44,40,32],[-w*.5,-470,w*.5,-150],{seed:181,koyu:.6,aralik:6,aci:1.2});
-  leke(0,-300,110,160,R.siyah,.6);
+  dokuIci(davl,-w*.5,-480,w*.5,-150,'siva',{seed:181,renk:[60,54,42],koyu:.5,golgeX:-w*.5});
+  c.save(); c.beginPath(); davl(); c.clip(); leke(0,-260,90,200,R.siyah,.75); leke(0,-170,140,40,[200,90,30],.12); c.restore(); // is, korun yansıması
   const ust=()=>{c.rect(-w/2,-150,w,150);};
-  sekil(ust,[56,52,40],[-w/2,-150,w/2,0],{seed:182,aralik:6});
+  dokuIci(ust,-w/2,-150,w/2,0,'tas',{seed:182,renk:[70,62,48],boy:34,koyu:.4,golgeX:-w/2,isikX:w*.3,isikY:-80});
+  sekil(()=>{c.rect(-w/2-8,-162,w+16,14);},[64,58,46],[-w/2-8,-162,w/2+8,-148],{seed:187,aralik:4,isik:.25}); // kenar taşı
   c.fillStyle='#080605'; c.beginPath(); c.ellipse(0,-150,w*.36,24,0,0,TAU); c.fill(); // ocak çukuru
   leke(0,-150,w*.32,18,[70,66,58],.45); // gri kül
   hat(elips(0,-150,w*.36,24),R.murekkep,.8,1.6,183,2,1);
@@ -350,21 +384,42 @@ function dikisMakinesi(o){Y(o,()=>{
   parilti(()=>{c.moveTo(-50,-112); c.lineTo(40,-117);},.25,1.6);
   c.restore();
 });}
-// gelinlik kumaşı: makinenin ayağının altından masaya yayılır, masanın önünden yere dökülür
+// manken tahtası üstünde yarım gelinlik: dar korsaj, belden yere açılan etek, dantel etek ucu; bir kolu takılmamış,
+// korsajda iğneler. Ayağı eteğin altında kalır; tepesinde tahta topuz (baş yok).
+function manken(o){Y(o,()=>{
+  const r=rng(235), ak=o.renk||[156,150,130];
+  tabanGolge(0,6,150,18,.85);
+  // ayak: eteğin altından görünen üç kısa tahta bacak
+  for(const d of[-1,0,1]) hat(()=>{c.moveTo(0,-30); c.lineTo(d*60,4);},R.tahtaKoyu,.95,5,236+d,1,0);
+  // etek: belden yere açılır, kıvrımlarla
+  const etek=()=>{c.moveTo(-34,-330); c.bezierCurveTo(-60,-250,-118,-120,-140,-6); c.quadraticCurveTo(-70,10,0,4); c.quadraticCurveTo(74,10,146,-4); c.bezierCurveTo(118,-120,62,-250,34,-330); c.closePath();};
+  sekil(etek,ak,[-146,-330,146,10],{seed:231,isik:.3,koyu:.5,aralik:7,aci:1.35,taraA:.3,golgeK:.5});
+  for(let i=0;i<7;i++){const x=-96+i*32+(r()-.5)*8; hat(()=>{c.moveTo(x*.25,-326); c.bezierCurveTo(x*.45,-220,x*.8+(r()-.5)*10,-110,x+(r()-.5)*8,0);},[70,66,56],.45,1.3,240+i,2,2);} // kıvrımlar
+  for(let x=-140;x<142;x+=13) hat(()=>{c.arc(x+6,2+Math.abs(x)*.01,6.5,0,Math.PI);},[200,196,176],.42,1.1,(x|0)+600,1,.6); // dantel etek ucu
+  // korsaj: manken gövdesi biçiminde; sağ omuz çıplak (kol takılmamış), tahta gövde görünür
+  const govde=()=>{c.moveTo(-34,-330); c.bezierCurveTo(-46,-360,-44,-400,-58,-428); c.quadraticCurveTo(-40,-446,-14,-448); c.lineTo(14,-448); c.quadraticCurveTo(40,-446,58,-428); c.bezierCurveTo(44,-400,46,-360,34,-330); c.closePath();};
+  sekil(govde,[40,34,28],[-58,-448,58,-330],{seed:250,aralik:4,isik:.12}); // mankenin kara bezli gövdesi
+  const korsaj=()=>{c.moveTo(-34,-330); c.bezierCurveTo(-46,-360,-44,-400,-58,-428); c.quadraticCurveTo(-40,-446,-14,-444); c.quadraticCurveTo(0,-420,10,-414); c.bezierCurveTo(26,-392,30,-360,34,-330); c.closePath();};
+  sekil(korsaj,ak,[-58,-446,34,-330],{seed:251,isik:.32,aralik:5,aci:1.1,taraA:.3});
+  hat(()=>{c.moveTo(10,-414); c.bezierCurveTo(26,-392,30,-360,34,-330);},[200,196,176],.4,1.1,252,1,1); // yarım kalmış dikiş kenarı, iplik sarkar
+  hat(()=>{c.moveTo(30,-350); c.bezierCurveTo(44,-330,40,-300,48,-280);},[190,186,166],.5,.9,253,1,1);
+  // kol: yalnız sol kol, kısa, kabarık
+  sekil(()=>{c.moveTo(-58,-428); c.bezierCurveTo(-84,-430,-92,-400,-82,-378); c.quadraticCurveTo(-66,-384,-50,-396); c.closePath();},ak,[-92,-432,-50,-378],{seed:254,isik:.3,aralik:5,taraA:.3});
+  hat(()=>{c.moveTo(-34,-332); c.quadraticCurveTo(0,-324,34,-332);},[90,86,72],.6,1.6,255,2,1); // bel dikişi
+  for(let i=0;i<5;i++){const x=-24+i*12, y=-372-i*6; c.fillStyle='rgba(220,220,210,.85)'; c.beginPath(); c.arc(x,y,1.6,0,TAU); c.fill(); hat(()=>{c.moveTo(x,y); c.lineTo(x+4,y+7);},[200,200,190],.6,.8,256+i,1,0);} // toplu iğneler
+  // boyun ve tahta topuz
+  sekil(()=>{c.rect(-9,-470,18,24);},[40,34,28],null,{seed:262,kalin:1.2});
+  sekil(elips(0,-478,16,10),R.tahta,[-16,-488,16,-468],{seed:263,tara:false,isik:.3});
+});}
+// makineden sarkan gelinlik kumaşı: iğnenin altından masanın kenarına, oradan yere ve mankenin eteğine akar
 function gelinlik(o){Y(o,()=>{
-  const yol=()=>{
-    c.moveTo(-150,-134); c.bezierCurveTo(-110,-142,-40,-144,20,-136);           // masanın üstünde
-    c.bezierCurveTo(40,-120,50,-80,70,-40); c.bezierCurveTo(90,-10,130,4,150,22);  // önden sarkan
-    c.bezierCurveTo(90,34,-40,36,-230,28);                                          // yerde toplanan
-    c.bezierCurveTo(-200,0,-180,-60,-176,-110); c.bezierCurveTo(-170,-124,-160,-130,-150,-134); c.closePath();
-  };
-  c.save(); c.scale(.78,.78); c.translate(-30,0);
-  sekil(yol,[124,118,100],[-230,-144,150,36],{seed:231,isik:.22,koyu:.55,aralik:8,aci:1.3,taraA:.28});
-  const r=rng(233);
-  for(let i=0;i<7;i++){const x=-160+i*34+r()*10; hat(()=>{c.moveTo(x+10,-128); c.bezierCurveTo(x+14,-80,x-6,-30,x+(r()-.5)*20,26);},[70,66,56],.4,1.2,232+i,1,2);} // kıvrımlar
-  for(let x=-224;x<146;x+=14) hat(()=>{c.arc(x+7,30,7,0,Math.PI);},[190,186,166],.4,1,(x|0)+600,1,.5); // dantel etek
-  hat(()=>{c.moveTo(-64,-140); c.lineTo(-62,-156);},[220,220,210],.9,1.2,238,1,0); // kumaşta kalmış iğne
-  c.restore();
+  const ak=o.renk||[150,144,124];
+  const ust=()=>{c.moveTo(-70,-134); c.lineTo(-174,-136); c.lineTo(-176,-128); c.lineTo(-70,-128); c.closePath();}; // masadaki şerit
+  sekil(ust,ak,null,{seed:271,kalin:1.1});
+  const dusen=()=>{c.moveTo(-176,-136); c.bezierCurveTo(-150,-120,-140,-70,-150,-20); c.bezierCurveTo(-154,4,-200,14,-250,12); c.lineTo(-292,4); c.bezierCurveTo(-250,-6,-206,-10,-196,-36); c.bezierCurveTo(-190,-70,-196,-110,-178,-128); c.closePath();};
+  sekil(dusen,ak,[-292,-136,-140,14],{seed:272,isik:.28,aralik:6,aci:1.2,taraA:.3});
+  for(let i=0;i<3;i++) hat(()=>{c.moveTo(-168+i*6,-122); c.bezierCurveTo(-160+i*6,-80,-170+i*4,-30,-200-i*20,0);},[70,66,56],.45,1.2,273+i,1,1.5);
+  hat(()=>{c.moveTo(-82,-140); c.lineTo(-80,-160);},[220,220,210],.9,1.2,238,1,0); // kumaşta kalmış iğne
 });}
 function makas(o){Y(o,()=>{
   hat(()=>{c.ellipse(-26,-6,8,6,0,0,TAU); c.moveTo(-26+8,-2); c.ellipse(-26,8,8,6,0,0,TAU);},[50,50,48],.9,2.4,241,2,1);
@@ -660,7 +715,7 @@ function cerciSandigi(o){sandik({...o,w:150,h:96,renk:[62,54,34],kilit:true}); Y
 
 // kanıt nesneleri ayrı dosyada; burada yalnızca adlar kaydedilir
 export const NESNE={
-  minder:{ciz:minder}, sofra:{ciz:sofra}, kasik:{ciz:kasik}, kase:{ciz:kase}, tabak:{ciz:tabak}, ekmek:{ciz:ekmek},
+  minder:{ciz:minder}, yastik:{ciz:yastik}, tepsi:{ciz:tepsi}, manken:{ciz:manken}, demirMasa:{ciz:demirMasa}, sofra:{ciz:sofra}, kasik:{ciz:kasik}, kase:{ciz:kase}, tabak:{ciz:tabak}, ekmek:{ciz:ekmek},
   lamba:{ciz:lamba,canli:lambaCanli}, ocak:{ciz:ocak,canli:ocakCanli}, sandik:{ciz:sandik}, asmaKilit:{ciz:asmaKilit},
   anahtar:{ciz:anahtar}, kapi:{ciz:kapi,canli:kapiCanli}, kepenk:{ciz:kepenk}, ors:{ciz:ors}, nal:{ciz:nal,canli:nalCanli}, cekic:{ciz:cekic},
   korukOcak:{ciz:korukOcak,canli:ocakKorCanli}, suTeknesi:{ciz:suTeknesi}, cesme:{ciz:cesme,canli:cesmeCanli},

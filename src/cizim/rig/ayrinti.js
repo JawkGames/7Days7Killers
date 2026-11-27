@@ -104,7 +104,8 @@ export function kirikBurun(nx,z){
 export function gulumseme(mx,W,cL,cR){
   const I=G.ifade, k=poz.kaynama, R=G.renk;
   for(const s of[-1,1]){
-    const y=s<0?cL:cR, x=mx+s*W, up=I.agizKose+(s<0?-I.agizYan:I.agizYan)*.85;
+    const ak=I.agizKose+poz.agizKose, ay=I.agizYan+poz.agizYan; // dinlenme ifadesi + anlık ifade
+    const y=s<0?cL:cR, x=mx+s*W, up=ak+(s<0?-ay:ay)*.85;
     if(up>.15){ // gülen köşe: köşede çukur, üstünde yanak elması kabarır, yanaktan inen gülme çizgisi
       titrek(()=>{c.moveTo(x+s*1,y-14*up); c.quadraticCurveTo(x+s*10,y-2,x+s*4,y+12*up);},PAL.murekkep,.6*clamp(up,0,1),1.4,990+s+k,2,1.2);
       titrek(()=>{c.moveTo(x+s*10,y-46); c.quadraticCurveTo(x+s*22,y-20,x+s*14,y+6);},PAL.murekkep,.35*clamp(up,0,1),1.2,994+s+k,2,1.6);
@@ -149,4 +150,26 @@ export function tozSac(){
   for(let i=0;i<500*T.sac;i++){const a=Math.PI*(1+r()), rr=Math.sqrt(r()), x=Math.cos(a)*170*e*rr, y=-60+Math.sin(a)*185*u*rr; if(y>h+6) continue;
     c.fillStyle=rgba(U,.12+r()*.35); c.fillRect(x,y,1+r()*1.5,1+r()*1.5);}
   c.restore();
+}
+
+/* ───────── ifade çizgileri (poz'dan; her iki yolda): kalkan kaşla alında yatay kıvrımlar, çatılan kaşla iki kaş arasında
+   dikey çizgiler, iç uçları kalkan (hüzünlü) kaşla alnın ortasında kısa kıvrımlar. Nötr pozda hiçbiri çizilmez. ───────── */
+export function ifadeCizgileri(fx){
+  const k=poz.kaynama, e=G.yuz.en, u=G.yuz.alin, ga=G.yuz.gozAralik;
+  const yasli=.55+.45*clamp((G.yas-25)/40,0,1);
+  const kalk=clamp((poz.kasKaldir-.4)/1.1,0,1), ic=clamp((-poz.kasCat-.35)/.9,0,1), cat=clamp((poz.kasCat-.55)/1,0,1);
+  const alin=Math.max(kalk,ic*.8);
+  if(alin>.02){
+    const w0=kalk>=ic*.8?1:.45; // hüzünde yalnızca alnın ortası kırışır
+    for(let i=0;i<3;i++){
+      const y=(-86-i*17)*u-poz.kasKaldir*3, w=(62-i*8)*e*w0;
+      titrek(()=>{c.moveTo(-w+fx*.6,y+3); c.bezierCurveTo(-w*.35+fx*.6,y-4-ic*4,w*.3+fx*.6,y+3-ic*4,w+fx*.6,y-1);},PAL.murekkep,.36*alin*yasli*(1-i*.18),1.1,640+i+k,2,1.5);
+    }
+  }
+  if(cat>.02){ // çatık kaş: kaşlar arasında iki dikey çizgi, burun kökünde kısa yatay kıvrım
+    const x=fx*.8, kg=Math.min(14,ga*.2);
+    titrek(()=>{c.moveTo(x-kg,-58); c.quadraticCurveTo(x-kg+3,-42,x-kg+1,-28); c.moveTo(x+kg-2,-60); c.quadraticCurveTo(x+kg-4,-44,x+kg-1,-30);},PAL.murekkep,.5*cat*yasli,1.3,646+k,2,1.4);
+    titrek(()=>{c.moveTo(x-12,-16); c.quadraticCurveTo(x,-20,x+12,-15);},PAL.murekkep,.3*cat,1.1,648+k,2,1.2);
+    leke(x+2,-40,16,20,G.renk.tenDerin,.25*cat);
+  }
 }

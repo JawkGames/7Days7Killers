@@ -3,18 +3,22 @@ import {hex} from '../../../cekirdek/matematik.js';
 
 export const OLCU={yukseklik:1200, enAzGenislik:700, pay:0, kaynamaHizi:7};
 
-/* Oda tek kaçış noktalı perspektifle kurulur. İki el ayarı yerleşim var: telefon dikey (yarım genişlik 350)
-   ve PC yatay (yarım genişlik 1066). Aradaki ekranlar ikisinin arasından okunur.
-   Dünya koordinatı: ekran x = kn.x + X*s, ekran y = kn.y + Y*s; s yakınlık (1 = kameraya yakın, küçüldükçe uzak). */
+/* Oda tek kaçış noktalı perspektifle kurulur; kaçış noktası (kn) sağda, PC'de ekranın dışında: sol duvar ve içindeki
+   büyük pencere neredeyse cepheden görünür, arka duvar sağ kenarda dar bir şerittir. İki el ayarı yerleşim var:
+   telefon dikey (yarım genişlik 350) ve PC yatay (1066); aradaki ekranlar ikisinin arasından okunur.
+   Dünya koordinatı: ekran x = kn.x + X*s, ekran y = kn.y + Y*s; s yakınlık (büyüdükçe kameraya yakın).
+   Xd: sol duvar; Ytavan: tavan; taban müfettişin ayak hizasından çıkar. pencere.ust/alt dünya Y'sidir.
+   kapi: arka duvardaki kapı, dünya X'i (iki kenar) ve üst Y. muf: ekran x'i ve s (başta, sonda), sondaki omuz y'si.
+   masa: ön plandaki masanın sol ucu, arka ve ön kenar y'si (ekran). */
 export const YERLESIM={
-  dar:  {G:350,  kn:[150,520], arka:[30,330,760],  sArka:.3, pencere:{sUzak:.45, sYakin:1.3, ust:-420, alt:170},
-         masa:{x0:-110, arka:784, on:880}, muf:{xBas:250, xSon:118, omuzSon:476}, kapi:[196,300,450]},
-  genis:{G:1066, kn:[160,540], arka:[-330,300,800], sArka:.3, pencere:{sUzak:.36, sYakin:.74, ust:-640, alt:330},
-         masa:{x0:-560, arka:792, on:900}, muf:{xBas:470, xSon:-330, omuzSon:470}, kapi:[392,560,440]}
+  dar:  {G:350,  kn:[600,330],  Xd:-940,  Ytavan:-780, sArka:.3, pencere:{sUzak:.574, sYakin:1.0, ust:-390, alt:490},
+         masa:{x0:-10, arka:968, on:1078}, muf:{xBas:430, sBas:.42, xSon:196, sSon:.8, omuzSon:452}, kapi:[-780,-560,-300]},
+  genis:{G:1066, kn:[1600,470], Xd:-2400, Ytavan:-600, sArka:.3, pencere:{sUzak:.617, sYakin:1.096, ust:-365, alt:484},
+         masa:{x0:430, arka:902, on:990}, muf:{xBas:967, sBas:.3, xSon:338, sSon:.95, omuzSon:520}, kapi:[-2317,-1900,-250]}
 };
 
-/* Müfettiş: yerel birim omuz ortasından; s=1 iken bu ölçülerdedir. Bacak yok: palto ayak bileğine iner,
-   alt gövdeyi önce masa, sonra kadraj alt kenarı gizler. */
+/* Müfettiş: yerel birim omuz ortasından; s=1 iken bu ölçülerdedir. Bacak yok: palto ayak bileğine iner ve alt üçte biri
+   karanlığa gömülür; alt gövdeyi önce masa, sonra kadraj alt kenarı gizler. */
 export const MUFETTIS={omuzAyak:1000, etek:940, omuzEn:162, yuruAdim:7, salinim:.022, ziplama:9};
 
 /* Zaman çizelgesi (saniye). Taşlar `tas.bas` sonrasında atılır; sahne son taştan `bitisBekle` sonra biter. */
@@ -28,17 +32,18 @@ export const ZAMAN={
   azHareketBekle:3       // az hareket tercihinde son durum bu kadar gösterilip haber verilir
 };
 
-/* Kalabalık. Dış resim kendi birimindedir (600 x 700), pencere boşluğuna yerleştirilir.
-   Derinlik z: 1 en ön sıra (pencere alt kenarı keser), zUzak meydanın arka ucu. */
+/* Kalabalık. Dış resim kendi birimindedir (900 x 700), pencere boşluğuna yerleştirilir.
+   Derinlik z: 1 ön sıra, zUzak meydanın arka ucu; z<1 pencerenin dibindeki birkaç büyük figür (alt kenar keser). */
 export const KALABALIK={
-  resim:[600,700], ufuk:212, onY:790, zUzak:3.4, boy:150, yayilim:760,
-  sira:[11,13], siraKisi:[7,10],    // tohumla seçilir: kişi sayısı her oyunda başka
-  bosluk:.12,                       // iki grup arasındaki boş şerit (u biriminde)
+  resim:[900,700], ufuk:212, onY:790, zUzak:3.4, boy:150, yayilim:1300,
+  sira:[11,13], siraKisi:[8,11],    // tohumla seçilir: kişi sayısı her oyunda başka
+  yakin:[2,4],                      // pencerenin dibindeki büyük, ayrıntılı figür sayısı
+  bosluk:.11,                       // iki grup arasındaki boş şerit (u biriminde)
   oranOynama:.05                    // grup oranına eklenen tohumlu sapma: kişi sayısından doğru sayısı okunmasın
 };
 /* Öfkeli grubun elindekiler ve olasılıkları; coşkulu grubun kol duruşları. */
-export const OFKE_ESYA=[['mesale',.2],['tirpan',.18],['dirgen',.17],['orak',.11],['sopa',.12],['yumruk',.22]];
-export const COSKU_DURUS=[['ikiKol',.42],['fenerYukari',.22],['fenerAlt',.18],['tekKol',.18]];
+export const OFKE_ESYA=[['mesale',.22],['tirpan',.16],['dirgen',.17],['orak',.12],['sopa',.09],['yumruk',.24]];
+export const COSKU_DURUS=[['ikiKol',.36],['fenerYukari',.2],['fenerAlt',.14],['tekKol',.18],['kasketAt',.12]];
 
 /* Giysi ve baş örtüsü türleri: hepsi uzun, alt gövdeyi örter. */
 export const GIYSI=['aba','entari','kepenek','salta'];
@@ -50,5 +55,6 @@ export const RENK={
   coskuAlev:hex('#f4d28a'), coskuIsik:hex('#d29a50'),
   odaOfke:hex('#b8582e'), odaCosku:hex('#d8aa62'), kirliSari:hex('#a88a46'),
   ahsap:hex('#2a2016'), ahsapIsik:hex('#6e5434'), sivaIsik:hex('#4a4430'),
-  kufYesil:hex('#243029'), morluk:hex('#4a3a52'), cam:hex('#9aa294'), camKir:hex('#3a3a26')
+  kufYesil:hex('#243029'), morluk:hex('#4a3a52'), cam:hex('#9aa294'), camKir:hex('#3a3a26'),
+  siva:hex('#1b1d17'), sivaKoyu:hex('#0d0e0b'), murekkep:hex('#050504')
 };

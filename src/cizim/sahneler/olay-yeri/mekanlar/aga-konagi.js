@@ -6,8 +6,8 @@ import {TAU,rgba} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
 import {silindir,cokgen3,hat3,yol3,golgele,tabana,aydinlik} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
-import {duzlemde,duzlemYol,tasOrgu,karanlik,atmosfer,leke,titrek,MUREKKEP} from '../mekan-yardim.js';
-import {kutuDoku,tahtaYuzey,tasDoseme,torna,daire3,kenarIsigi,duzlemCizgi,minder} from './koy-odasi.js';
+import {duzlemde,duzlemYol,tasOrgu,karanlik,atmosfer,leke,titrek,MUREKKEP,daire3,kenarIsigi,duzlemCizgi} from '../mekan-yardim.js';
+import {kutuDoku,tahtaYuzey,tasDoseme,torna,minder} from '../ic-yardim.js';
 
 const TAS=[184,172,144], TAS2=[160,150,128], DOSEME=[156,148,128], AHSAP=[100,82,60], DEMIR=[40,38,36], TOPRAK=[150,110,80];
 const ON=650;                                            // cephenin yüzü

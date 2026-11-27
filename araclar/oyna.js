@@ -38,7 +38,7 @@ if(arg.includes('--oto')&&secenek('--tohumlar')){
     const kat=new Set(b.vaka.katiller.map(k=>k.kisi));
     const l=donguler.map(x=>x.secilenler.filter(k=>kat.has(k)).length);
     l.forEach((n,i)=>dogru[i].push(n));
-    for(const f of durum.defter.ifadeler){ifade++; if(bosCevapMi(b.vaka,f.kisi,f.iddialar,f.soru)) bos++; if((f.iddialar||[]).some(i=>i.tur==='yonlendir'||(i.tur==='iliski'&&i.kaynak))) yan++;}
+    for(const f of durum.defter.ifadeler){if(f.soru.tur==='yuzlesme') continue; ifade++; if(bosCevapMi(b.vaka,f.kisi,f.iddialar,f.soru)) bos++; if((f.iddialar||[]).some(i=>i.tur==='yonlendir'||(i.tur==='iliski'&&i.kaynak))) yan++;}
     tedbirN+=(durum.defter.tedbirler||[]).length;
     for(const g of b.vakalar.values()){engel+=(g.vaka.engellenen||[]).length; yonelme+=g.vaka.cinayetler.filter(c=>c.yonelme).length;}
     satir.push(`  tohum ${String(s).padStart(4)}: ${l.join(' → ')}`);
@@ -46,7 +46,7 @@ if(arg.includes('--oto')&&secenek('--tohumlar')){
   const ort=l=>l.length?(l.reduce((a,x)=>a+x,0)/l.length):0;
   console.log(`OTOMATİK OYUN: ${N} tohum, ${G} döngü (${((Date.now()-sure)/1000).toFixed(0)} sn)${tedbir?'':' [tedbirsiz]'}`);
   dogru.forEach((l,i)=>console.log(`  ${i+1}. döngü sonunda ortalama doğru: ${ort(l).toFixed(2)}/7   (dağılım: ${[0,1,2,3,4,5,6,7].map(k=>l.filter(x=>x===k).length).join(' ')})`));
-  console.log(`  boş cevap: ${(100*bos/ifade).toFixed(1)}% (${bos}/${ifade}); yönlendirme ya da duyulan ilişki içeren: ${(100*yan/ifade).toFixed(1)}%`);
+  console.log(`  boş cevap (yüzleştirme dışı): ${(100*bos/ifade).toFixed(1)}% (${bos}/${ifade}); yönlendirme ya da duyulan ilişki içeren: ${(100*yan/ifade).toFixed(1)}%`);
   console.log(`  tedbir: ${tedbirN} (oyun başına ${(tedbirN/N).toFixed(1)}); engellenen cinayet: ${engel}, başka kurbana yönelen: ${yonelme} (üretilen bütün zaman çizgilerinde)`);
   if(arg.includes('--ayrinti')) console.log(satir.join('\n'));
   process.exit(0);

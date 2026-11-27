@@ -4,7 +4,8 @@ import {hedefAyarla} from '/src/cizim/teknik/tuval.js';
 import {leke} from '/src/cizim/teknik/firca.js';
 import {PAL} from '/src/cizim/teknik/palet.js';
 import {clamp} from '/src/cekirdek/matematik.js';
-import {poz,karakterSec,arkaSac,govde,kafa} from '/src/cizim/rig/index.js';
+import {poz,POZ_NOTR,karakterSec,arkaSac,govde,kafa,ifadeKur,DURUMLAR,DURUM_ADLARI} from '/src/cizim/rig/index.js';
+import {MIZACLAR} from '/src/icerik/kur.js';
 import {konus,sus,konusmaOlay,sozGuncelle} from '/src/diyalog/konusma.js';
 import {gorunusListesi} from '/src/icerik/gorunus/index.js';
 
@@ -41,6 +42,18 @@ const SECENEK=[
   {id:'s-yemeni-arka', cinsiyet:'K', yas:30, baslik:{tur:'yemeni', bag:'arka', tutam:'sol', renk:'#6a5f48'}, ortu:'entari', renk:{ten:'#8f846e'}, iz:[{tur:'ben', x:40, y:120}]},
   {id:'s-yemeni-yasmak', cinsiyet:'K', yas:50, baslik:{tur:'yemeni', bag:'yasmak', renk:'#3a3430', desen:'duz'}, ortu:'entari', renk:{ten:'#8f846e'}, ifade:{agizKose:-.3, bakisY:.6}}
 ];
+// kişinin mizacı (ifade süzgeci için): kişi dosyalarından
+const kisiler=Object.values(import.meta.glob('/src/icerik/kisiler/*.js',{eager:true})).map(m=>m.default).filter(Boolean);
+const mizacBul=id=>(kisiler.find(k=>k.id===id)||{}).mizac||null;
+// "tepki oynat" örnekleri: src/diyalog/cevap.js tepkiKur çıktısı biçiminde
+const TEPKILER=[
+  ['sakin cevap',{gerginlik:.1,duzey:'sakin',gozKacirma:false,duraksama:false,not:'Düz bir sesle konuştu.',tavirIpucu:null},'O gece evdeydim, ocağın başında.'],
+  ['tedirgin',{gerginlik:.35,duzey:'tedirgin',gozKacirma:false,duraksama:false,not:'Sandalyede kıpırdandı.',tavirIpucu:null},'Değirmenin yanından geçtim, o kadar.'],
+  ['duraksama',{gerginlik:.5,duzey:'gergin',gozKacirma:false,duraksama:true,not:'Bir an sustu, sonra konuştu.',tavirIpucu:null},'Ben... ben kimseyi görmedim.'],
+  ['göz kaçırma',{gerginlik:.6,duzey:'gergin',gozKacirma:true,duraksama:false,not:'Gözlerini kaçırdı.',tavirIpucu:null},'Kuyunun orada değildim.'],
+  ['çok gergin',{gerginlik:.85,duzey:'cok-gergin',gozKacirma:true,duraksama:true,not:'Alnında ter vardı.',tavirIpucu:null},'Vallahi bilmiyorum, bilmiyorum.'],
+  ['susar',{gerginlik:.45,duzey:'gergin',gozKacirma:false,duraksama:true,not:'Kelimeleri seçer gibi konuştu.',tavirIpucu:'susar'},'Onu sormayın bana.']
+];
 const kaynak=new URLSearchParams(location.search).has('secenek')?SECENEK:gorunusListesi;
 const liste=[...kaynak].sort((a,b)=>a.id==='varsayilan'?-1:b.id==='varsayilan'?1:a.id.localeCompare(b.id,'tr'));
 
@@ -76,7 +89,7 @@ for(const v of liste){
   b.dataset.id=v.id; kartlar.push({cv,v});
 }
 function izgaraCiz(){
-  const yedek={...poz}; Object.assign(poz,NOTR,{nefes:.5});
+  const yedek={...poz}; Object.assign(poz,NOTR,POZ_NOTR,{nefes:.5});
   for(const {cv,v} of kartlar){ boyutla(cv); if(cv.width<9) continue; karakterSec(v); sahneCiz(cv.getContext('2d'),cv.width,cv.height); }
   Object.assign(poz,yedek);
 }
@@ -84,15 +97,53 @@ function izgaraCiz(){
 /* ───────── büyük görünüm ───────── */
 const el=id=>document.getElementById(id);
 const buyuk=el('buyuk'), bt=el('buyukTuval'), altyazi=el('altyazi');
-const durum={v:null,kirpBas:-9,sonrakiKirp:2,imX:0,imY:0,imZaman:-99,durgun:false,kas:0,once:0};
+const mizacSec=document.createElement('select');
+for(const m of ['',...MIZACLAR]){const o=document.createElement('option'); o.value=m; o.textContent=m||'(yok)'; mizacSec.append(o);}
+mizacSec.addEventListener('change',()=>{durum.mizac=mizacSec.value||null; const s=durum.ifade&&durum.ifade.durum(); ifadeYenile(); if(s) durum.ifade.hedefle(s.ad,s.siddet);});
+const durum={v:null,kirpBas:-9,sonrakiKirp:2,imX:0,imY:0,imZaman:-99,durgun:false,kas:0,once:0,ifade:null,mizac:null,secili:null,zaman:[]};
 konusmaOlay.yaz=m=>{altyazi.textContent=m;};
 konusmaOlay.basla=()=>{altyazi.textContent='';};
+function ifadeYenile(){durum.ifade=ifadeKur({mizac:durum.mizac,tohum:7}); durum.secili=null; dugmeIsaretle();}
 function ac(v){
   durum.v=v; karakterSec(v); Object.assign(poz,NOTR); sus(); altyazi.textContent='';
+  durum.zaman.forEach(clearTimeout); durum.zaman=[];
+  durum.mizac=mizacBul(v.id); mizacSec.value=durum.mizac||''; ifadeYenile();
   el('sahneBag').href='./sahne.html?kim='+encodeURIComponent(v.id);
   buyuk.classList.add('acik'); el('konus').focus();
 }
-function kapat(){buyuk.classList.remove('acik'); sus(); durum.v=null; izgaraCiz();}
+function kapat(){buyuk.classList.remove('acik'); sus(); durum.v=null; Object.assign(poz,POZ_NOTR); izgaraCiz();}
+
+/* ───────── ifade denemesi: her duygu × şiddet, tepki oynat, tek hareketler ───────── */
+const ifadeKutu=el('ifade'), dugmeler=[];
+const yeniDugme=(yazi,fn)=>{const b=document.createElement('button'); b.className='d'; b.type='button'; b.textContent=yazi; b.addEventListener('click',fn); return b;};
+function dugmeIsaretle(){for(const {b,anahtar} of dugmeler) b.setAttribute('aria-pressed',String(anahtar===durum.secili));}
+const SIDDET=[['hafif',.35],['orta',.65],['güçlü',1]];
+for(let i=0;i<DURUMLAR.length;i+=4){
+  const satir=document.createElement('div'); satir.className='satir';
+  for(const d of DURUMLAR.slice(i,i+4)){
+    const etiket=document.createElement('span'); etiket.className='not'; etiket.textContent=DURUM_ADLARI[d]+':'; satir.append(etiket);
+    for(const [ad,s] of SIDDET){const anahtar=d+s; const b=yeniDugme(ad,()=>{durum.ifade.hedefle(d,s); durum.secili=anahtar; dugmeIsaretle();}); dugmeler.push({b,anahtar}); satir.append(b);}
+  }
+  ifadeKutu.append(satir);
+}
+{
+  const satir=document.createElement('div'); satir.className='satir';
+  const n=document.createElement('span'); n.className='not'; n.textContent='tepki oynat:'; satir.append(n);
+  for(const [ad,t,cumle] of TEPKILER) satir.append(yeniDugme(ad,()=>{
+    sus(); durum.zaman.forEach(clearTimeout); durum.zaman=[];
+    const o=durum.ifade.tepkiOyna(t); durum.secili=null; dugmeIsaretle();
+    altyazi.textContent='('+t.not+')';
+    durum.zaman.push(setTimeout(()=>konus(cumle),o.bekle*1000+350));
+  }));
+  ifadeKutu.append(satir);
+  const s2=document.createElement('div'); s2.className='satir';
+  const n2=document.createElement('span'); n2.className='not'; n2.textContent='tek hareket:'; s2.append(n2);
+  for(const [ad,tur] of [['yutkun','yutkun'],['göz kaçır','kacir'],['bakış seğir','flik'],['göz seğir','segir'],['dudak ıslat','islat'],['baş salla','salla'],['iki yana','ikiYana'],['iç çek','ic'],['ağır kırp','agirKirp']])
+    s2.append(yeniDugme(ad,()=>durum.ifade.oynat(tur)));
+  s2.append(yeniDugme('nötr',()=>{durum.ifade.hedefle('sakin',0); durum.secili=null; dugmeIsaretle();}));
+  const lab=document.createElement('label'); lab.textContent='mizaç '; lab.append(mizacSec); s2.append(lab);
+  ifadeKutu.append(s2);
+}
 el('kapat').addEventListener('click',kapat);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&durum.v) kapat();});
 el('konus').addEventListener('click',()=>konus(CUMLE[durum.v.id]||'Ben o gece evdeydim.'));
@@ -110,7 +161,9 @@ function guncelle(t,dt){
   if(t>durum.sonrakiKirp&&!durum.durgun){durum.kirpBas=t; durum.sonrakiKirp=t+3+Math.random()*5;}
   const p=(t-durum.kirpBas)/.18, kapali=p>=0&&p<=1?Math.sin(p*Math.PI):0;
   poz.goz=.74*(1-kapali)-poz.gy*.06;
-  const K=KAS[durum.kas]; poz.kasKaldir+=(K[1]-poz.kasKaldir)*agir*2; poz.kasCat+=(K[2]-poz.kasCat)*agir*2;
+  // ifade katmanı (kaş, göz, ağız, baş, omuz, nefes); Kaş düğmesi nötr değilse kaşı o ezer
+  if(durum.ifade){ if(durum.durgun) durum.ifade.yerles(poz); else durum.ifade.guncelle(dt,poz); }
+  if(durum.kas){const K=KAS[durum.kas]; poz.kasKaldir=K[1]; poz.kasCat=K[2];}
   if(durum.durgun){poz.nefes=.5; poz.sallanti=0; poz.kaynama=0; poz.isik=1;}
   else{poz.nefes=Math.sin(t*.95)*.5+.5; poz.sallanti=Math.sin(t*.8)*2.2+Math.sin(t*1.6+1)*.9-poz.hgx*5; poz.kaynama=Math.floor(t*7)%64; poz.isik=.96+.03*Math.sin(t*9.1)*Math.sin(t*2.3);}
 }
@@ -125,4 +178,4 @@ izgaraCiz();
 requestAnimationFrame(kare);
 // doğrudan açmak için: index.html#mahmut
 if(location.hash.length>1){const v=liste.find(x=>x.id===decodeURIComponent(location.hash.slice(1))); if(v) ac(v);}
-window.galeri={poz,liste,ac,izgaraCiz};
+window.galeri={poz,liste,ac,izgaraCiz,durum};

@@ -1236,6 +1236,65 @@ export default {
     ],
   },
 
+  // ---- Fark etti, ama adını vermez (kim olduğunu tek tek sorarsan söyler) ----
+  'tuhaf-kanli-isimsiz':{
+    degiskenler:['ortu','zaman'],
+    genel:[
+      '{zaman} birinin yeninde kan gördüm; {ortu} giyiyordu. Adını ağzıma almam.',
+      '{ortu} giyen birinin üstünde kan vardı, beyim. Kim olduğunu ben söylemeyeyim.',
+    ],
+    korkak:[
+      'Biri... {ortu} giyen biri... üstünde kan vardı...',
+      'Kan gördüm... kimdi... sormayın...',
+    ],
+    dedikoducu:[
+      'Beyim, {zaman} birini gördüm, {ortu} giyiyordu, yeninde kan vardı; ama ben isim vermem, sonra köyde yaşayamam. Siz bana adını sorun, ben başımı sallarım, o kadar.',
+      'Aman müfettiş bey, ben ad söylersem ertesi gün kapımda biter; ama şunu bilin: {ortu} giyen biri vardı, eteği kan içindeydi. Gerisini siz bulun, ben yalnızca başımı sallarım.',
+    ],
+    sert:[
+      'Birinde kan gördüm. Ad vermem.',
+      '{ortu} giyen biri. Kanlıydı.',
+    ],
+  },
+  'tuhaf-tirmik-isimsiz':{
+    degiskenler:['ortu','zaman'],
+    genel:[
+      '{zaman} {ortu} giyen birinin yüzünde tırnak izi vardı. Adını söylemem.',
+      'Birinin yüzü tırmalanmıştı; {ortu} giyiyordu. Gerisini sormayın.',
+    ],
+    korkak:[
+      'Biri... yüzü tırmalanmış... {ortu} giyiyordu...',
+      'Tırnak izi vardı... kimdi... bilmem...',
+    ],
+    dedikoducu:[
+      'Beyim, {zaman} {ortu} giyen birini gördüm, yüzünde taze tırnak izleri vardı, kedi tırmalamış dese inanmam! Ama isim vermem, siz sorun ben başımı sallarım.',
+      'Size şunu söyleyeyim: biri vardı, {ortu} giyiyordu, boynunu yakasıyla saklıyordu; ben gördüm, tırnak izi. Adını ben söylersem köy beni yer, siz bulun.',
+    ],
+    sert:[
+      'Birinin yüzü tırmalıydı. O kadar.',
+      '{ortu} giyiyordu. Yüzü yırtıktı.',
+    ],
+  },
+  'tuhaf-o-degil':{
+    degiskenler:['kim'],
+    genel:[
+      'Yok, {kim} değildi.',
+      '{kim} değil, beyim. Başkasıydı.',
+    ],
+    korkak:[
+      '{kim}... yok... o değildi...',
+      'Hayır... o değil... galiba...',
+    ],
+    dedikoducu:[
+      'Yok beyim, {kim} değil; onu iyi tanırım, yürüyüşünden bile tanırım, o değildi. Başka birini sorun, ben başımı sallarım, söz.',
+      '{kim:mi}? Aman beyim, ne münasebet! O gece {kim:i} görsem tanımaz mıyım hiç? O değildi, başkasıydı; ama kim olduğunu ben söylemem.',
+    ],
+    sert:[
+      '{kim} değil.',
+      'O değildi.',
+    ],
+  },
+
   // ---- Fark etti: tırmık ----
   'tuhaf-tirmik':{
     degiskenler:['kim','zaman'],
@@ -2048,6 +2107,44 @@ export default {
       '{kim} çekinirdi. Hem de çok.',
     ],
   },
+  'yan-yakin':{
+    degiskenler:['kim','diger'],
+    genel:[
+      '{diger:in} en yakını {kim} idi; derdini ona açardı. Ona sorun.',
+      '{diger} kime güvenirdi, bilir misiniz? {kim:e}. Ondan saklamazdı.',
+    ],
+    korkak:[
+      '{diger}... {kim:le} çok görüşürdü... ona sorun...',
+      '{kim}... o bilir... {diger:in} yakınıydı...',
+    ],
+    dedikoducu:[
+      '{diger:in} sırrını bilen biri varsa o da {kim} beyim; ikisi akşamları uzun uzun konuşurlardı, ben pencereden görürdüm. {diger:in} başına ne geldiyse {kim} sezmiştir, siz onu sıkıştırın.',
+      'Beyim, {diger:in} kimseye açmadığını {kim:e} açardı; bunu bütün köy bilir, ikisinin arası başkaydı. Gidip sorun ama {kim} kolay kolay ağız açmaz, bilesiniz.',
+    ],
+    sert:[
+      '{diger:in} yakını {kim} idi.',
+      '{kim:e} sorun. O bilir.',
+    ],
+  },
+  'yan-sir-var':{
+    degiskenler:['kim','diger'],
+    genel:[
+      '{kim:in} saklı bir işi var; ne olduğunu ben söyleyemem. {diger} de bilir.',
+      '{kim} herkesin bildiği gibi biri değil. Gerisini {diger:e} sorun.',
+    ],
+    korkak:[
+      '{kim:in}... bir sırrı var... ben söyleyemem...',
+      '{diger} bilir... {kim:in} işini... ben bilmem...',
+    ],
+    dedikoducu:[
+      'Beyim, {kim:in} bir derdi var ki köyde birkaç kişiden başka bilen yok; ben de bilirim ama yemin ettim, söyleyemem. {diger:e} sorun, o da işin içinde, belki o söyler; benden duymuş olmayın.',
+      'Size bir şey diyeyim mi? {kim} göründüğü gibi değil; gece gündüz bir şey saklıyor. Ne sakladığını {diger} bilir, ikisi aynı sırrın içindeler, ben size yol gösteriyorum o kadar.',
+    ],
+    sert:[
+      '{kim:in} bir sırrı var.',
+      '{diger} bilir. Ona sor.',
+    ],
+  },
   'yan-yonlendir-fark':{
     degiskenler:['kim'],
     genel:[
@@ -2183,6 +2280,11 @@ export const SORU_KALIPLARI={
     '{zaman} gördüğün o {ortu} giyen, {kim} olabilir mi?',
     '{zaman} {ortu} giyen birini görmüşsün. O, {kim} olabilir mi?',
     '{zaman} {kim:i} gördün mü? {ortu} giyen oydu belki.',
+  ],
+  'fark-kisi':[
+    'Üstünde tuhaflık gördüğün o {ortu} giyen, {kim} olabilir mi?',
+    '{kim:mi}? Gördüğün o {ortu} giyen?',
+    'O {ortu} giyen, {kim} değil miydi?',
   ],
   'iz-kimin':[
     'Bu {esya} kimin olabilir?',

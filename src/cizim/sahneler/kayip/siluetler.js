@@ -3,7 +3,7 @@
 import {c} from '../../teknik/tuval.js';
 import {TAU,rgba} from '../../../cekirdek/matematik.js';
 import {rng} from '../../../cekirdek/rastgele.js';
-import {R,DURUM,hat,leke,tara,yerel,isikYonu} from './cizer.js';
+import {R,DURUM,hat,leke,tara,yerel,isikYonu,sekil} from './cizer.js';
 
 const KARA='#070808';
 
@@ -136,58 +136,73 @@ export function kopek(x,y,s,o){
 }
 
 /* katır ya da eşek, yandan, dinlenir duruşta. Taban (0,0) toynak hizası; sırt ≈ 180 birim.
-   Parçalar ayrı ayrı doldurulur (üst üste binen yollar delik açmasın). basEgik 0..1 başı ensede öne düşürür. */
+   Gövde, boyun ve baş TEK yol: ense yeleyle yukarı kalkar, alın öne iner, uzun burun, yuvarlak yanak, gırtlak göğse
+   bağlanır (ayrı döndürülmüş kafa parçası yok). Kulaklar uzun ve ayrı çizilir; ışığa bakan üst kenarlarda ince parıltı.
+   yuk: semer, iki yanda sarkan kıl denk (çuval) ve üstte bağlı yük; urganlar çapraz. Bacaklar karanlıkta / bölme arkasında. */
 export function binek(x,y,s,o){
-  o=o||{}; const yon=o.yon||1, esek=o.tur==='esek', egik=o.basEgik||0;
-  yerel(x,y,s*(esek?.82:1),()=>{
+  o=o||{}; const yon=o.yon||1, esek=o.tur==='esek', egik=Math.min(1,o.basEgik||0);
+  yerel(x,y,s*(esek?.84:1),()=>{
     c.save(); c.scale(yon,1);
-    const kul=esek?1.25:1;
+    const kul=esek?1.2:1, e=egik*34; // e: baş ne kadar aşağıda
     const govde=()=>{
-      c.moveTo(-196,-158); c.bezierCurveTo(-190,-176,-170,-180,-150,-176);            // sağrı
-      c.bezierCurveTo(-90,-168,-20,-166,40,-178);                                      // sırt
-      c.bezierCurveTo(80,-186,112,-206,150,-238); c.lineTo(176,-252);                  // yele, ense
-      c.bezierCurveTo(166,-210,156,-176,146,-150); c.bezierCurveTo(140,-126,134,-104,128,-86); // boyun altı, göğüs
-      c.lineTo(126,-6); c.lineTo(132,0); c.lineTo(110,0); c.lineTo(110,-6); c.lineTo(104,-74); // ön bacak
-      c.bezierCurveTo(60,-84,-40,-86,-104,-84);                                        // karın
-      c.bezierCurveTo(-112,-60,-114,-30,-116,-6); c.lineTo(-110,0); c.lineTo(-134,0); c.lineTo(-136,-8); // arka bacak
-      c.bezierCurveTo(-140,-44,-150,-70,-168,-92); c.bezierCurveTo(-190,-112,-200,-136,-196,-158); c.closePath();
+      c.moveTo(-204,-150); c.bezierCurveTo(-200,-176,-178,-186,-150,-182);              // sağrı
+      c.bezierCurveTo(-90,-174,-16,-170,40,-184);                                         // sırt
+      c.bezierCurveTo(84,-196,118,-226+e*.4,146,-252+e);                                  // yele, ense
+      c.lineTo(162,-258+e);                                                               // tepe
+      c.bezierCurveTo(176,-250+e,196,-212+e*1.1,210,-180+e*1.2);                         // alın, burun sırtı
+      c.bezierCurveTo(218,-166+e*1.2,228,-152+e*1.2,224,-140+e*1.2);                     // burun ucu
+      c.bezierCurveTo(222,-128+e*1.2,206,-124+e*1.2,196,-130+e*1.2);                     // dudak
+      c.bezierCurveTo(186,-136+e*1.1,178,-144+e,170,-156+e);                              // çene
+      c.bezierCurveTo(162,-170+e,148,-176+e*.8,140,-168+e*.6);                            // yanak
+      c.bezierCurveTo(134,-150,130,-120,128,-92);                                         // gırtlak, göğüs
+      c.lineTo(126,-6); c.lineTo(132,0); c.lineTo(108,0); c.lineTo(106,-6); c.lineTo(102,-74); // ön bacak
+      c.bezierCurveTo(60,-84,-40,-86,-106,-84);                                           // karın
+      c.bezierCurveTo(-112,-60,-114,-30,-116,-6); c.lineTo(-110,0); c.lineTo(-136,0); c.lineTo(-138,-8); // arka bacak
+      c.bezierCurveTo(-142,-44,-152,-70,-170,-92); c.bezierCurveTo(-194,-112,-208,-130,-204,-150); c.closePath();
     };
     const uzakBacak=()=>{c.moveTo(80,-80); c.lineTo(84,-6); c.lineTo(96,0); c.lineTo(74,0); c.lineTo(66,-80); c.closePath();
       c.moveTo(-82,-84); c.lineTo(-90,-8); c.lineTo(-84,0); c.lineTo(-106,0); c.lineTo(-104,-84); c.closePath();};
-    const kuyruk=()=>{c.moveTo(-194,-160); c.bezierCurveTo(-210,-130,-212,-90,-206,-56); c.lineTo(-200,-56); c.bezierCurveTo(-202,-96,-198,-130,-186,-156); c.closePath();};
-    const bas=()=>{ // ense (0,0) noktasına göre: alın öne-aşağı iner, burun yuvarlak, çene geri döner
-      c.moveTo(-8,-6); c.bezierCurveTo(16,-10,34,20,52,62); c.bezierCurveTo(62,84,70,100,66,112);
-      c.bezierCurveTo(62,124,46,126,38,118); c.bezierCurveTo(26,100,14,84,0,74); c.bezierCurveTo(-14,64,-24,40,-26,20); c.closePath();
-    };
-    const kulak=(dx,uz)=>()=>{c.moveTo(dx-6,0); c.bezierCurveTo(dx-14,-30*uz,dx-26,-62*uz,dx-34,-80*uz); c.bezierCurveTo(dx-22,-70*uz,dx-6,-40*uz,dx+8,-4); c.closePath();};
-    const parca=[uzakBacak,kuyruk,govde];
-    const basla=fn=>{c.save(); c.translate(170,-246); c.rotate(egik*.55); fn(); c.restore();};
+    const kuyruk=()=>{c.moveTo(-200,-160); c.bezierCurveTo(-216,-130,-218,-90,-212,-52); c.lineTo(-204,-50); c.bezierCurveTo(-206,-92,-202,-130,-190,-158); c.closePath();};
+    const kulak=(bx,uz,ac)=>()=>{const tx=bx-26*ac, ty=-258+e-82*uz*kul; c.moveTo(bx-7,-254+e); c.bezierCurveTo(bx-16,-280+e,tx-6,ty+22,tx,ty); c.bezierCurveTo(tx+12,ty+18,bx+4,-280+e,bx+8,-252+e); c.closePath();};
+    const kulaklar=[kulak(150,1,.55),kulak(164,.96,.2)];
     const yI=isikYonu(0)*yon, renk=o.kenarRenk||DURUM.isikRenk;
-    // kenar ışığı, sonra kara gövde; her parça ayrı
-    const doldur=(stil,dx)=>{
-      c.fillStyle=stil;
-      for(const p of parca){c.save(); c.translate(dx,-dx*.5); c.beginPath(); p(); c.fill(); c.restore();}
-      basla(()=>{c.translate(dx,-dx*.5); for(const p of[bas,kulak(4,kul),kulak(-6,kul*.95)]){c.beginPath(); p(); c.fill();}});
-    };
-    doldur(rgba(renk,.24),yI*3);
-    doldur('#0b0b0a',0);
-    c.save(); c.globalAlpha=.6; c.fillStyle='#050505'; c.beginPath(); uzakBacak(); c.fill(); c.restore(); // uzak bacaklar daha karanlık
-    hat(govde,R.murekkep,.7,1.6,o.seed||7,2,2);
-    basla(()=>{hat(bas,R.murekkep,.7,1.4,(o.seed||7)+1,2,1.4); hat(kulak(4,kul),R.murekkep,.6,1.2,(o.seed||7)+2,1,1);});
-    if(o.yuk){ // koyu semer, iki yanında sarkan kıl heybe
-      const semer=()=>{c.moveTo(-120,-172); c.bezierCurveTo(-110,-208,10,-212,40,-178); c.lineTo(30,-152); c.lineTo(-114,-150); c.closePath();};
-      c.fillStyle='#17140e'; c.beginPath(); semer(); c.fill(); hat(semer,R.murekkep,.8,1.6,701,2,2);
-      c.save(); c.beginPath(); semer(); c.clip(); leke(-40,-200,80,16,renk,.14); c.restore();
-      const denk=()=>{c.moveTo(-118,-176); c.bezierCurveTo(-130,-210,-110,-246,-70,-246); c.bezierCurveTo(-50,-256,-20,-256,-4,-244); c.bezierCurveTo(30,-246,46,-214,36,-180); c.closePath();};
-      c.fillStyle='#211b12'; c.beginPath(); denk(); c.fill();
-      c.save(); c.beginPath(); denk(); c.clip(); leke(-40,-250,90,26,renk,.1); leke(-40,-180,100,30,R.siyah,.55); tara(-130,-260,50,-170,.4,6,R.murekkep,.4,703); c.restore();
-      hat(denk,R.murekkep,.85,1.6,702,2,2);
-      hat(()=>{c.moveTo(-60,-250); c.bezierCurveTo(-70,-210,-74,-190,-80,-150); c.moveTo(0,-246); c.bezierCurveTo(-4,-210,0,-190,6,-150);},[90,76,50],.6,1.6,705,1,1); // urgan
+    const parca=[uzakBacak,kuyruk,govde,...kulaklar];
+    // kenar ışığı: ışık yukarıdan ve yandan; biçim ışığa doğru kaydırılıp açık renkle basılır
+    c.save(); c.translate(yI*3,-3.5); c.fillStyle=rgba(renk,.3); for(const p of parca){c.beginPath(); p(); c.fill();} c.restore();
+    c.fillStyle='#0a0a09'; for(const p of parca){c.beginPath(); p(); c.fill();}
+    c.save(); c.globalAlpha=.6; c.fillStyle='#040404'; c.beginPath(); uzakBacak(); c.fill(); c.restore();
+    // gövdenin içinde çok koyu tarama ve kıl dokusu: düz siyah kalmasın
+    c.save(); c.beginPath(); govde(); c.clip();
+    leke(-40,-120,170,70,R.siyah,.6); leke(180,-200+e,40,50,renk,.05);
+    tara(-210,-260,230,0,1.2,7,[40,38,30],.35,(o.seed||7)+20,1);
+    c.restore();
+    hat(govde,R.murekkep,.85,1.8,o.seed||7,3,2.2);
+    for(const k of kulaklar) hat(k,R.murekkep,.8,1.4,(o.seed||7)+3,2,1.4);
+    hat(()=>{c.moveTo(186,-176+e*1.1); c.quadraticCurveTo(192,-170+e*1.1,198,-174+e*1.1);},[60,58,50],.5,1.2,(o.seed||7)+4,1,0); // göz kapağı çizgisi (göz yok: kapalı)
+    hat(()=>{c.moveTo(214,-150+e*1.2); c.lineTo(218,-146+e*1.2);},[40,38,34],.6,1.6,(o.seed||7)+5,1,0); // burun deliği
+    // yele: enseden sırta kısa dik kıllar
+    for(let i=0;i<9;i++){const t=i/8, mx=40+t*110, my=-184-t*(68-e)-Math.sin(t*3)*4; hat(()=>{c.moveTo(mx,my); c.lineTo(mx-4,my-9);},R.murekkep,.7,1.6,(o.seed||7)+40+i,1,.6);}
+    if(o.yuk){
+      // semer
+      const semer=()=>{c.moveTo(-118,-176); c.bezierCurveTo(-108,-212,14,-214,44,-182); c.lineTo(34,-158); c.lineTo(-112,-156); c.closePath();};
+      c.fillStyle='#19150f'; c.beginPath(); semer(); c.fill(); hat(semer,R.murekkep,.85,1.6,701,2,2);
+      // yandaki kıl denk: gövdenin yanına sarkan dolu çuval
+      // yandaki kıl denk: semerin altından gövdenin yanına sarkan, dibi şişkin çuval (karnın üstünde biter)
+      const denk=()=>{c.moveTo(-96,-184); c.bezierCurveTo(-60,-190,-10,-190,16,-182); c.bezierCurveTo(28,-156,30,-126,18,-104); c.bezierCurveTo(-6,-92,-62,-92,-88,-104); c.bezierCurveTo(-104,-126,-106,-160,-96,-184); c.closePath();};
+      sekil(denk,[30,25,18],[-106,-190,30,-92],{seed:702,aralik:5,aci:.35,taraA:.5,isikRenk:renk,isik:.05,koyu:.55});
+      for(let i=0;i<5;i++){const xx=-78+i*22; hat(()=>{c.moveTo(xx,-184); c.bezierCurveTo(xx-3,-150,xx+2,-122,xx-2,-98);},[12,10,6],.6,1.8,703+i,1,1.2);} // kıl dokuma şeritleri
+      // üstte bağlı yük: enine yatan dolu çuval
+      const ust=()=>{c.moveTo(-84,-186); c.bezierCurveTo(-92,-216,-56,-228,-30,-222); c.bezierCurveTo(-4,-230,22,-220,22,-196); c.bezierCurveTo(22,-186,6,-182,-10,-184); c.closePath();};
+      sekil(ust,[34,28,20],[-92,-230,22,-182],{seed:710,aralik:5,aci:.5,taraA:.45,isikRenk:renk,isik:.08,koyu:.5});
+      // urganlar: çapraz bağ, loşta seçilecek kadar açık
+      hat(()=>{c.moveTo(-80,-214); c.lineTo(8,-104); c.moveTo(14,-216); c.lineTo(-80,-102); c.moveTo(-98,-146); c.bezierCurveTo(-40,-138,0,-140,26,-146);},[96,82,54],.55,1.8,712,2,1);
+      // ışık yükün yalnız tepesine vurur
+      c.save(); c.strokeStyle=rgba(renk,.4); c.lineWidth=2; c.beginPath(); c.moveTo(-86,-190); c.bezierCurveTo(-92,-216,-56,-228,-30,-222); c.bezierCurveTo(-4,-230,18,-222,22,-204); c.stroke(); c.restore();
     }
     if(o.can){ // boynunda pirinç çan
-      const cn=()=>{c.moveTo(150,-150); c.lineTo(162,-118); c.lineTo(138,-118); c.closePath();};
-      hat(()=>{c.moveTo(136,-176); c.quadraticCurveTo(150,-160,150,-150);},[60,50,30],.8,1.4,709,1,0);
-      c.fillStyle='#4a3816'; c.beginPath(); cn(); c.fill(); hat(cn,R.murekkep,.8,1.2,710,2,1); leke(150,-132,16,14,renk,.2);
+      const cn=()=>{c.moveTo(150,-146); c.lineTo(162,-114); c.lineTo(138,-114); c.closePath();};
+      hat(()=>{c.moveTo(134,-172); c.quadraticCurveTo(150,-158,150,-146);},[60,50,30],.8,1.4,709,1,0);
+      c.fillStyle='#4a3816'; c.beginPath(); cn(); c.fill(); hat(cn,R.murekkep,.8,1.2,710,2,1); leke(150,-128,16,14,renk,.2);
     }
     c.restore();
   });

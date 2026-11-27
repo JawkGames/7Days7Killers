@@ -18,8 +18,7 @@ import {girisOlay} from '../cizim/sahneler/sorgu-odasi/giris.js';
 import {sorguEtki} from '../cizim/sahneler/sorgu-odasi/sahne.js';
 import {cv} from '../cizim/teknik/tuval.js';
 import {sahneYoneticisi} from './sahne-yoneticisi.js';
-import {masaSahnesi,durganSahne,sorguSahnesi,kayipSahne,pencereSahne,karanlikSahne} from './sahneler.js';
-import {fotoGorunumu} from './fotograf.js';
+import {masaSahnesi,durganSahne,sorguSahnesi,kayipSahne,pencereSahne,karanlikSahne,sonSahneleriHazirla} from './sahneler.js';
 import {defterPaneliKur} from './defter-paneli.js';
 import {portreKoy,portreHazirla} from './portre.js';
 import {M,el,bekle,sonrakiKare,oturumOku,oturumYaz} from './yardim.js';
@@ -146,7 +145,7 @@ export function oyunArayuzuKur(){
       b=baglamKur({tohum,koy});
       const a=acilis(b,oyunBaslat({tohum}));
       d=a.durum; ui=uiYeni(); oturumYaz(OTURUM,'1'); kaydetSessiz();
-      portreHazirla(b.ids);
+      portreHazirla(b.ids); fotoModulAl();
       karart(()=>ekranGoster(a.goster));
     });
   }
@@ -157,7 +156,7 @@ export function oyunArayuzuKur(){
       d=durumKur(kayit);
       ui={...uiYeni(),...(kayit.arayuz||{})};
       oturumYaz(OTURUM,'1');
-      portreHazirla(b.ids);
+      portreHazirla(b.ids); fotoModulAl();
       ekranGoster(ekran(b,d),{devam:true});
     });
   }
@@ -190,8 +189,14 @@ export function oyunArayuzuKur(){
   }
 
   /* ---------- fotoğraf ---------- */
+  // Olay yeri fotoğrafı modülü (22 mekân şablonu) ayrı parça olarak yüklenir; oyun başlarken önceden istenir.
+  let fotoModul=null;
+  const fotoModulAl=()=>fotoModul??=import('./fotograf.js');
   function fotografEkrani(){
     const no=yeniEkran();
+    fotoModulAl().then(m=>{if(no===ekranNo) dene(()=>fotografKur(m,no));},e=>{console.error(e); hataGoster();});
+  }
+  function fotografKur({fotoGorunumu},no){
     if(!foto||foto.b!==b) foto={b,g:fotoGorunumu(b)};
     const G=foto.g;
     const liste=masadakiCinayetler(b,d);
@@ -428,7 +433,7 @@ export function oyunArayuzuKur(){
 
   /* ---------- karar ve hüküm ---------- */
   function kararEkrani(parcalar){
-    yeniEkran();
+    yeniEkran(); sonSahneleriHazirla();
     yonetici.gec('masa',masaSahnesi((k,w,h)=>{k.fillStyle='rgba(0,0,0,.66)'; k.fillRect(0,0,w,h);}));
     const g=(parcalar.length?parcalar:ekran(b,d)).filter(p=>p.tur==='baslik'||p.tur==='anlatim');
     const l=secenekler(b,d);
@@ -502,6 +507,7 @@ export function oyunArayuzuKur(){
     karart(()=>sonEkrani());
   }
   function sonEkrani(){
+    sonSahneleriHazirla();
     if(!ui.son) ui.son={asama:'giris',i:0};
     const bol=sonBolumleri(), s=ui.son;
     if(s.asama==='giris') return kartEkrani(bol.giris,[dugme(M('oyun.devamDugme'),sonIlerle,'ana')],{gece:true});

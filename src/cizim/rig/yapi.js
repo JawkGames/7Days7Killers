@@ -187,6 +187,28 @@ export function basDonusumu(){
   c.save(); c.translate(0,BAS_MERKEZ); c.scale(G.bas,G.bas); c.translate(0,-BAS_MERKEZ);
   return true;
 }
+/* İfade ve beden dili (poz.basEgim, basEg, basDon, egil, nefesEk): başın yana yatması, öne-arkaya eğilmesi, dönmesi,
+   bize doğru eğilme. Boyun noktası (0,200) çevresinde; kafa ve arka saç aynı dönüşümü alır. Hepsi 0 ise dönüşüm yapılmaz. */
+export function basPozDonusumu(){
+  const r=poz.basEgim, p=poz.basEg, e=poz.egil, d=poz.basDon, n=poz.nefesEk;
+  if(!r&&!p&&!e&&!d&&!n) return false;
+  c.save();
+  c.translate(d*5,e*24+p*9-n*2.4); // öne eğilen baş aşağı iner ve büyür; çenesi düşen baş biraz iner
+  const s=1+e*.045;
+  c.translate(0,200); c.rotate(r); c.scale(s,s*(1-p*.04)); c.translate(0,-200);
+  return true;
+}
+/* Gövdenin beden dili (poz.omuzKalk, egil, nefesEk): omuz kalkınca gövde yükselir ve daralır (boyun kısalır),
+   öne eğilince gövde büyür ve iner. Hepsi 0 ise dönüşüm yapılmaz. */
+export function govdePozDonusumu(){
+  const o=poz.omuzKalk, e=poz.egil, n=poz.nefesEk;
+  if(!o&&!e&&!n) return false;
+  c.save();
+  c.translate(0,-o*13+e*14-n*3.2);
+  const s=1+e*.03, sx=s*(1-Math.max(0,o)*.025);
+  c.translate(0,1150); c.scale(sx,s); c.translate(0,-1150);
+  return true;
+}
 export function figurDonusumu(govdeMi){
   if(G.boy===1&&G.iri===1) return false;
   const d=(G.boy-1)*BOY_BIRIM, s=G.iri;

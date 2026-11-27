@@ -37,7 +37,8 @@ export function mufettis(d,kaynama){
   if(d.gorun<=0) return;
   c.save(); c.globalAlpha=d.gorun;
   c.translate(d.x,d.y); c.scale(d.s,d.s);
-  c.translate(0,M.omuzAyak); c.rotate(d.don); c.translate(-d.irk*8,-M.omuzAyak); // salınım ayak noktasından
+  // salınım ayak noktasından; irkilme: pencereden geri (sağa) sıçrar, omuzlar kalkar, gövde geriye yatar
+  c.translate(0,M.omuzAyak); c.rotate(d.don+d.irk*.035); c.translate(d.irk*26,-M.omuzAyak-d.irk*14);
   const siyah=[6,6,7], L=d.isik;
   // palto
   c.beginPath(); paltoYolu(); c.fillStyle=rgba(siyah,1); c.fill();
@@ -47,14 +48,21 @@ export function mufettis(d,kaynama){
     leke(-190,180,70,320,d.renk,.42*L); leke(-150,20,90,60,d.renk,.3*L); leke(-200,520,40,200,d.renk,.16*L);
   }
   leke(40,700,240,380,[0,0,0],.7);
+  // alt üçte bir karanlığa gömülür: etek ucu hiç görünmez (bacak, ayak ve etek kenarı yok)
+  const kg=c.createLinearGradient(0,470,0,820); kg.addColorStop(0,'rgba(3,3,3,0)'); kg.addColorStop(1,'rgba(3,3,3,1)');
+  c.fillStyle=kg; c.fillRect(-260,470,520,M.etek+40-470);
   c.restore();
-  titrek(()=>{c.moveTo(6,-30); c.quadraticCurveTo(12,300,4,M.etek);},[24,22,20],.25,1.2,8801+kaynama,2,2); // sırt dikişi
+  titrek(()=>{c.moveTo(6,-30); c.quadraticCurveTo(12,300,6,640);},[24,22,20],.25,1.2,8801+kaynama,2,2); // sırt dikişi
   titrek(()=>{c.moveTo(-176,398); c.quadraticCurveTo(0,412,190,396);},[22,20,18],.22,1.2,8802+kaynama,2,2);   // kemer
   titrek(()=>{c.moveTo(150,40); c.quadraticCurveTo(168,240,160,470);},[20,18,16],.3,1.2,8803+kaynama,2,2);   // kol ayrımı
+  c.save(); c.beginPath(); c.rect(-260,-300,520,1060); c.clip(); // dış hat etek ucuna inmez
   titrek(paltoYolu,[2,2,2],.9,2.2,8804+kaynama,2,2.4);
-  if(L>.01) titrek(solKenar,d.renk,.55*L,2.4,8805+kaynama,2,2);
+  c.restore();
+  if(L>.01){ // kenar ışığı aşağı doğru söner
+    c.save(); c.beginPath(); c.rect(-260,-300,520,900); c.clip(); titrek(solKenar,d.renk,.55*L,2.4,8805+kaynama,2,2); c.restore();
+  }
   // baş ve şapka: boyundan öne eğilir
-  c.save(); c.translate(-6,-40); c.rotate(-.05-d.egil*.2); c.translate(6,40);
+  c.save(); c.translate(-6,-40); c.rotate(-.05-d.egil*.2*(1-d.irk*.85)+d.irk*.06); c.translate(6,40);
   c.beginPath(); basYolu(); c.fillStyle=rgba([10,9,9],1); c.fill();
   if(L>.01){c.save(); c.beginPath(); basYolu(); c.clip(); leke(-58,-86,22,36,d.renk,.3*L); c.restore();}
   titrek(basYolu,[2,2,2],.8,1.8,8806+kaynama,2,2);

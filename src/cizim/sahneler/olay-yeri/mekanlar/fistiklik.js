@@ -7,7 +7,7 @@ import {rng} from '../../../../cekirdek/rastgele.js';
 import {golgele} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,karanlik,atmosfer,leke,titrek} from '../mekan-yardim.js';
-import {gokIsigi,gokCiz,sirt,agac,prizma,kaya,kuruDuvar,kirZemin,ot,cali} from './harman-yeri.js';
+import {gokIsigi,gokCiz,sirt,agac,prizma,kaya,kuruDuvar,kirZemin,ot,cali} from '../dis-yardim.js';
 
 const isik=gokIsigi({konum:[1200,2600,-900]}); // sağdan: soldaki duvarın yüzü ışık alır
 const TOPRAK=[162,130,104], TAS=[192,186,166];

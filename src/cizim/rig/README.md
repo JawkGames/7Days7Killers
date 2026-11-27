@@ -11,6 +11,7 @@ Bütün karakterler aynı çizim koduyla çizilir. Bir karakteri ayıran şey ya
 - `ayrinti.js`: yüzdeki küçük ayrıntılar (yalnızca yeni yol): gözlük, perdeli göz, yara izi, ben, kırık burun, un/is, dinlenme hâlindeki gülümseme kırışığı.
 
 **İki çizim yolu.** Varsayılan kadın (`id:'varsayilan'`) eski yolla çizilir ve prototiple birebir aynı kalır. Öteki bütün görünüşlerde `G.ozel` doğrudur ve yeni yol çalışır: yaşa ve kemiğe göre yüz silüeti ve gölge, yalnızca gölge bölgelerinde kırpılmış tarama, çamurlu fırça dokusu, değişken kalınlıkta yüz hattı; örtünün altından görünen saç ve örtünün yüze düşen yumuşak gölgesi; tel tel sakal, bıyık ve saç (`lifKutle`: kenar kesik değil, teller silüetten taşar); kumaşta kıvrım ve ağırlık. Yeni yolda bir şeyi değiştirmek sorgu odasını etkilemez; eski yola (`!G.ozel` dalları, "çarpan 1 ise" dalları) dokunma.
+- `ifade.js`: sorgu için ifade ve beden dili (duygu durumları, mizaç süzgeci, tepki oynatma). Çizmez, `poz` alanlarını sürer. `cikis.js`: kalkıp gitmenin zaman çizelgesi.
 - `index.js`: tek giriş noktası.
 
 Çizim sırası sahnedeki gibidir: `altGovde` (yalnızca ayaktayken), `arkaSac` (kafa konumunda), `govde`, `kafa` (kafa konumunda, `OLCU.kafaY`).
@@ -188,6 +189,43 @@ Yemeni ve şal saçı örter; yeni yolda alın kenarının altından ortadan ayr
 | `kirikBurun` | `yon` (±1), `guc` (.5-1.4) | kemerde çıkıntı, burnun ucu yana kayar (Kadir) |
 
 **`toz`**: `{tur:'un'|'is', yuz, sac, giysi, renk}` (güçler 0-1). `un`: kaşta, saç dibinde, elmacıkta soluk toz ve serpinti; saçta (başlık yoksa) ve giysi silüetinde un bulutu ve silinmiş izler (Kâzım). `is`: alında, yanakta, burun sırtında ve çene hattında parmakla sürülmüş kara lekeler; giyside kara lekeler (Bekir).
+
+## İfade ve beden dili (`ifade.js`)
+
+Sorgudaki kişinin yüzü ve gövdesi duyguya göre oynar. Katman çizmez; her karede `poz`'un ifade alanlarını yazar (`poz.js` başındaki liste: `kasKaldir`, `kasCat`, `kasEgim`, `kasSol/Sag`, `gozAc`, `kirp`, `gozSegir`, `bakisX/Y`, `agizKose`, `agizYan`, `dudakSik`, `agizGer`, `agizAralik`, `burunAc`, `kizar`, `yutkun`, `basEgim`, `basEg`, `basDon`, `egil`, `omuzKalk`, `nefesEk`). Bu alanların hepsi nötrken (`POZ_NOTR`) çizim birebir eskisi gibidir: ifade katmanı çağrılmazsa sorgu odası piksel piksel aynı kalır. Görünüşteki kalıcı `ifade` (dinlenme yüzü) ayrıca çizilir; anlık ifade onun üstüne biner (ağız köşesi, tek kaş, bakış toplanır).
+
+```js
+import {poz,ifadeKur} from '/src/cizim/rig/index.js';
+const ifade=ifadeKur({mizac:kisi.mizac, tohum:vaka.tohum*31+sira}); // kişi başına bir tane; aynı tohum = aynı oyunculuk
+ifade.sifirla(poz);                          // karakter değişince: nötr, olaysız
+// her karede (sahnenin guncelle'sinin sonunda; kendi alanlarını yazdığı için sıra önemli değil, ama kasKaldir/kasCat'ı da yazar):
+ifade.guncelle(dt,poz);
+// cevap gelince: cevap.js'in tepki nesnesi (ya da cevabın kendisi)
+const {bekle}=ifade.tepkiOyna(cevap.tepki);  // bekle saniye (duraksamada .75) sonra konus(metin)
+// elle: ifade.hedefle('ofkeli',.7); ifade.oynat('yutkun');
+```
+
+- **Durumlar** (`DURUMLAR`): `sakin`, `gergin` (endişeli kaş, sıkılı dudak, kalkık omuz, sık kırpma, kaçamak bakış), `korkmus` (iri göz, iç uçları kalkık kaş, yana gerilen ağız, geri çekilme, titreme, hızlı sığ nefes), `ofkeli` (çatık ve inik kaş, kısık göz, burun delikleri, sıkılı dudak, öne eğilme, yanakta kan, derin nefes, arada başını iki yana sallar), `uzgun` (iç uçları kalkık kaş, ağır kapak, yere bakış, düşük köşe, çökük omuz, baş önde, iç çekme), `kucumseyen` (baş geri, yarı kapalı göz, tek yanlı ağız, tek kaş), `saskin` (kalkık kaş, iri göz, aralık dudak), `tutan` (yalan söylerken kendini tutan: düz bakış, sıkılı dudak, hafif inik kaş; ama sık kırpma, bakışın bir an kaçıp dönmesi, göz seğirmesi, yutkunma, dudak ıslatma sızar). `hedefle(durum, siddet)`: siddet 0-1.
+- **Geçiş**: her kanal kritik sönümlü yayla hedefe gider (sıçrama ve taşma yok); bakış hızlı, baş ve gövde yavaş, kan yavaşça yayılır. Olaylar (kırpma, kaçırma, seğirme, yutkunma, dudak ıslatma, baş sallama, iç çekme) tohumlu rastgele zamanlarla gelir; `Math.random` kullanılmaz.
+- **Mizaç süzgeci** (`MIZAC_SUZGEC`, `src/icerik/kur.js` MIZACLAR): korkak göz kaçırır ve omzu düşer; sert kıpırdamaz, göz kısık, çene önde; kurnaz yarım gülüş ve tek kaş; gururlu baş geri, göz yarı kapalı; saf göz iri, kaş yukarı; dedikoducu öne eğilir, canlı, arada başını sallar; öfkeli burun delikleri, çatık kaş; sakin az hareket.
+- **Tepki** (`tepkidenDurum`): `cevap.js` `tepkiKur` çıktısındaki `gerginlik`, `duzey`, `gozKacirma`, `duraksama`, `tavirIpucu` okunur. Öfkeli mizaç gerilince öfkelenir; çok gergin korkak/saf korkar; kurnaz, sert ve gururlu gerilince kendini tutar; gururlu sakinken küçümser. `gozKacirma` uzun bir bakış kaçırması, `duraksama` söz öncesi dudak sıkma + yutkunma oynatır. Tepki ipucudur, kanıt değildir: masum ve gergin biri de aynı yüzü yapar.
+- **Konuşma**: konuşurken (`poz.agizAc` > .02) ve hemen ardından ağız köşesi yerinden oynamaz (köşeler sabit, dudaklar esner), dudak sıkma ve aralık bırakılır; yutkunma ve dudak ıslatma konuşma arasına ertelenir.
+- **Durağan kare**: `ifade.hedefle(d,s).yerles(poz)` hedefe hemen oturur, olay oynatmaz. Az hareket tercihinde `ifadeKur({...,azHareket:true})`.
+- **Kontrol**: galeride büyük görünüm (duygu × şiddet, "tepki oynat", tek hareketler, mizaç seçimi); `/prototip/karakterler/pano.html` (satır köylü, sütun duygu; `?kim=a,b&durum=...&siddet=.8&etiket=0&kadraj=govde`), `pano.html?gecis=sakin:0@0,ofkeli:1@.5,konus@2&kim=elif` (10 fps kare dizisi), `pano.html?cikis&kim=elif`.
+
+### Kalkıp gitme (`cikis.js`)
+
+Sorgu bitince kişi öne eğilip ağırlığını verir, kalkar (alt gövde ayakta görünür, bacak çizilmez), başı önde, bakışı yerde, kapıya doğru küçülerek yürür ve karanlığa gömülür (yüz yürürken okunmaz, sırtını dönmesi gerekmez). Girişin (`sahneler/sorgu-odasi/giris.js`) tersidir ve aynı alanları üretir: `{aktif:true, bas:null, d, ayakta, kapi, gorun, sal, zip, faz, karart}`.
+
+```js
+ifade.kalk();                                    // sahnede, sorgu bitince
+// her karede, sahnenin guncelle'sinde girisGuncelle(t)'den SONRA:
+ifade.guncelle(dt,poz);
+if(ifade.cikis){ Object.assign(giris,ifade.cikis); if(ifade.cikisBitti) /* karakteri değiştir, sifirla */; }
+// ifade kullanılmıyorsa: const k=cikisKaresi(saniye); Object.assign(giris,k.giris); (k.poz: egil, basEg, bakisY eklenecek duruş)
+```
+
+`bas:null` girisGuncelle'nin giriş çizelgesini başlatmasını (ve `girisOlay.bit`'i tetiklemesini) her karede engeller; daha temizi sahnede `giris.cikis` gibi ayrı bir dal açmaktır. Bitince `gorun` 0 ve `aktif` true kalır (figür çizilmez); `aktif:false` yapılırsa figür oturur hâlde yeniden görünür. Süre `CIKIS.zaman.bitis` (6.6 sn).
 
 ## Yeni karakter nasıl yazılır
 

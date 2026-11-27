@@ -1,7 +1,8 @@
 // Kayıp sahnelerinin ölçüleri ve zaman çizelgesi.
 /* tasarım yüksekliği 1200 birim; duvarın zemine değdiği çizgi zeminY. 1 metre ≈ 290 birim.
+   Yatay ekranda yalnızca kadraj (kadrajUst..kadrajUst+kadrajBoy) görünür: tavanın çoğu dışarıda kalır, eşya büyür.
    Telefonda (dikey) fazladan yükseklik üstte tavan, altta alt yazının oturduğu karanlık zemin olur. */
-export const OLCU={yukseklik:1200, enAzGenislik:720, pay:130, zeminY:770, ustPay:.62};
+export const OLCU={yukseklik:1200, kadrajUst:110, kadrajBoy:1060, enAzGenislik:720, pay:130, zeminY:770, ustPay:.62};
 
 /* kamera kayınca katmanlar farklı miktarda kayar: arka az, ön çok */
 export const DERINLIK={arka:14, orta:34, on:64};
@@ -19,7 +20,7 @@ export const ZAMAN={
 };
 
 /* yavaş kamera: soldan sağa kayma ve çok hafif yaklaşma */
-export const KAMERA={kayma:.62, yaklas:.04};
+export const KAMERA={kayma:.62, yaklas:.05};
 
-/* hatların kaynaması: orta katman bu kadar kopya çizilir, saniyede bu kadar kez değişir */
-export const KAYNAMA={kopya:3, hiz:7};
+/* hatların kaynaması: orta katman `kopya`, arka katman `arkaKopya` kez çizilir; saniyede `hiz` kez değişir */
+export const KAYNAMA={kopya:3, arkaKopya:2, hiz:7};

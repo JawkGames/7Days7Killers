@@ -7,8 +7,7 @@ import {rng} from '../../../../cekirdek/rastgele.js';
 import {kutu,cokgen3,hat3,golgele,tabana} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,zemin,karanlik,atmosfer,leke,titrek,MUREKKEP} from '../mekan-yardim.js';
-import {RENK_EV,odaDuvarlari,odaKenarlari,tavanCiz,bosluk,duvarBoslugu,isikDusmesi,huzme,yuzDoku,tabanGolgesi,
-  sandik,yumusakKutu,gazLambasi,nis,agacCivi} from './halil-evi.js';
+import {RENK_EV,odaDuvarlari,odaKenarlari,tavanCiz,bosluk,duvarBoslugu,isikDusmesi,huzme,yuzDoku,tabanGolgesi,sandik,yumusakKutu,gazLambasi,nis,agacCivi} from '../ic-yardim.js';
 
 const SOL=-250, SAG=250, ARKA=440, TAVAN=240, ON=60;
 const PEN={x0:46, x1:136, y0:104, y1:172};               // arka duvarda pencere

@@ -3,7 +3,6 @@
 import {cv,ana,c,tuvalKur,hedefAyarla} from '../../teknik/tuval.js';
 import {gor,gorunumOlc,sahneDonusumu,onBellek} from '../../teknik/gorunum.js';
 import {leke} from '../../teknik/firca.js';
-import {kumOlustur,kaplama} from '../../teknik/kaplama.js';
 import {lerp,clamp,yumusak} from '../../../cekirdek/matematik.js';
 import {rng} from '../../../cekirdek/rastgele.js';
 import {azHareket} from '../../../platform/tercih.js';
@@ -11,21 +10,22 @@ import {OLCU,ZAMAN,MUFETTIS,RENK} from './ayar.js';
 import {Y,yerlesimKur,camNokta} from './yerlesim.js';
 import {kalabalikKur,kalabalikCiz,zeminIsigi,alevler,titre,ortalamaIsik} from './kalabalik.js';
 import {disArka,disIsik,disDonusum} from './dis.js';
-import {odaArka,dograma,masa,odaIsigi,masaIsigi,penYolu,camYolu} from './oda.js';
+import {odaArka,kirisler,dograma,masa,odaIsigi,masaIsigi,penYolu,camYolu} from './oda.js';
 import {mufettis} from './mufettis.js';
-import {tasPlani,sonCarpma,camIzleri,ucanlar,irkilme} from './tas.js';
+import {kumKur,kaplama} from './vinyet.js';
+import {tasPlani,sonCarpma,camIzleri,ucanlar,camTozu,irkilme} from './tas.js';
 
 /* Müfettişin t anındaki durumu (saf işlev). */
 function mufettisDurumu(t,plan,isik,renk){
   const Z=ZAMAN, M=Y.muf, [kx,ky]=Y.kn;
   const y=clamp((t-Z.yuru[0])/(Z.yuru[1]-Z.yuru[0]),0,1), yy=.5-.5*Math.cos(y*Math.PI), d=1-yy;
-  const s=1/(1+d*(1/M.sBas-1));
+  const s=1/lerp(1/M.sSon,1/M.sBas,d); // 1/s doğrusal: yürüyüş derinlikte eşit adımlı
   const genlik=Math.min(1,y*5,(1-y)*5);
   const faz=yy*MUFETTIS.yuruAdim, sal=Math.sin(faz*Math.PI)*genlik, zip=Math.abs(sal);
   const x=kx+lerp(M.Xbas,M.Xson,yy)*s+sal*14*s;
   const yo=ky+M.Yomuz*s-zip*MUFETTIS.ziplama*s;
   return {x,y:yo,s,don:sal*MUFETTIS.salinim,gorun:yumusak(Z.belir[0],Z.belir[1],t),egil:yumusak(Z.egil[0],Z.egil[1],t),
-    irk:irkilme(plan,t),isik:isik*Math.pow(1-d,1.6),renk};
+    irk:irkilme(plan,t),isik:isik*Math.pow(1-d,1.6),renk,alt:Y.masa.arka};
 }
 
 /* dogru: 0..7, tohum: sayı, tuval: canvas (verilmezse tuvalKur önceden yapılmış olmalı),
@@ -39,11 +39,11 @@ export function pencereBaslat({dogru=7,tohum=1,tuval=null,bitince=null,zaman=nul
   const bitis=plan.length?Math.max(ZAMAN.bitisEnAz,sonCarpma(plan)+ZAMAN.bitisBekle):ZAMAN.bitisEnAz;
   const isikRenk=[0,1,2].map(i=>lerp(ort.renk[i],RENK.kirliSari[i],.25));
   const kir=(()=>{const r=rng(tohum*17+3), l=[]; for(let i=0;i<14;i++) l.push([r(),r(),.04+r()*.12,.03+r()*.1,.05+r()*.1,r()<.6]); return l;})();
-  let odaT=null, disT=null, dogT=null, masaT=null;
+  let odaT=null, kirisT=null, disT=null, dogT=null, masaT=null;
   function boyutla(){
     if(!gorunumOlc(OLCU)) return;
     yerlesimKur();
-    odaT=onBellek(odaArka); disT=onBellek(()=>disArka(tohum)); dogT=onBellek(dograma); masaT=onBellek(masa);
+    odaT=onBellek(odaArka); kirisT=onBellek(kirisler); disT=onBellek(()=>disArka(tohum)); dogT=onBellek(dograma); masaT=onBellek(masa);
   }
   function ciz(t){
     const hareket=!azHareket, tt=hareket?t:0, kaynama=hareket?Math.floor(t*OLCU.kaynamaHizi)%64:0;
@@ -53,10 +53,11 @@ export function pencereBaslat({dogru=7,tohum=1,tuval=null,bitince=null,zaman=nul
     const cakma=plan.reduce((m,A)=>{const g=t-A.t; return g>=0&&g<.25?Math.max(m,1-g/.25):m;},0);
     const I=ort.guc*lerp(titre(tt,1.3,true),titre(tt,1.3,false),ort.ofkePay)*(1+cakma*.35);
     odaIsigi(isikRenk,I);
+    c.setTransform(1,0,0,1,0,0); c.drawImage(kirisT,0,0); sahneDonusumu(c);
     // dışarısı: cam şekline kırpılır
     c.save(); c.beginPath(); penYolu(); c.clip(); c.beginPath(); camYolu(); c.clip();
     c.setTransform(1,0,0,1,0,0); c.drawImage(disT,0,0); sahneDonusumu(c);
-    disIsik(ort.renk,tt,I,ort.ofkePay);
+    disIsik(ort.renk,tt,I,ort.ofkePay,KL);
     c.save(); disDonusum(); zeminIsigi(KL,tt,1); kalabalikCiz(KL,tt,hareket,kaynama,1); alevler(KL,tt,hareket,1); c.restore();
     if(hareket) ucanlar(plan,t);
     // eski cam: yeşilimsi, kirli, yer yer bulanık
@@ -65,6 +66,7 @@ export function pencereBaslat({dogru=7,tohum=1,tuval=null,bitince=null,zaman=nul
     c.restore();
     camIzleri(plan,t,kaynama);
     c.setTransform(1,0,0,1,0,0); c.drawImage(dogT,0,0); sahneDonusumu(c);
+    if(hareket) camTozu(plan,t);
     mufettis(mufettisDurumu(t,plan,I,isikRenk),kaynama);
     c.setTransform(1,0,0,1,0,0); c.drawImage(masaT,0,0); sahneDonusumu(c);
     masaIsigi(isikRenk,I);
@@ -85,7 +87,7 @@ export function pencereBaslat({dogru=7,tohum=1,tuval=null,bitince=null,zaman=nul
     kareNo=requestAnimationFrame(kare);
   }
   addEventListener('resize',boyutla);
-  kumOlustur(); boyutla();
+  kumKur(); boyutla();
   if(azHareket) zamanlayici=setTimeout(haber,ZAMAN.azHareketBekle*1000);
   kareNo=requestAnimationFrame(kare);
   return {

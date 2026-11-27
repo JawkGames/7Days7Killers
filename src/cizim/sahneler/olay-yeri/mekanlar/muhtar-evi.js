@@ -5,8 +5,8 @@ import {TAU} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
 import {cokgen3,hat3,yol3,golgele,aydinlik} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
-import {duzlemde,zemin,aydinlikBosluk,karanlik,atmosfer,leke,tara,MUREKKEP} from '../mekan-yardim.js';
-import {badanaDuvar,etekBandi,dipGolgesi,kutuDoku,tahtaYuzey,torna,minder,kenarIsigi} from './koy-odasi.js';
+import {duzlemde,zemin,aydinlikBosluk,karanlik,atmosfer,leke,MUREKKEP,kenarIsigi} from '../mekan-yardim.js';
+import {badanaDuvar,etekBandi,dipGolgesi,kutuDoku,tahtaYuzey,torna,minder,kilimSer} from '../ic-yardim.js';
 
 const SIVA=[180,172,150], TOPRAK=[118,106,86], CEVIZ=[96,72,52], AHSAP=[110,92,68], KIRIS=[88,74,56];
 const ARKA=500, SOL=-250, SAG=250, TAVAN=232;
@@ -15,31 +15,6 @@ const YUK={x:[-236,-66], y:[0,206], derin:56};           // yüklük
 const SAN={x:[-44,62], y:[0,52], z:[448,ARKA-2]};          // sandık
 const YATAK={x:[104,214], z:[262,452]};
 const isik={konum:[160,120,468], guc:1.6, menzil:330, ortam:.36};
-
-// Yere serili kilim: kenar şeridi, ortada baklava gözler, uçlarda saçak. Köşeler dünya noktası (zemin)
-export function kilimSer(P,isik,[x0,x1],[z0,z1],renk,r,{Y=0,t=1}={}){
-  const q=[[x0,Y,z0],[x1,Y,z0],[x1,Y,z1],[x0,Y,z1]];
-  const a=aydinlik(isik,[(x0+x1)/2,Y,(z0+z1)/2],[0,1,0]);
-  cokgen3(P,q,golgele(renk,a));
-  c.save(); c.beginPath(); yol3(P,q); c.clip();
-  const ic=(p,k,al)=>cokgen3(P,[[x0+p,Y,z0+p],[x1-p,Y,z0+p],[x1-p,Y,z1-p],[x0+p,Y,z1-p]],k,al);
-  ic(5,golgele([60,36,30],a),1); ic(10,golgele(renk,a*1.05),1); ic(13,golgele([180,150,100],a),.5); ic(15,golgele(renk,a*.95),1);
-  // baklavalar ve kancalar
-  const gz=26, mx=(x0+x1)/2;
-  for(let z=z0+15+gz/2;z<z1-15;z+=gz) for(let x=mx-Math.floor((x1-x0-30)/gz/2)*gz;x<=x1-15-gz/2+.1;x+=gz){
-    const b=[[x,Y,z-gz*.42],[x+gz*.42,Y,z],[x,Y,z+gz*.42],[x-gz*.42,Y,z]];
-    cokgen3(P,b,golgele(((x+z)/gz|0)%2?[150,60,44]:[40,44,60],a),.85);
-    cokgen3(P,b.map(([bx,by,bz])=>[x+(bx-x)*.45,by,z+(bz-z)*.45]),golgele([200,176,120],a),.7);
-  }
-  // aşınma: ortası yürünmüş, soluk
-  const s=P.n(mx,Y,(z0+z1)/2), o=P.olcek(mx,Y,(z0+z1)/2);
-  leke(s[0],s[1],(x1-x0)*o*.3,(z1-z0)*o*.18,[170,160,130],.25);
-  for(let i=0;i<10;i++){const p=P.n(x0+r()*(x1-x0),Y,z0+r()*(z1-z0)); leke(p[0],p[1],10+r()*30,4+r()*10,[0,0,0],.12+r()*.1);}
-  tara(...[0,0,1000,750],.3,3,[0,0,0],.12,t,.5);
-  c.restore();
-  hat3(P,q,MUREKKEP,.5,1,t+1,2,.8,true);
-  for(const z of[z0,z1]) for(let x=x0+2;x<x1;x+=3){const p=P.n(x,Y,z), e=P.n(x+(r()-.5)*2,Y,z+(z===z0?-1:1)*(4+r()*3)); c.strokeStyle='rgba(190,176,140,.45)'; c.lineWidth=.8; c.beginPath(); c.moveTo(p[0],p[1]); c.lineTo(e[0],e[1]); c.stroke();}
-}
 
 // Yüklük: duvara gömülü dolap; üstte açık göz, içinde istif yatak; altta iki kapak; sol yarıda çekilmiş perde
 function yukluk(P,r){

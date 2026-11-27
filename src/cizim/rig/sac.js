@@ -10,7 +10,7 @@ import {G} from './gorunus.js';
 import {lifDoldur,lifKutle,teller} from './doku.js';
 import {titrek} from '../teknik/firca.js';
 import {baslikArka} from './baslik.js';
-import {figurDonusumu,basDonusumu} from './yapi.js';
+import {figurDonusumu,basDonusumu,basPozDonusumu} from './yapi.js';
 
 export const SAC={
   sol:[[-35,-236,-230,-262,-232,200,-200,430],[-35,-168,-150,-176,-130,170,-158,436]],
@@ -296,7 +296,7 @@ function yuzKirp(){
 }
 
 export function arkaSac(){
-  const D=figurDonusumu(false), B=basDonusumu(); arkaSacCiz(); if(B) c.restore(); if(D) c.restore();
+  const D=figurDonusumu(false), B=basDonusumu(), P=basPozDonusumu(); arkaSacCiz(); if(P) c.restore(); if(B) c.restore(); if(D) c.restore();
 }
 function arkaSacCiz(){
   baslikArka();

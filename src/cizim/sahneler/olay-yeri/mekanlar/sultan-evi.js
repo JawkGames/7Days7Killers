@@ -7,8 +7,7 @@ import {rng} from '../../../../cekirdek/rastgele.js';
 import {kutu,cokgen3,hat3,yol3,golgele,tabana} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,zemin,karanlik,atmosfer,leke,titrek,MUREKKEP} from '../mekan-yardim.js';
-import {RENK_EV,odaDuvarlari,odaKenarlari,tavanCiz,bosluk,duvarBoslugu,huzme,yuzDoku,tabanGolgesi,
-  sandik,yumusakKutu,nis,tas,sise} from './halil-evi.js';
+import {RENK_EV,odaDuvarlari,odaKenarlari,tavanCiz,bosluk,duvarBoslugu,huzme,yuzDoku,tabanGolgesi,sandik,yumusakKutu,nis,tas,sise} from '../ic-yardim.js';
 
 const SOL=-260, SAG=250, ARKA=450, TAVAN=232, ON=60;
 const DELIK={z:[350,410], x:[-70,40]};                 // tavanda çöküntü

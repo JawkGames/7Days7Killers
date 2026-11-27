@@ -6,8 +6,8 @@ import {TAU} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
 import {cokgen3,hat3,yol3,golgele,aydinlik} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
-import {duzlemde,karanlik,atmosfer,leke,MUREKKEP} from '../mekan-yardim.js';
-import {badanaDuvar,etekBandi,dipGolgesi,kutuDoku,tahtaYuzey,torna,pencere,gunesLekesi,kenarIsigi} from './koy-odasi.js';
+import {duzlemde,karanlik,atmosfer,leke,MUREKKEP,kenarIsigi} from '../mekan-yardim.js';
+import {badanaDuvar,etekBandi,dipGolgesi,kutuDoku,tahtaYuzey,torna,pencere,gunesLekesi} from '../ic-yardim.js';
 
 const SIVA=[188,182,164], AHSAP=[120,98,70], SIRA=[104,84,60], DEMIR=[78,76,70], KARA=[34,38,34];
 const ARKA=520, SOL=-252, SAG=252, TAVAN=250;

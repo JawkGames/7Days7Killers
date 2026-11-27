@@ -1,7 +1,7 @@
 // Mekân şablonlarının ortak yapı taşları: perspektifli taş duvar, toprak zemin, kapı ışığı.
 import {c} from '../../teknik/tuval.js';
 import {leke,tara,titrek} from '../../teknik/firca.js';
-import {rgba,clamp} from '../../../cekirdek/matematik.js';
+import {rgba,clamp,TAU} from '../../../cekirdek/matematik.js';
 import {tabana,aydinlik,golgele,cokgen3,yol3} from './kalem.js';
 
 export const MUREKKEP=[8,7,10];
@@ -124,5 +124,30 @@ export function atmosfer(r,{tarama=.12,leke:lk=.12}={}){
 
 // Köşe ve kenarlarda karanlık (tek ışık kaynağından uzaklık)
 export function karanlik(alanlar){for(const a of alanlar) leke(a[0],a[1],a[2],a[3],[0,0,0],a[4],a[5]||0);}
+
+/* ─── genel düzlem ve hat araçları (iç ve dış mekân) ─── */
+
+// Düzlemin makineye bakan normali
+export function yuzNormal(P,O,D){
+  const u=D.u, v=D.v, n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
+  return (-O[0])*n[0]+(P.yukseklik-O[1])*n[1]+(-O[2])*n[2]>0?n:[-n[0],-n[1],-n[2]];
+}
+// Düzlemde yerel kırık çizgi (her nokta tam izdüşümle)
+export function duzlemCizgi(P,O,D,noktalar){
+  noktalar.forEach((q,i)=>{const s=duzlemNoktasi(P,O,D,q[0],q[1]); if(i) c.lineTo(s[0],s[1]); else c.moveTo(s[0],s[1]);});
+}
+// Dünya noktaları arasında kopuk kopuk açık kenar çizgisi (aşınmış kenar ışığı)
+export function kenarIsigi(P,a,b,r,{renk=[220,212,186],alfa=.4,kalin=1.2,parca=9}={}){
+  for(let i=0;i<parca;i++){
+    if(r()<.22) continue;
+    const t0=i/parca+r()*.02, t1=(i+1)/parca-r()*.04, l=(t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+    const s0=P.n(...l(t0)), s1=P.n(...l(t1));
+    c.strokeStyle=rgba(renk,alfa*(.5+r()*.5)); c.lineWidth=kalin*(.6+r()*.6); c.lineCap='round';
+    c.beginPath(); c.moveTo(s0[0],s0[1]); c.lineTo(s1[0],s1[1]); c.stroke();
+  }
+}
+
+// Yatay daire (dünya noktaları)
+export const daire3=(X,Y,Z,rx,rz=rx,n=32)=>Array.from({length:n},(_,i)=>{const a=i/n*TAU; return [X+Math.cos(a)*rx,Y,Z+Math.sin(a)*rz];});
 
 export {titrek,tara,leke};

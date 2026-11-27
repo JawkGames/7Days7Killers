@@ -11,8 +11,8 @@ import {G} from './gorunus.js';
 import {onSac} from './sac.js';
 import {sakal,biyik} from './sakal.js';
 import {baslikOn,baslikGolge} from './baslik.js';
-import {yuzYoluOzel,yapiBoya,yapiHat,gozAki,figurDonusumu,basDonusumu} from './yapi.js';
-import {gozluk,izler,izBoya,gulumseme,kirikBurun,perdeliGoz,tozSac} from './ayrinti.js';
+import {yuzYoluOzel,yapiBoya,yapiHat,gozAki,figurDonusumu,basDonusumu,basPozDonusumu} from './yapi.js';
+import {gozluk,izler,izBoya,gulumseme,kirikBurun,perdeliGoz,tozSac,ifadeCizgileri} from './ayrinti.js';
 
 export function yuzYolu(){
   if(G.ozel){yuzYoluOzel(); return;}
@@ -32,9 +32,16 @@ export function goz(yon,fx){
   const perde=oz&&G.gozFarki&&((G.gozFarki.perde==='sol')===(yon<0));
   let o=clamp(poz.goz,0,1); const k=poz.kaynama;
   if(oz&&I.bakisY>0) o*=1-.2*I.bakisY;
+  if(poz.bakisY>0) o*=1-.22*Math.min(1,poz.bakisY); // yere bakınca üst kapak iner
+  if(poz.kirp) o*=1-clamp(poz.kirp,0,1);
   const kp=perde?Y.gozKapak+G.gozFarki.kapak:Y.gozKapak;
   const gul=oz?Math.max(0,I.agizKose)*5:0; // gülen yüzde alt kapak kalkar, göz kısılır
-  const ust=lerp(9,-19+kp*12,o), alt=gul?lerp(9,11-gul,o):lerp(9,11,o), U=[-31,5,-18,ust,12,ust-2,31,-4];
+  let ust=lerp(9,-19+kp*12,o), alt=gul?lerp(9,11-gul,o):lerp(9,11,o);
+  const ga=poz.gozAc;
+  if(ga>0) ust-=ga*12*o; // iri açılmış göz: üst kapak kalkar, irisin üstünde ak görünür
+  else if(ga<0){ust=Math.min(ust,Math.max(-7,ust-ga*13*o)); alt+=ga*6*o;} // kısık göz: üst kapak iner (irisi kapatacak kadar değil: göz kapalı görünmesin), alt kapak kalkar
+  if(poz.gozSegir&&yon<0) alt-=poz.gozSegir*5*o; // alt kapağın seğirmesi
+  const U=[-31,5,-18,ust,12,ust-2,31,-4];
   c.save(); c.translate(yon*Y.gozAralik+fx,0); c.scale(yon*Y.gozEn,Y.gozBoy);
   c.save();
   c.beginPath(); c.moveTo(-31,5); c.bezierCurveTo(U[2],U[3],U[4],U[5],U[6],U[7]); c.bezierCurveTo(16,alt,-12,alt+2,-31,5); c.closePath(); c.clip();
@@ -42,7 +49,7 @@ export function goz(yon,fx){
   if(G.ozel){const [a1,a2,a3]=gozAki(); g.addColorStop(0,rgba(a1,1)); g.addColorStop(.6,rgba(a2,1)); g.addColorStop(1,rgba(a3,1));}
   else{g.addColorStop(0,'#9b9886'); g.addColorStop(.6,'#5f5d55'); g.addColorStop(1,'#26252a');}
   c.fillStyle=g; c.fillRect(-36,-26,72,48);
-  let ix=clamp(oz?poz.gx+I.bakisX:poz.gx,-1,1)*10*yon, iy=clamp(oz?poz.gy+I.bakisY:poz.gy,-1,1)*4.5-2;
+  let ix=clamp((oz?poz.gx+I.bakisX:poz.gx)+poz.bakisX,-1,1)*10*yon, iy=clamp((oz?poz.gy+I.bakisY:poz.gy)+poz.bakisY,-1,1)*4.5-2;
   if(perde){ ix=ix*.35+3; perdeliGoz(ix,iy,ust); }
   else{
   g=c.createRadialGradient(ix,iy+1,1,ix,iy,12.5); g.addColorStop(0,rgba(R.iris,1)); g.addColorStop(.62,rgba(R.irisOrta,1)); g.addColorStop(.9,rgba(R.irisKenar,1)); g.addColorStop(1,'rgba(6,7,7,1)');
@@ -63,9 +70,9 @@ export function goz(yon,fx){
   c.restore();
 }
 export function kas(yon,fx){
-  const Y=G.yuz, kk=Y.kasKalin, eg=Y.kasEgim;
+  const Y=G.yuz, kk=Y.kasKalin, eg=poz.kasEgim?Y.kasEgim+poz.kasEgim:Y.kasEgim;
   const ic=poz.kasCat*7-poz.kasKaldir*3, k=poz.kaynama, r=rng(yon>0?21:22);
-  const tek=G.ozel?(yon<0?G.ifade.kasSol:G.ifade.kasSag):0; // tek kaş yüksek (artı = aşağı, eksi = yukarı)
+  const tek=(G.ozel?(yon<0?G.ifade.kasSol:G.ifade.kasSag):0)+(yon<0?poz.kasSol:poz.kasSag); // tek kaş yüksek (artı = aşağı, eksi = yukarı); poz: anlık ifade
   c.save(); c.translate(yon*Y.gozAralik+fx*.8,-43+Y.kasY-poz.kasKaldir*6+tek); c.scale(yon,1);
   if(tek<0) c.rotate(tek*.006); // kalkık kaşın dış ucu biraz iner: kemerli, sorgulayan kaş
   if(kk!==1){ // gür kaş: tellerin altında koyu, dışa doğru incelen bir leke
@@ -139,11 +146,11 @@ function yasIzleri(fx,fy,mx,dy){
 }
 
 export function kafa(){
-  const D=figurDonusumu(false), B=basDonusumu(); kafaCiz(); if(B) c.restore(); if(D) c.restore();
+  const D=figurDonusumu(false), B=basDonusumu(), P=basPozDonusumu(); kafaCiz(); if(P) c.restore(); if(B) c.restore(); if(D) c.restore();
 }
 function kafaCiz(){
   const Y=G.yuz, R=G.renk, A=G.yasIzi, e=Y.en, b=Y.boy, u=Y.alin, ga=Y.gozAralik;
-  const fx=poz.hgx*7, fy=poz.hgy*4, k=poz.kaynama, I=poz.isik;
+  const fx=(poz.hgx+poz.basDon)*7, fy=poz.hgy*4+poz.basEg*7, k=poz.kaynama, I=poz.isik;
   const dyA=agizKaymasi(), NB=Y.burunBoy, NE=Y.burunEn, ny=y=>NB===1?y:-14+(y+14)*NB;
   if(G.kulak){kulak(-1); kulak(1);}
   // ── boya katmanı
@@ -167,6 +174,7 @@ function kafaCiz(){
     leke(fx*.6,-40,150*e,22,R.tenDerin,.3);
     for(const s of[-1,1]) leke(s*112*e,176*b,46*e,30,R.tenDerin,s>0?.6:.35);
   }
+  if(poz.kizar>0) for(const s of[-1,1]) leke(s*92*e+fx*.4,84*b,52*e,36,[150,62,52],(s<0?.17:.09)*poz.kizar); // öfke ya da utançla kızaran yanak
   const nx=fx*1.5, mx=fx*1.15;
   if(G.ozel){ yapiBoya(fx,fy,mx,dyA); izBoya(fx,fy,mx,dyA); }
   leke(-4*NE+nx,ny(28)+fy,7*NE,60*NB,R.tenIsik,.34*I); leke(15*NE+nx,ny(44)+fy,12*NE,60*NB,R.tenDerin,.55);
@@ -183,6 +191,7 @@ function kafaCiz(){
   if(G.ozel) yapiHat(fx,mx,dyA); else titrek(()=>{yuzYolu();},PAL.murekkep,.75,1.8,510+k,2,2.6);
   c.save(); c.translate(0,fy);
   yasIzleri(fx,fy,mx,dyA);
+  if(poz.kasKaldir>.4||poz.kasCat>.55||poz.kasCat<-.35) ifadeCizgileri(fx);
   // burun: tek yanı çizgi, delikler
   const burunDon=NB!==1||NE!==1;
   if(burunDon){c.save(); c.translate(0,-14); c.scale(NE,NB); c.translate(0,14);}
@@ -190,15 +199,20 @@ function kafaCiz(){
   if(kirik) kirikBurun(nx,kirik);
   else titrek(()=>{c.moveTo(12+nx,-14); c.bezierCurveTo(16+nx,30,22+nx,70,27+nx,96); c.bezierCurveTo(30+nx,108,22+nx,114,12+nx,112);},PAL.murekkep,.7,1.5,520+k,2,1.8);
   titrek(()=>{c.moveTo(-26+nx,100); c.bezierCurveTo(-30+nx,110,-22+nx,114,-13+nx,111); c.moveTo(-9+nx,112); c.quadraticCurveTo(nx,118,9+nx,112);},PAL.murekkep,.6,1.4,521+k,2,1.6);
-  for(const s of[-1,1]){c.fillStyle='rgba(6,5,7,.9)'; c.beginPath(); c.ellipse(nx+s*15,108.5,7.6,3.6,s*-.28,0,TAU); c.fill();}
+  const ba=poz.burunAc; // burun deliği açılması (öfke, sıkıntı)
+  for(const s of[-1,1]){c.fillStyle='rgba(6,5,7,.9)'; c.beginPath(); if(ba) c.ellipse(nx+s*(15+ba*2.5),108.5-ba,7.6*(1+ba*.3),3.6*(1+ba*.55),s*-.28,0,TAU); else c.ellipse(nx+s*15,108.5,7.6,3.6,s*-.28,0,TAU); c.fill();}
+  if(ba>.05) titrek(()=>{for(const s of[-1,1]){c.moveTo(nx+s*22,98); c.quadraticCurveTo(nx+s*(30+ba*3),104,nx+s*26,113);}},PAL.murekkep,.45*ba,1.2,523+k,2,1.2); // gerilen burun kanadı
   if(burunDon) c.restore();
   if(G.sakal.bicim!=='yok') sakal(mx,dyA);
   // ağız: köşeler sabit kalır, dudaklar esneyerek açılır (alt dudak yüzden kopmaz)
   if(dyA!==0){c.save(); c.translate(0,dyA);}
-  const dk=Y.dudakKalin, a=poz.agiz, cy=152-a*5, ac=poz.agizAc, W=45*Y.dudakEn*poz.agizGen*(1-ac*.08)*(G.ozel&&G.ifade.agizKose>0?1+G.ifade.agizKose*.12:1);
+  // dudak sıkma (poz.dudakSik): dudaklar incelir, ağız biraz daralır, ara çizgi koyulaşır
+  const sk=poz.dudakSik, dk=sk?Y.dudakKalin*(1-.5*sk):Y.dudakKalin, a=poz.agiz, cy=152-a*5, ac=poz.agizAralik?Math.max(poz.agizAc,poz.agizAralik*.3):poz.agizAc;
+  const W=45*Y.dudakEn*poz.agizGen*(1-ac*.08)*(G.ozel&&G.ifade.agizKose>0?1+G.ifade.agizKose*.12:1)*(sk?1-.08*sk:1)*(poz.agizGer?1+poz.agizGer*.12:1);
   const yUst=(dk===1?137:152-15*dk)-ac*2, yUi=153-ac*3, yLi=154+ac*17, yLb=(dk===1?175:152+23*dk)+ac*19;
   // dinlenme ifadesi (yeni yol): köşeler kalıcı olarak yukarı/aşağı; konuşurken de yerinde kalır, dudaklar esner
-  const IF=G.ifade, kose=G.ozel?IF.agizKose*15:0, yan=G.ozel?IF.agizYan*12:0;
+  // poz.agizKose/agizYan (anlık ifade) dinlenme ifadesinin üstüne biner
+  const IF=G.ifade, kose=(G.ozel?IF.agizKose*15:0)+poz.agizKose*15, yan=(G.ozel?IF.agizYan*12:0)+poz.agizYan*12;
   const cL=kose||yan?cy-kose+yan:cy, cR=kose||yan?cy-kose-yan:cy; // cL: ekranda sol köşe, cR: sağ köşe
   const orta=cL===cR?T=>(T-cy/4)/.75:T=>(T-(cL+cR)/8)/.75; // köşeden köşeye eğrinin ortası T yüksekliğine gelsin
   const kavis=(T,ters)=>{const y=orta(T); if(ters) c.bezierCurveTo(mx+W*.6,y,mx-W*.6,y,mx-W,cL); else c.bezierCurveTo(mx-W*.6,y,mx+W*.6,y,mx+W,cR);};
@@ -212,6 +226,10 @@ function kafaCiz(){
   c.beginPath(); ustD(); c.fillStyle=rgba(R.dudakGolge,1); c.fill();
   c.beginPath(); altD(); g=c.createLinearGradient(mx-de,0,mx+de,0); g.addColorStop(0,rgba(R.dudak,1)); g.addColorStop(.6,rgba(R.dudakGolge,1)); g.addColorStop(1,'#120a0e'); c.fillStyle=g; c.fill();
   titrek(()=>{c.moveTo(mx-W,cL); kavis(yUi,false);},PAL.murekkep,.9,2,530+k,2,1.4);
+  if(sk>.05){ // sıkılan dudak: ara çizgi koyu, köşelerde kısa çekilme
+    titrek(()=>{c.moveTo(mx-W*.8,(cL+yUi)/2+1); kavis(yUi+.5,false);},PAL.murekkep,.5*sk,1.6,534+k,2,1.2);
+    titrek(()=>{for(const s2 of[-1,1]){const x=mx+s2*W, y=s2<0?cL:cR; c.moveTo(x+s2*2,y-4); c.quadraticCurveTo(x+s2*6,y,x+s2*3,y+5);}},PAL.murekkep,.4*sk,1.1,535+k,2,1.1);
+  }
   if(ac>.05) titrek(()=>{c.moveTo(mx-W,cL); kavis(yLi,false);},PAL.murekkep,.5,1.2,533+k,2,1.2);
   titrek(()=>{c.moveTo(mx+W,cR); kavis(yLb,true);},PAL.murekkep,.4,1.1,531+k,2,1.5);
   if(G.ozel&&(kose||yan)) gulumseme(mx,W,cL,cR);

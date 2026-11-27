@@ -11,6 +11,8 @@
 //   iz        "Bu kırmızı yün ipi kimin olabilir?" / "... senin mi?"   (iz gösterme)
 //   fail      "Muallimi kim öldürdü, bir bildiğin var mı?"
 //   fark      "Muallimin öldüğü günden beri tuhaf bir şey gözüne çarptı mı?"
+//   fark-kisi "Üstünde tuhaflık gördüğün o abalı, Kör Halil olabilir mi?" (adı verilmeyen tuhaflık için)
+//   baskasi   (silüet için de: "Gördüğün o abalı, Kör Halil olabilir mi?")
 //   sir       "Kör Halil hakkında köyde ne konuşulur?"          (sır yoklama)
 //   sir-kendi "Senin saklamak istediğin bir şey var mı?"
 //   iliski    "Hacı Ağa'yla aran nasıldı?"
@@ -160,6 +162,18 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
     }
   }
 
+  // Adını vermeden anlatılan tuhaflık (kanlı yen, tırmık): o giysiyi giyenler tek tek sorulur.
+  for(const f of defter.ifadeler){
+    if(f.kisi!==K||f.soru.tur!=='fark') continue;
+    for(const i of f.iddialar||[]){
+      if(i.tur!=='dolayli'||!i.isimsiz||!i.ortu) continue;
+      const cid=f.soru.cinayet;
+      if(kamu.cinayetler&&!kamu.cinayetler.has(cid)) continue;
+      const giyen=Object.keys(kamu.kisiler).filter(X=>X!==K&&kamu.kisiler[X].ortu===i.ortu&&kamu.canli(X,S)).sort();
+      for(const X of giyen) ekle({id:'fark-kisi:'+cid+':'+X,tur:'fark-kisi',cinayet:cid,kisi:X},'fark-kisi',{kim:kd(X),ortu:ortuSoz(i.ortu,dil)},72-giyen.length);
+    }
+  }
+
   // Fail ve fark: her bilinen cinayet için.
   cinayetler.forEach((c,i)=>{
     ekle({id:'fark:'+c.id,tur:'fark',cinayet:c.id},'fark',{kim:kd(c.kurban)},58-i*5);
@@ -187,7 +201,7 @@ export function sorulariUret({defter,kisi:K,gun,tohum,kamu,dil=DIL_TR}){
   for(const f of defter.ifadeler) for(const i of f.iddialar||[]){
     if(i.tur!=='yonlendir'||i.kisi!==K||!i.konu) continue;
     const id=i.konu.tur==='fark'?'fark:'+i.konu.cinayet:i.konu.tur==='iz'?'iz:'+i.konu.iz:null;
-    const q=out.find(x=>x.id===id);
+    const q=i.konu.tur==='sir'?out.find(x=>x.tur==='sir'&&x.kisi===i.konu.sahip):out.find(x=>x.id===id);
     if(q) q.oncelik=Math.max(q.oncelik,95);
   }
   return out.sort(sirala);

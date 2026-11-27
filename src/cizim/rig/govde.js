@@ -10,7 +10,7 @@ import {poz} from './poz.js';
 import {G,karistir,hexYaz} from './gorunus.js';
 import {kumas,kivrimlar} from './doku.js';
 import {baslikGovde} from './baslik.js';
-import {figurDonusumu} from './yapi.js';
+import {figurDonusumu,govdePozDonusumu} from './yapi.js';
 
 /* omuz eşlemesi: boyun çevresi (|x|<=90) sabit kalır, dışı omuz çarpanıyla genişler */
 function omuzEsle(){
@@ -84,6 +84,8 @@ function boyun(k,dek,v){
   leke(-44*w,806,48,26,R.tenIsik,.18*poz.isik);
   tara(-10*w,640,100*w,900,1.05,6,PAL.murekkep,.45,356+k);
   tara(-95*w,690,95*w,790,.2,7,PAL.murekkep,.3,357+k);
+  const yu=poz.yutkun; // yutkunma: gırtlağın altındaki gölge kalkıp iner
+  if(yu>0){leke(-2,770-yu*16,26*w,12,R.tenDerin,.4*yu); leke(-8,758-yu*16,16*w,7,R.tenIsik,.16*yu*poz.isik);}
   c.restore();
   if(w===1&&v) titrek(()=>{c.moveTo(-26,730); c.quadraticCurveTo(-18,780,-6,806); c.moveTo(-58,800); c.lineTo(0,906); c.lineTo(58,800);},PAL.murekkep,.6,1.3,358+k,2,2);
   else titrek(()=>{c.moveTo(-26*w,730); c.quadraticCurveTo(-18*w,780,-6*w,806);},PAL.murekkep,.6,1.3,358+k,2,2);
@@ -92,7 +94,7 @@ function boyun(k,dek,v){
     titrek(()=>{for(let i=0;i<3;i++){const y=700+i*30; c.moveTo(-54*w,y); c.quadraticCurveTo(-10*w,y+8,40*w,y-2);}},PAL.murekkep,.3*a,1.1,359+k,2,1.6);
     titrek(()=>{c.moveTo(-40*w,690); c.quadraticCurveTo(-30*w,760,-12*w,800); c.moveTo(40*w,690); c.quadraticCurveTo(30*w,760,12*w,800);},PAL.murekkep,.35*a,1.2,360+k,2,1.8);
   }
-  if(G.cinsiyet==='E') titrek(()=>{c.moveTo(-6,748); c.quadraticCurveTo(4,758,-2,770);},PAL.murekkep,.4,1.2,361+k,2,1.4); // gırtlak
+  if(G.cinsiyet==='E'){const gy=yu?-yu*14:0; titrek(()=>{c.moveTo(-6,748+gy); c.quadraticCurveTo(4,758+gy,-2,770+gy);},PAL.murekkep,.4,1.2,361+k,2,1.4);} // gırtlak (yutkununca kalkar)
   if(G.ozel) boyunKas(k,w);
 }
 
@@ -414,7 +416,7 @@ function kepenek(k,X,T){
 }
 
 export function govde(){
-  const D=figurDonusumu(true); govdeCiz(); if(D) c.restore();
+  const D=figurDonusumu(true), P=govdePozDonusumu(); govdeCiz(); if(P) c.restore(); if(D) c.restore();
 }
 function govdeCiz(){
   const k=poz.kaynama, X=omuzEsle(), T=ortuTon();
@@ -436,7 +438,7 @@ function govdeCiz(){
 
 const etekTon=()=>G.ortu==='entari'&&G.giysi.hirka?tonlar(G.giysi.icRenk||IC_RENK.entari):ortuTon();
 export function altGovde(){ // yere kadar inen örtü ve yanlarda sarkan eller: yalnızca ayaktayken görünür, bacak çizilmez
-  const D=figurDonusumu(true); altGovdeCiz(); if(D) c.restore();
+  const D=figurDonusumu(true), P=govdePozDonusumu(); altGovdeCiz(); if(P) c.restore(); if(D) c.restore();
 }
 function altGovdeCiz(){
   const k=poz.kaynama, X=omuzEsle(), T=etekTon(), R=G.renk;

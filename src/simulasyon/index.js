@@ -73,7 +73,11 @@ function kur(tohum,deneme,koy,ayar,taban=null){
   zarOf('gunler').karistir(roller.katiller).forEach((k,i)=>{k.gun=i%ayar.gunSayisi+1;});
   const cz=rutinKur(d,zarOf('cizelge'));
   const mudahale=taban?mudahaleKur(d,cz,ayar.mudahaleler):null;
-  const sonuc=cinayetleriYerlestir(d,zarOf,cz,roller,{mudahale,taban});
+  const sonuc=cinayetleriYerlestir(d,zarOf,cz,roller,{mudahale,taban,anahtar:[tohum,deneme]});
+  // Tabanın kesimden önceki tamamlama izleri (sonra eklenecek) düşürdükleri eşyayı şimdiden kaybettirir.
+  if(taban) for(const i of taban.izler) if(i.gercek?.tamamlama&&i.tur==='fiziksel'&&i.iztur==='nesne'&&i.esya&&i.sahip&&i.zaman<mudahale.kesim){
+    const st=sonuc.esya.durum(i.sahip,i.esya); st.kayip=st.kayip==null?i.zaman:Math.min(st.kayip,i.zaman);
+  }
   const {izler,yanilticilar}=izleriKur(d,zarOf,cz,sonuc);
   const {cinayetler,olaylar,engellenen}=sonuc;
   delete roller.ciftler;

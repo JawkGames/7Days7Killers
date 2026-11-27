@@ -2,7 +2,7 @@
 // Her yer bir işlevdir: (ip) => {isik, arka(G,ust,alt), orta?(G), sabit:[öğe], yer:{ad:[x,y,s]}, oturma:[...], ayakta:[...], hayvan:[...], kanit:{x,y,s}}
 // öğe = {nesne:'ad', x, y, s, ...seçenek}. Öğeler y'ye göre sıralanıp çizilir (arkadaki önce).
 import {c} from '../../teknik/tuval.js';
-import {TAU} from '../../../cekirdek/matematik.js';
+import {TAU,rgba} from '../../../cekirdek/matematik.js';
 import {R,hat,leke,tara,sekil} from './cizer.js';
 import {tasDuvar,sivaDuvar,tahtaDuvar,kaya,toprakZemin,tavan,gok,uzakEvler,karart,nis} from './mekan.js';
 import {OLCU} from './ayar.js';
@@ -21,16 +21,23 @@ function icOda(G,ust,alt,o){
 function civi(x,y){c.fillStyle='#0d0d0c'; c.beginPath(); c.arc(x,y,4.5,0,TAU); c.fill(); leke(x+3,y+5,7,6,R.siyah,.4);}
 // duvarda raf: üstüne nesne konur
 function raf(x,y,w){sekil(()=>{c.rect(x-w/2,y,w,12);},R.tahta,[x-w/2,y,x+w/2,y+12],{seed:(x|0)+900,aralik:4}); leke(x,y+30,w*.6,22,R.siyah,.5);}
-// minare: şerefeli, külahlı, gökyüzüne karşı kara
-function minare(x,taban,boy){
-  c.fillStyle='#050606';
-  c.fillRect(x-34,taban-boy,68,boy);
-  c.beginPath(); c.moveTo(x-56,taban-boy*.72); c.lineTo(x+56,taban-boy*.72); c.lineTo(x+40,taban-boy*.72+26); c.lineTo(x-40,taban-boy*.72+26); c.closePath(); c.fill(); // şerefe
-  c.fillRect(x-28,taban-boy-6,56,8);
-  c.beginPath(); c.moveTo(x-30,taban-boy); c.lineTo(x,taban-boy-96); c.lineTo(x+30,taban-boy); c.closePath(); c.fill(); // külah
-  hat(()=>{c.moveTo(x,taban-boy-96); c.lineTo(x,taban-boy-124);},[10,10,10],.9,2,960,1,0); // alem
-  leke(x+20,taban-boy*.5,20,boy*.5,[120,130,125],.06); // gök ışığının vurduğu yan
-  hat(()=>{c.moveTo(x-34,taban); c.lineTo(x-34,taban-boy); c.moveTo(x+34,taban); c.lineTo(x+34,taban-boy);},R.murekkep,.6,1.4,961,2,2);
+// minare: şerefeli, külahlı; arkasındaki gökten (ay ya da şafak) ayrılsın diye ışık yanında ince parlak kenar,
+// gövdede mürekkep hatları ve tarama; tepesi kadrajın içinde kalır
+function minare(x,taban,boy,o){
+  o=o||{}; const isik=o.isik||[150,165,160], yon=o.yon||-1, kul=70, sk=taban-boy*.68;
+  if(o.hale) leke(x+yon*30,taban-boy-20,210,190,isik,o.hale); // arkadaki gök parlaklığı
+  const govde=()=>{c.moveTo(x-30,taban); c.lineTo(x-27,taban-boy); c.lineTo(x+27,taban-boy); c.lineTo(x+30,taban); c.closePath();};
+  const serefe=()=>{c.moveTo(x-50,sk); c.lineTo(x+50,sk); c.lineTo(x+36,sk+24); c.lineTo(x-36,sk+24); c.closePath();};
+  const kulah=()=>{c.moveTo(x-30,taban-boy); c.lineTo(x,taban-boy-kul); c.lineTo(x+30,taban-boy); c.closePath();};
+  for(const p of[govde,serefe,kulah]){ // kenar ışığı, sonra kara kütle
+    c.save(); c.translate(yon*2.5,-1); c.fillStyle=rgba(isik,.45); c.beginPath(); p(); c.fill(); c.restore();
+    c.fillStyle='#07090a'; c.beginPath(); p(); c.fill();
+  }
+  c.save(); c.beginPath(); govde(); c.clip(); tara(x-30,taban-boy,x+30,taban,1.3,6,R.murekkep,.5,962); leke(x-yon*20,taban-boy*.5,30,boy*.6,R.siyah,.5); c.restore();
+  c.fillStyle='#07090a'; c.fillRect(x-24,taban-boy-6,48,8);
+  hat(govde,R.murekkep,.8,1.6,961,3,2); hat(serefe,R.murekkep,.8,1.4,963,2,1.5); hat(kulah,R.murekkep,.8,1.4,964,2,1.5);
+  hat(()=>{c.moveTo(x,taban-boy-kul); c.lineTo(x,taban-boy-kul-22); c.moveTo(x-6,taban-boy-kul-14); c.lineTo(x+6,taban-boy-kul-14);},[20,22,22],.95,2,960,1,0); // alem
+  for(const yy of[sk-60,sk+70]) {c.fillStyle='#020303'; c.fillRect(x-4,yy,8,22);} // mazgal
 }
 
 export const YERLER={
@@ -54,8 +61,8 @@ export const YERLER={
       // pencere: kapalı tahta kanat
       sekil(()=>{c.rect(-260,360,150,170);},[34,26,18],[-260,360,-110,530],{seed:903,aralik:5}); hat(()=>{c.moveTo(-185,360); c.lineTo(-185,530);},R.murekkep,.8,2,904,2,1);
       karart(G,ust,alt);},
-    sabit:[{nesne:'minder',x:-360,y:812,s:.9,yastik:true,renk:[52,40,30]},{nesne:'minder',x:-400,y:900,s:.95,renk:[50,38,30]},{nesne:'minder',x:400,y:820,s:.9,yastik:true,renk:[52,40,30]}],
-    yer:{baskose:[-40,800],onu:[60,930],sini1:[30,894],sini2:[95,897],mangal:[320,940],mangalUstu:[318,898],nis:[260,600]},
+    sabit:[{nesne:'minder',x:-370,y:812,s:.85,renk:[58,44,32]},{nesne:'minder',x:-420,y:900,s:.9,renk:[54,40,30]},{nesne:'minder',x:410,y:820,s:.85,renk:[58,44,32]}],
+    yer:{baskose:[-40,806],onu:[60,940],sini1:[28,930],sini2:[96,934],mangal:[320,945],mangalUstu:[318,903],nis:[260,600]},
     oturma:[[-370,824,.9],[400,840,.88]],
     kanit:{x:-200,y:830,s:.8}
   }),
@@ -106,13 +113,13 @@ export const YERLER={
 
   /* ───── işler ───── */
   'demirci':ip=>({
-    isik:{tur:'kor',x:-160,y:640,ic:60,dis:950},
+    isik:{tur:'kor',x:-200,y:640,ic:70,dis:1080},
     arka(G,ust,alt){icOda(G,ust,alt,{duvar:'tas',seed:ip.tohum+13,renk:[54,50,40]});
       leke(-230,300,300,320,R.siyah,.7); // is
       civi(330,430); civi(400,450);
       karart(G,ust,alt);},
-    sabit:[{nesne:'korukOcak',x:-200,y:Z+10},{nesne:'ors',x:150,y:905},{nesne:'suTeknesi',x:430,y:930}],
-    yer:{ors:[120,757],orsYan:[230,918],teknede:[430,872]},
+    sabit:[{nesne:'korukOcak',x:-220,y:Z+10},{nesne:'ors',x:130,y:915,s:1.25},{nesne:'suTeknesi',x:440,y:935}],
+    yer:{ors:[96,724],masa:[96,724],orsYan:[250,935],teknede:[440,877],ocakDibi:[-150,Z+40]},
     oturma:[], ayakta:[[-480,860,.82]],
     kanit:{x:360,y:950,s:.85}
   }),
@@ -153,14 +160,14 @@ export const YERLER={
   /* ───── tek başına yerler ───── */
   'cami-avlu':ip=>{const gece=ip.zaman==='gece'; return {
     isik:gece?{tur:'ay',x:120,y:560}:{tur:'safak',x:300,y:300},
-    arka(G,ust,alt){gok(ust-20,380,G,{tur:gece?'gece':'safak',seed:ip.tohum+25,ay:gece?[-420,150]:null});
-      minare(330,380,250);
-      tasDuvar(-G*.95,360,G*.95,Z+4,{seed:ip.tohum+26,renk:[78,74,60]});
-      sekil(()=>{c.rect(-G,338,G*2,26);},[58,54,44],[-G,338,G,364],{seed:907,aralik:5}); // duvar başı
+    arka(G,ust,alt){gok(ust-20,490,G,{tur:gece?'gece':'safak',seed:ip.tohum+25,ay:gece?[170,250]:null});
+      minare(300,480,250,gece?{isik:[170,186,180],yon:-1,hale:.16}:{isik:[190,180,150],yon:1,hale:.1});
+      tasDuvar(-G*.95,470,G*.95,Z+4,{seed:ip.tohum+26,renk:[78,74,60]});
+      sekil(()=>{c.rect(-G,452,G*2,24);},[58,54,44],[-G,452,G,476],{seed:907,aralik:5}); // duvar başı
       toprakZemin(Z,alt+10,G,{seed:ip.tohum+27,renk:[52,48,40]});
       for(let x=-G;x<G;x+=120) hat(()=>{c.moveTo(x,Z); c.lineTo(x*1.5,alt);},R.murekkep,.35,1.4,908+(x|0),1,3); // avlu taşları
       karart(G,ust,alt);},
-    sabit:[{nesne:'kapi',x:-170,y:Z+4,w:180,h:330,halka:true}],
+    sabit:[{nesne:'kapi',x:-170,y:Z+4,w:170,h:280,halka:true}],
     yer:{kapiYani:[-40,Z+6],esik:[-170,806],seki:[150,800],sekiUstu:[230,714]},
     kanit:{x:0,y:830,s:.8}
   };},
@@ -178,15 +185,15 @@ export const YERLER={
     kanit:{x:200,y:Z+86,s:.8}
   };},
   'dikis':ip=>({
-    isik:{tur:'lamba',x:150,y:780},
+    isik:{tur:'lamba',x:250,y:780},
     arka(G,ust,alt){icOda(G,ust,alt,{duvar:'siva',seed:ip.tohum+33,renk:[78,70,58]});
       civi(-300,420); civi(-240,420); raf(330,520,180);
       // duvara iğnelenmiş kalıp kâğıtları
       for(let i=0;i<3;i++) sekil(()=>{c.rect(-470+i*70,450+i*12,56,80);},[108,100,80],[-470+i*70,450,-414+i*70,530+i*12],{seed:909+i,tara:false,kalin:1});
       karart(G,ust,alt);},
-    sabit:[{nesne:'dikisMakinesi',x:0,y:910}],
-    yer:{masaUstu:[150,780],makine:[0,910],bos:[-40,1010],yer:[-230,930]},
-    kanit:{x:-330,y:960,s:.85}
+    sabit:[{nesne:'dikisMakinesi',x:110,y:910},{nesne:'manken',x:-240,y:924,s:.92}],
+    yer:{masaUstu:[250,780],makine:[110,910],bos:[-40,1010],yer:[-30,980]},
+    kanit:{x:-420,y:960,s:.85}
   }),
   'ambar':ip=>({
     isik:{tur:'safak',x:330,y:300,ic:30,dis:900},
@@ -223,29 +230,43 @@ export const YERLER={
     kanit:{x:-420,y:940,s:.85}
   }),
   'magara':ip=>({
-    isik:{tur:'ay',x:140,y:640,ic:140,dis:980},
+    isik:{tur:'ay',x:150,y:640,ic:150,dis:980},
     arka(G,ust,alt){
       kaya(-G,ust-20,G,Z+60,{seed:ip.tohum+41});
-      // mağaranın ağzı: dışarıda gece ve ay
-      const agiz=()=>{c.moveTo(-160,Z-10); c.bezierCurveTo(-150,690,-200,640,-120,600); c.bezierCurveTo(-60,560,-40,480,40,470); c.bezierCurveTo(100,440,150,500,220,470); c.bezierCurveTo(300,450,330,540,400,580); c.bezierCurveTo(470,620,430,700,480,Z-20); c.closePath();};
-      c.save(); c.beginPath(); agiz(); c.clip(); gok(400,Z,G,{tur:'gece',seed:ip.tohum+42,ay:[300,530]}); uzakEvler(Z-50,G,{seed:ip.tohum+43,agac:2}); c.restore();
-      hat(agiz,R.murekkep,.9,3,912,3,4);
-      leke(160,Z-30,220,40,R.siyah,.5);
-      toprakZemin(Z+20,alt+10,G,{seed:ip.tohum+44,renk:[36,34,28]});
-      for(let i=0;i<6;i++) leke(-400+i*160,Z+40,90,26,R.tasKoyu,.6);
+      // mağaranın ağzı: geniş, düzensiz kemer; dışarıda gece, ay ve uzak tepeler
+      // düzensiz, yamuk ağız: solda yüksek ve dik, sağda alçalıp kayaya karışır; kenarı dişli
+      const AG=[[-240,Z+30],[-252,740],[-236,690],[-250,640],[-214,590],[-196,540],[-150,512],[-120,470],[-70,452],[-40,430],[10,436],[60,420],[96,446],[150,452],[186,488],[236,506],[262,548],[300,584],[312,640],[346,676],[350,730],[372,Z+30]];
+      const agiz=()=>{c.moveTo(AG[0][0],AG[0][1]); for(let i=1;i<AG.length;i++){const p=AG[i], q=AG[i-1]; c.quadraticCurveTo(q[0]+(p[0]-q[0])*.2+((i%3)-1)*6,q[1]+(p[1]-q[1])*.8,p[0],p[1]);} c.closePath();};
+      c.save(); c.beginPath(); agiz(); c.clip();
+      gok(380,Z+30,G,{tur:'gece',seed:ip.tohum+42,ay:[240,500]});
+      c.fillStyle='#0b0e0f'; c.beginPath(); c.moveTo(-200,Z-40); c.bezierCurveTo(-60,Z-90,80,Z-60,180,Z-80); c.bezierCurveTo(280,Z-100,360,Z-60,420,Z-70); c.lineTo(420,Z+40); c.lineTo(-200,Z+40); c.closePath(); c.fill(); // uzak tepe
+      hat(()=>{c.moveTo(-200,Z-40); c.bezierCurveTo(-60,Z-90,80,Z-60,180,Z-80); c.bezierCurveTo(280,Z-100,360,Z-60,420,Z-70);},[120,136,132],.3,1.4,914,2,2);
+      c.restore();
+      // ağzın kalın kaya kenarı: ışığa bakan iç kenarda soğuk parıltı
+      c.save(); c.strokeStyle='rgba(150,170,166,.28)'; c.lineWidth=5; c.beginPath(); agiz(); c.stroke(); c.restore();
+      hat(agiz,R.murekkep,.95,3.2,912,3,4);
+      toprakZemin(Z+20,alt+10,G,{seed:ip.tohum+44,renk:[38,36,30]});
+      // ağızdan içeri dökülen ay ışığı: zeminde soğuk bir dil
+      c.save(); c.globalCompositeOperation='lighter'; leke(110,Z+90,330,70,R.ay,.1); leke(60,Z+170,240,60,R.ay,.06); c.restore();
+      for(let i=0;i<7;i++) leke(-460+i*150,Z+44,90,26,R.tasKoyu,.6);
+      // ön planda kara kaya kütleleri: kadrajın tepesi ve iki yanı
+      c.fillStyle='#040505';
+      c.beginPath(); c.moveTo(-G,ust-20); c.lineTo(G,ust-20); c.lineTo(G,260); c.bezierCurveTo(G*.5,300,200,250,80,300); c.bezierCurveTo(-60,350,-300,240,-G,320); c.closePath(); c.fill();
+      hat(()=>{c.moveTo(G,260); c.bezierCurveTo(G*.5,300,200,250,80,300); c.bezierCurveTo(-60,350,-300,240,-G,320);},R.murekkep,.9,2.4,915,2,3);
       karart(G,ust,alt);},
-    sabit:[{nesne:'duzTas',x:-300,y:900}],
-    yer:{ates:[-30,930],kaput:[230,915],tas:[-300,856],yer:[60,980]},
-    kanit:{x:90,y:950,s:.9}
+    sabit:[{nesne:'duzTas',x:170,y:850,s:.9}],
+    yer:{ates:[-40,948],kaput:[-260,944],tas:[170,812],yer:[60,990]},
+    kanit:{x:0,y:950,s:.85}
   }),
   'ahir':ip=>({
     isik:{tur:'fener',x:-20,y:560},
     arka(G,ust,alt){icOda(G,ust,alt,{duvar:'tas',seed:ip.tohum+45,renk:[56,52,42]});
       civi(-20,470); civi(380,460);
       karart(G,ust,alt);},
-    sabit:[{nesne:'ahirBolme',x:0,y:930,w:1100,h:100,dikme:[-540,-20,520]}],
+    sabit:[{nesne:'ahirBolme',x:0,y:948,w:1320,h:110,dikme:[-640,-430,280,620]}],
     yer:{dikme:[-20,560],duvar:[380,460],yer:[150,990]},
-    hayvan:[[-90,915,1.2,{yon:1}],[-520,900,1.1,{yon:1}],[400,900,1.12,{yon:1}]],
+    // iki katır başları fenerin altında birbirine dönük; üçüncüsü solda, arkada, karanlıkta (yalnız kulak ve yük seçilir)
+    hayvan:[[-200,940,1.2,{yon:1}],[330,892,1.0,{yon:-1}],[-520,886,.96,{yon:1}]],
     kanit:{x:150,y:945,s:.9}
   }),
   'agil':ip=>({

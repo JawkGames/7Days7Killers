@@ -23,7 +23,8 @@ function hepsiniSor(v,{gunler=[2,4,7]}={}){
         sorular.push({id:'yer:'+c.zaman,tur:'yer',zaman:c.zaman},{id:'gordu:'+c.zaman,tur:'gordu',zaman:c.zaman},
           {id:'fail:'+c.id,tur:'fail',cinayet:c.id},{id:'fark:'+c.id,tur:'fark',cinayet:c.id},
           {id:'iliski:'+c.kurban,tur:'iliski',kisi:c.kurban},{id:'sir:'+c.kurban,tur:'sir',kisi:c.kurban},
-          {id:'baskasi:'+c.katil+':'+c.zaman,tur:'baskasi',kisi:c.katil,zaman:c.zaman});
+          {id:'baskasi:'+c.katil+':'+c.zaman,tur:'baskasi',kisi:c.katil,zaman:c.zaman},
+          {id:'fark-kisi:'+c.id+':'+c.katil,tur:'fark-kisi',cinayet:c.id,kisi:c.katil});
       }
       for(const i of izler) sorular.push({id:'iz:'+i.id,tur:'iz',iz:i.id});
       for(const s of sorular) if(s.tur!=='baskasi'||s.kisi!==k) out.push({k,s,g,c:cevapUret({vaka:v,kisi:k,soru:s,gun:g})});

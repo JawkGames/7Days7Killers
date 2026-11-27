@@ -11,9 +11,10 @@ export function olc(cv){
   gk.dpr=Math.min(window.devicePixelRatio||1,2.5);
   gk.vw=cv.clientWidth; gk.vh=cv.clientHeight;
   cv.width=Math.max(1,Math.round(gk.vw*gk.dpr)); cv.height=Math.max(1,Math.round(gk.vh*gk.dpr));
-  gk.S=Math.min(gk.vh/OLCU.yukseklik, gk.vw/OLCU.enAzGenislik);
-  const fazla=Math.max(0,gk.vh/gk.S-OLCU.yukseklik);
-  gk.ustY=-fazla*OLCU.ustPay; gk.altY=OLCU.yukseklik+fazla*(1-OLCU.ustPay);
+  const B=OLCU.kadrajBoy, U=OLCU.kadrajUst;
+  gk.S=Math.min(gk.vh/B, gk.vw/OLCU.enAzGenislik);
+  const fazla=Math.max(0,gk.vh/gk.S-B);
+  gk.ustY=U-fazla*OLCU.ustPay; gk.altY=U+B+fazla*(1-OLCU.ustPay);
   gk.yarimG=gk.vw/2/gk.S; gk.payPx=Math.ceil(OLCU.pay*gk.S*gk.dpr);
   return true;
 }

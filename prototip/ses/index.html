@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ses</title>
+<style>
+:root{
+  /* yerleşim: üstte denetimler (ortamlar, efektler, kaydırıcılar), altta tam genişlik gösterge */
+  --zemin:#070808;
+  --kagit:#8f8a74;
+  --acik:#d9d2ba;
+  --lamba:#e2c27a;
+  --morluk:#4a3a52;
+  color-scheme:dark;
+}
+html,body{margin:0;background:var(--zemin);color:var(--kagit);font:400 14px/1.4 "Courier New",ui-monospace,monospace}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:18px;font-weight:700;color:var(--acik);margin:0 0 4px}
+p{margin:0 0 12px}
+h2{font-size:13px;font-weight:400;text-transform:uppercase;letter-spacing:.12em;margin:16px 0 6px;color:var(--kagit)}
+.sira{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:inherit;color:var(--kagit);background:transparent;border:1px solid rgba(143,138,116,.4);border-radius:2px;padding:8px 12px;cursor:pointer}
+button:hover{color:var(--acik);border-color:var(--acik)}
+button[aria-pressed="true"]{color:var(--zemin);background:var(--kagit);border-color:var(--kagit)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--lamba);outline-offset:2px}
+label{display:flex;gap:8px;align-items:center}
+input[type=range]{width:160px;accent-color:var(--kagit)}
+canvas{display:block;width:100%;height:360px;margin-top:16px;background:#030404;border:1px solid rgba(143,138,116,.2)}
+#durum{min-height:1.4em;color:var(--acik)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Ses katmanı</h1>
+  <p>Her şey kodla üretilir; dosya yok. İlk düğmeye basınca ses açılır.</p>
+  <p id="durum" aria-live="polite"></p>
+
+  <h2>Ortamlar</h2>
+  <div class="sira" id="ortamlar"></div>
+  <div class="sira" style="margin-top:8px">
+    <label>coşku / öfke <input type="range" id="oran" min="0" max="1" step="0.01" value="0"></label>
+    <label>geçiş (sn) <input type="range" id="gecis" min="0" max="6" step="0.5" value="2"></label>
+    <label><input type="checkbox" id="lamba"> gaz lambası (sorgu odası)</label>
+  </div>
+
+  <h2>Efektler</h2>
+  <div class="sira" id="efektler"></div>
+  <div class="sira" style="margin-top:8px">
+    <button type="button" id="yazdir">alt yazı dene (daktilo)</button>
+    <label>şiddet <input type="range" id="siddet" min="0" max="1.5" step="0.05" value="1"></label>
+  </div>
+
+  <h2>Ana</h2>
+  <div class="sira">
+    <label>düzey <input type="range" id="duzey" min="0" max="1" step="0.01" value="0.8"></label>
+    <label>kısma <input type="range" id="kisma" min="0" max="1" step="0.01" value="0"></label>
+    <label><input type="checkbox" id="sessiz"> sessiz</label>
+  </div>
+
+  <canvas id="gosterge" aria-label="Dalga biçimi, tayf ve akan tayf görüntüsü"></canvas>
+</main>
+<script type="module" src="./demo.js"></script>
+</body>
+</html>

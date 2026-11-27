@@ -1,7 +1,8 @@
 // Kayıp sahnesi: müfettişin seçtiği kişinin geride bıraktığı yer. Kısa, sessiz, ağır tempolu.
 // kayipSahnesi({kisi, katilMi, tohum, tuval, metin, kanit, bekleyenler, yaz, bitti}) => {oynat, durdur, kare, sure}
 //   kisi:        src/icerik/kisiler içindeki kişi verisi (id, kayip:{tur, mekan, bekleyenler})
-//   katilMi:     true ise sahnede küçük bir kanıt belirir (yazıyla söylenmez)
+//   katilMi:     her sahnede ikircikli bir ayrıntı vardır (yarı açık sandık, yanmış bez, kapı arkasında alet, koyu leke);
+//                katilMi true ise o ayrıntı gerçek kanıttır ama görüntüsü masumunkinden kesin ayrılmaz (kanit.js)
 //   tohum:       taş dizilişi, silüet duruşları gibi ayrıntılar bundan türer
 //   tuval:       çizilecek <canvas>
 //   metin:       alt yazı cümlesi (dil dosyasından gelir: src/dil/tr/kisiler.js → kisi.kayip)
@@ -17,7 +18,7 @@ import {gk,olc,onBellek,gorunurKutu} from './gorunum.js';
 import {R,DURUM,leke} from './cizer.js';
 import {NESNE} from './nesneler.js';
 import {oturan,ayakta,kedi,kopek,binek,suru,siluetGolge} from './siluetler.js';
-import {kanitCiz,VARSAYILAN_KANIT} from './kanit.js';
+import {kanitCiz,ikircikKur} from './kanit.js';
 import {YERLER} from './yerler.js';
 import {SABLON} from './sablonlar.js';
 import {ipucuAl} from './kisiler.js';
@@ -36,7 +37,7 @@ const ISIK={
 };
 
 // üstüne başka nesne konabilen eşyaların yüksekliği (sıralamada bu kadar geride sayılırlar)
-const UST_PAYI={sofra:70,masa:165,dikisMakinesi:140,mangal:50,tasSeki:92,duzTas:50,ors:152,cesme:50,sedir:85,tabure:64,degirmenTasi:130};
+const UST_PAYI={tepsi:16,sofra:70,masa:165,dikisMakinesi:140,mangal:50,tasSeki:92,duzTas:50,ors:152,cesme:50,sedir:85,tabure:64,degirmenTasi:130};
 
 export function kayipSahnesi(o){
   const kisi=o.kisi||{id:'?'}, tohum=(o.tohum==null?1:o.tohum)|0, cv=o.tuval, k2=cv.getContext('2d');
@@ -54,8 +55,9 @@ export function kayipSahnesi(o){
   const konum=a=>{const p=a.yer&&yer.yer&&yer.yer[a.yer]; return {...a, x:a.x!=null?a.x:(p?p[0]:0), y:a.y!=null?a.y:(p?p[1]:900)};};
   const ogeler=[...(yer.sabit||[]), ...(ip.nesneler||[]).map(konum), ...kur.ogeler];
   if((L.tur==='lamba'||L.tur==='fener')&&!Lh.gizli) ogeler.push({nesne:L.tur,x:L.x,y:L.y,s:L.s,isikKaynagi:true});
-  const kanit=o.katilMi?{...VARSAYILAN_KANIT,...(yer.kanit||{}),...(ip.kanit||{}),...(o.kanit||{}),kanit:true}:null;
-  if(kanit) ogeler.push(kanit);
+  // ikircikli ayrıntı: masumda da, katilde de çizilir; yalnız ince ayrıntısı değişir
+  const ikircik=ikircikKur({yer,ip,katilMi:!!o.katilMi,kanit:o.kanit});
+  if(ikircik) ogeler.push(ikircik);
   // üstüne nesne konan eşyalar (sofra, masa, seki...) üstündekilerden önce çizilsin diye derinlikleri öne alınır
   for(const a of ogeler) if(a.z==null&&a.nesne&&UST_PAYI[a.nesne]) a.z=a.y-UST_PAYI[a.nesne]*(a.s||1);
   ogeler.sort((a,b)=>(a.z!=null?a.z:a.y)-(b.z!=null?b.z:b.y));
@@ -72,12 +74,13 @@ export function kayipSahnesi(o){
   }
 
   /* ───── ön bellekler ───── */
-  let arka=null, orta=[], on=null;
+  let arka=[], orta=[], on=null;
   function boyutla(){
     if(!olc(cv)) return;
     const G=gk.yarimG+OLCU.pay, ust=gk.ustY, alt=gk.altY;
-    DURUM.isikX=L.cx; DURUM.isikY=L.cy; DURUM.isikRenk=L.renk; DURUM.lx=L.cx;
-    DURUM.kaynama=0; arka=onBellek(cv,()=>yer.arka(G,ust,alt));
+    DURUM.isikX=L.cx; DURUM.isikY=L.cy; DURUM.isikRenk=L.renk; DURUM.lx=L.cx; DURUM.isikIc=L.ic;
+    arka=[]; const na=azHareket?1:KAYNAMA.arkaKopya;
+    for(let i=0;i<na;i++){DURUM.kaynama=i; arka.push(onBellek(cv,()=>yer.arka(G,ust,alt)));}
     orta=[]; const n=azHareket?1:KAYNAMA.kopya;
     for(let i=0;i<n;i++){DURUM.kaynama=i; orta.push(onBellek(cv,()=>{if(yer.orta) yer.orta(G); for(const a of ogeler) ogeCiz(a);}));}
     DURUM.kaynama=0;
@@ -113,7 +116,7 @@ export function kayipSahnesi(o){
   }
 
   function ciz(y){
-    if(!gk.hazir||!arka) return;
+    if(!gk.hazir||!arka.length) return;
     const t=azHareket?1.5:y, {kam,z}=kamera(y), I=parlaklik(t), W=cv.width, H=cv.height;
     const ilerleme=azHareket?.35:clamp(y/sure,0,1);
     hedefAyarla(k2);
@@ -121,9 +124,9 @@ export function kayipSahnesi(o){
     const katman=(img,d)=>{c.setTransform(z,0,0,z,(1-z)*W/2,(1-z)*H*.5); c.drawImage(img,-gk.payPx-kam*d*gk.S*gk.dpr,0);};
     const sahneye=d=>{const a=z*gk.dpr*gk.S; c.setTransform(a,0,0,a,z*(gk.vw/2*gk.dpr-kam*d*gk.dpr*gk.S)+(1-z)*W/2,z*(-gk.ustY*gk.S*gk.dpr)+(1-z)*H*.5);};
     c.setTransform(1,0,0,1,0,0); c.fillStyle='#030404'; c.fillRect(0,0,W,H);
-    katman(arka,DERINLIK.arka);
-    const kop=azHareket?0:Math.floor(t*KAYNAMA.hiz)%orta.length;
-    katman(orta[kop],DERINLIK.orta);
+    const kare=azHareket?0:Math.floor(t*KAYNAMA.hiz);
+    katman(arka[kare%arka.length],DERINLIK.arka);
+    katman(orta[kare%orta.length],DERINLIK.orta);
     // canlı parçalar: alev, buhar, su, soğuyan nal
     sahneye(DERINLIK.orta);
     DURUM.isikX=L.cx; DURUM.lx=L.cx;
@@ -131,11 +134,19 @@ export function kayipSahnesi(o){
     // karanlık: tek ışık kaynağından uzaklaştıkça koyulaşır
     sahneye(DERINLIK[L.derinlik]||DERINLIK.orta);
     const [x0,y0,x1,y1]=gorunurKutu(), k=ton.karanlik||0;
-    const g=c.createRadialGradient(L.cx,L.cy,L.ic*I,L.cx,L.cy,L.dis*(.94+.06*I));
-    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.35,`rgba(0,0,0,${.22+k})`); g.addColorStop(.7,`rgba(0,0,0,${.66+k*.6})`); g.addColorStop(1,`rgba(0,0,0,${Math.min(.95,.9+k)})`);
+    // tek ışık: iç çember temiz, sonra hızla kararır; kenarlar boş ve karanlık kalır
+    const g=c.createRadialGradient(L.cx,L.cy,L.ic*I,L.cx,L.cy,L.dis*(.92+.08*I));
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.28,`rgba(0,0,0,${.06+k})`); g.addColorStop(.55,`rgba(0,0,0,${.4+k*.6})`); g.addColorStop(.82,`rgba(0,0,0,${Math.min(.9,.74+k)})`); g.addColorStop(1,`rgba(0,0,0,${Math.min(.95,.9+k)})`);
     c.fillStyle=g; c.fillRect(x0-200,y0-200,x1-x0+400,y1-y0+400);
-    c.save(); c.globalCompositeOperation='lighter'; leke(L.cx,L.cy,L.ic*2.6,L.ic*2.4,L.renk,.09*I); c.restore();
+    // ışığın sıcaklığı: yakın sıcak hale, geniş soluk hale (yapay ışıkta güçlü, gök ışığında hafif)
+    const yapay=L.derinlik==='orta';
+    c.save(); c.globalCompositeOperation='lighter';
+    leke(L.cx,L.cy,L.ic*2.4,L.ic*2.2,L.renk,(yapay?.16:.06)*I);
+    leke(L.cx,L.cy+L.ic*.6,L.ic*6,L.ic*4.6,L.renk,(yapay?.07:.04)*I);
+    c.restore();
     if(ton.soguk){c.save(); c.globalCompositeOperation='multiply'; c.fillStyle=rgba([150,176,172],ton.soguk*.6); c.fillRect(x0-200,y0-200,x1-x0+400,y1-y0+400); c.restore();}
+    // renk ayarı: sorgu odasının küflü yeşil-kirli sarı tonu
+    c.save(); c.globalCompositeOperation='multiply'; c.fillStyle='rgb(226,230,194)'; c.fillRect(x0-200,y0-200,x1-x0+400,y1-y0+400); c.restore();
     katman(on,DERINLIK.on);
     kaplama(c,t,W,H);
     // açılış ve kararma
@@ -192,5 +203,5 @@ function kaplama(c,t,W,H){
     for(let i=0;i<4;i++){c.fillStyle=`rgba(${r()<.5?'220,214,190':'0,0,0'},${.05+r()*.12})`; c.beginPath(); c.arc(r()*W,r()*H,(.6+r()*1.6)*gk.dpr,0,Math.PI*2); c.fill();}
   }
   const kx=azHareket?0:(Math.floor(t*12)*89)%256, ky=azHareket?0:(Math.floor(t*12)*53)%256;
-  c.save(); c.globalAlpha=.09; c.globalCompositeOperation='overlay'; c.translate(-kx,-ky); c.fillStyle=kumDeseni(c); c.fillRect(0,0,W+256,H+256); c.restore();
+  c.save(); c.globalAlpha=.13; c.globalCompositeOperation='overlay'; c.translate(-kx,-ky); c.fillStyle=kumDeseni(c); c.fillRect(0,0,W+256,H+256); c.restore();
 }

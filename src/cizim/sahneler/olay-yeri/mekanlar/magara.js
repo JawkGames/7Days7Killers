@@ -8,7 +8,7 @@ import {rng} from '../../../../cekirdek/rastgele.js';
 import {yol3,golgele,silindir} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,karanlik,atmosfer,leke,tara,titrek,MUREKKEP} from '../mekan-yardim.js';
-import {kaya,kirZemin} from './harman-yeri.js';
+import {kaya,kirZemin} from '../dis-yardim.js';
 
 const AGIZ_Z=930;
 const isik={konum:[10,150,AGIZ_Z+40], guc:1.25, menzil:900, ortam:.3};

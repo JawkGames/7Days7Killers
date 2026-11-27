@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>İfade Panosu</title>
+<style>
+:root{--zemin:#070808;--metin:#d9d2ba;--soluk:#8f8a74;color-scheme:dark}
+html,body{margin:0;background:var(--zemin);color:var(--metin);font:13px/1.3 "Courier New",ui-monospace,monospace}
+table{border-collapse:collapse;margin:8px}
+td,th{padding:2px;vertical-align:top;color:var(--soluk);font-weight:400;text-align:center}
+canvas{display:block;width:var(--hucre,200px);aspect-ratio:var(--oran,380/400)}
+</style>
+</head>
+<body>
+<!-- İfade panosu: satırlar köylüler, sütunlar duygular (durağan kare).
+     ?kim=varsayilan,elif,mahmut&durum=sakin,gergin&siddet=.8&etiket=0&kadraj=yuz|govde&mizac=korkak -->
+<table id="pano"></table>
+<script type="module" src="./pano.js"></script>
+</body>
+</html>

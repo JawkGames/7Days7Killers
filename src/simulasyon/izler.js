@@ -58,11 +58,11 @@ export function izleriKur(d,zarOf,cz,sonuc){
   const AILE=['es','ebeveyn','cocuk'];
   const dogrulanir=(P,t)=>cz.canli(P,t)&&!gizli(P,t)&&cz.orada(cz.yer[P][t],t).filter(h=>h!==P&&!gizli(h,t)&&!d.rel(h,P).some(r=>AILE.includes(r))).length>=2;
   // korumaz: katilin aleyhine olan iz için, onu korumayacak (yakını, dostu, borçlusu olmayan) biri öncelikli.
-  // Fark eden rasgele bir köylü değil: önce kurbanın yakını (gözü katildedir), sonra komşu ya da ev halkı;
-  // böylece oyuncu "kime sorulmalı"yı köyün bağlarından sezebilir.
+  // Fark eden rasgele bir köylü değil: katilin komşusu ya da ev halkı (onu korumayan), sonra bir yakını; fark eden de
+  // gördüğünü yakınlarına açar (cevap.js yan bilgi: "X bir şey görmüş, ona sorun"): oyuncu kime sorulacağını sezebilir.
   const KORUYAN=['es','ebeveyn','cocuk','sevgili','sever','korur','dost','borclu','korkar','ortak'];
   const komsuEv=(a,b)=>{const ea=d.kisi(a).ev, eb=d.kisi(b).ev; return ea===eb||(d.harita[ea]||[]).includes(eb);};
-  const farkPuani=(h,k,V)=>(V&&d.rel(h,V).length?3:0)+(komsuEv(h,k)?2:0)+(d.rel(h,k).length?1:0);
+  const farkPuani=(h,k,V)=>(komsuEv(h,k)?2:0)+(d.rel(h,k).length?1:0)+(V&&d.rel(h,V).length?.5:0);
   // Nedensel: ilk karşılaşmada yanında olan fark eder (korumaz ise onu korumayacak ilk kişi); sonraki günlere
   // bakıp geri dönmez, böylece sonradan değişen gelecek (oyuncu müdahalesi) geçmişteki fark edişi değiştirmez.
   const farkEden=(k,t0,t1,haric=[],korumaz=false,V=null)=>{
@@ -129,6 +129,13 @@ export function izleriKur(d,zarOf,cz,sonuc){
     const ki=katilIzi(A,'katil-birakti');
     if(ki) kanit.push(ki.id);
     if(Y&&z.olasilik(.4)) katilIzi(Y,'yardimci-birakti');
+    // Tuzak: başkasından çalınıp bırakılan eşya (yanıltıcı; sahibi o an başka yerdeydi, eşyasının kaybolduğunu fark eder).
+    let tuzakY=null;
+    if(c.tuzak){
+      const x=esyaIzi(c.tuzak.esya), ol=olaylar.find(q=>q.id===c.tuzak.olay);
+      const iz=ekle({tur:'fiziksel',alt:'esya',anahtar:x.iz,iztur:x.tur,esya:c.tuzak.esya,ortu:null,sahip:c.tuzak.sahip,adaylar:adaylar(x.iz),mekan:m,zaman:t,olay:c.tuzak.olay,yaniltici:true,gercek:{neden:'tuzak'}});
+      tuzakY=yaniltici({izler:[iz.id],isaret:[c.tuzak.sahip],aciklama:'tuzak',olay:c.tuzak.olay,curutme:[{tur:'konum',kisi:c.tuzak.sahip,zaman:t},{tur:'konum',kisi:A,zaman:ol.zaman}]});
+    }
     // Kaçan tanığın düşürdüğü eşya (başka bir olay yerinde daha önce düşmüşse artık elinde değildir).
     const kt=c.kacanTanik;
     let kacanY=null;
@@ -260,6 +267,17 @@ export function izleriKur(d,zarOf,cz,sonuc){
         if(f) kacanY.izler.push(dolayli({alt:'eksik-esya',kisi:Q,esya:kt.esya,fark_eden:f.kim,zaman:f.u,mekan:f.mekan,olay:kt.olay,yaniltici:true,gercek:{neden:'kacarken-dusurdu'}}).id);
       }
     }
+    if(tuzakY){
+      const ol=olaylar.find(x=>x.id===c.tuzak.olay), O=c.tuzak.sahip;
+      for(let u=ol.zaman+1;u<=Math.min(t+D,zaman.T-1);u++){
+        if(!cz.canli(O,u)) break;
+        if(cz.yer[O][u]===ol.mekan&&!cz.sahne(ol.mekan,u)){
+          const iz=dolayli({alt:'eksik-alet',kisi:O,esya:c.tuzak.esya,sahip:O,fark_eden:O,zaman:u,mekan:ol.mekan,olay:ol.id,gercek:{neden:'calinmisti',cinayettenOnce:u<t}});
+          tuzakY.curutme.unshift({tur:'iz',iz:iz.id});
+          break;
+        }
+      }
+    }
     if(c.silah&&c.silah.calinti){
       const ol=olaylar.find(x=>x.id===c.silah.olay), O=c.silah.sahip;
       for(let u=ol.zaman+1;u<=Math.min(t+D,zaman.T-1);u++){
@@ -288,7 +306,7 @@ export function izTamamla(vaka,cinayetId,{sonTur=true}={}){
   // Sorguyla bulunan izler önce: fotoğraftan tek başına çözülen vaka kolaylaşır.
   const sira=[['dolayli',dolayliTamamla],['fiziksel',fizikselTamamla],['tanik',tanikTamamla]];
   // Az denenmiş tür önce; eşitlikte sorguyla bulunan (dolaylı, tanık) fizikselden önce gelir.
-  const pay={dolayli:0,tanik:.3,fiziksel:1.6};
+  const pay={tanik:0,dolayli:.3,fiziksel:1.6};
   sira.sort((a,b)=>burada.filter(i=>turu(i)===a[0]).length+pay[a[0]]-burada.filter(i=>turu(i)===b[0]).length-pay[b[0]]);
   for(const [,f] of sira){const iz=f(vaka,c); if(iz) return iz;}
   return sonTur?fizikselTamamla(vaka,c,true):null;

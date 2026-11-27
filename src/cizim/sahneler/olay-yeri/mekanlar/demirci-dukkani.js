@@ -7,7 +7,7 @@ import {rng} from '../../../../cekirdek/rastgele.js';
 import {kutu,silindir,cokgen3,hat3,yol3,aydinlik,golgele} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,tasOrgu,sivaDuvar,zemin,karanlik,atmosfer,leke,MUREKKEP} from '../mekan-yardim.js';
-import {isikDusmesi,yuzDoku} from './halil-evi.js';
+import {isikDusmesi,yuzDoku} from '../ic-yardim.js';
 
 const ISLI=[100,94,84], TAS=[128,120,104], SIVA=[132,124,108], TOPRAK=[100,92,78], AHSAP=[112,94,70], DEMIR=[92,92,90], DERI=[118,94,68];
 const ARKA=480, SOL=-300, SAG=300;

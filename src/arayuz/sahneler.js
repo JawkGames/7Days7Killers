@@ -3,8 +3,6 @@
 import {cv,ana,hedefAyarla} from '../cizim/teknik/tuval.js';
 import {masaZemini} from '../cizim/sahneler/olay-yeri/masa-zemini.js';
 import {sorguOdasiBaslat,sorguOdasiDurdur} from '../cizim/sahneler/sorgu-odasi/sahne.js';
-import {kayipSahnesi} from '../cizim/sahneler/kayip/sahne.js';
-import {pencereBaslat} from '../cizim/sahneler/pencere/sahne.js';
 
 export const dprAl=()=>Math.min(globalThis.devicePixelRatio||1,2.5);
 
@@ -60,22 +58,35 @@ export const sorguSahnesi=({giris=true}={})=>({
   durdur(){sorguOdasiDurdur();},
 });
 
+// Son sahneleri (kayıp, pencere) oyunun sonunda gerekir: ayrı parça olarak, ilk kullanımda yüklenir.
+const kayipModul=()=>import('../cizim/sahneler/kayip/sahne.js');
+const pencereModul=()=>import('../cizim/sahneler/pencere/sahne.js');
+
 // Kayıp sahnesi: o = kayipSahnesi seçenekleri (kisi, katilMi, tohum, metin, bekleyenler, yaz, bitti)
 // Not: kayipSahnesi başlangıcı performance.now() ile, kareleri rAF zaman damgasıyla ölçer; ilk karenin damgası
 // başlangıçtan önce kalırsa zaman eksiye düşer ve boş ön belleğe çizmeye çalışır. Bir kare içinde başlatınca
 // sonraki karenin damgası hep sonra gelir.
 export function kayipSahne(o){
-  let s=null, istek=0;
+  let s=null, istek=0, acik=false;
   return {
-    baslat(){istek=requestAnimationFrame(()=>{istek=0; s=kayipSahnesi({...o,tuval:cv}); s.oynat();});},
-    durdur(){cancelAnimationFrame(istek); istek=0; s?.durdur(); s=null;},
+    baslat(){
+      acik=true;
+      kayipModul().then(m=>{
+        if(!acik) return;
+        istek=requestAnimationFrame(()=>{istek=0; if(!acik) return; s=m.kayipSahnesi({...o,tuval:cv}); s.oynat();});
+      },e=>console.error(e));
+    },
+    durdur(){acik=false; cancelAnimationFrame(istek); istek=0; s?.durdur(); s=null;},
   };
 }
 
 export function pencereSahne(o){
-  let s=null;
+  let s=null, acik=false;
   return {
-    baslat(){s=pencereBaslat({...o});},
-    durdur(){s?.durdur(); s=null;},
+    baslat(){acik=true; pencereModul().then(m=>{if(acik) s=m.pencereBaslat({...o});},e=>console.error(e));},
+    durdur(){acik=false; s?.durdur(); s=null;},
   };
 }
+
+// Sona yaklaşınca (karar ekranı) önceden yükle.
+export function sonSahneleriHazirla(){kayipModul(); pencereModul();}

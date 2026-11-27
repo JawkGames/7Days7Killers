@@ -8,7 +8,8 @@
 //   {tur:'fail',   cinayet}       bu cinayeti kim işledi?               gercek: katil
 //   {tur:'esya',   iz}            bu iz kimin?                          gercek: izin sahibi
 //   {tur:'sir',    sahip, sir}    bu sır doğru mu?                      gercek: true
-//   {tur:'fark',   cinayet}       o cinayetten sonra tuhaf bir şey fark ettin mi? (konuşanın fark ettiği dolaylı izler)
+//   {tur:'fark',   cinayet, kisi?} o cinayetten sonra tuhaf bir şey fark ettin mi? (konuşanın fark ettiği dolaylı izler;
+//                                 kisi verilirse yalnızca o kişi hakkındakiler ve adıyla)
 //                                 gercek: [{iz, alt, kisi, esya?, ortu?, zaman, mekan}]
 // Tavırlar: dogru | yalan | susar | abarti | bilmez (bilgisi yok) | olu (sorgu günü ölmüştü)
 
@@ -34,14 +35,12 @@ export function ifadeMotoru(vaka){
   const farkKaydi=i=>({iz:i.id,alt:i.alt,kisi:i.kisi,...(i.esya?{esya:i.esya}:{}),...(i.ortu?{ortu:i.ortu}:{}),zaman:i.zaman,mekan:i.mekan});
   const sirBul=(sahip,id)=>vaka.sirlar.find(s=>s.sahip===sahip&&s.id===id);
   const katilMi=k=>vaka.cinayetler.some(c=>c.katil===k||c.yardimci===k);
-  // k, x'in eşyasını tanır mı? (aynı ev, herhangi bir yakınlık, aynı iş yeri, komşu ev)
+  // k, x'in eşyasını tanır mı? (aynı ev, herhangi bir yakınlık, aynı iş yeri)
   const tanir=(k,x)=>{
     if(k===x) return true;
     const a=K[k], b=K[x];
     if(a.ev===b.ev||rel(k,x).length||rel(x,k).length) return true;
-    if(a.is&&(a.is===b.is||a.is===b.ev)) return true;
-    if(b.is&&b.is===a.ev) return true;
-    return (vaka.harita[a.ev]||[]).includes(b.ev);
+    return !!(a.is&&(a.is===b.is||a.is===b.ev))||!!(b.is&&b.is===a.ev);
   };
 
   // Y'nin t anındaki "beyanı": cinayet için hazırlanmış mazeret ya da olağan yeri.
@@ -102,7 +101,8 @@ export function ifadeMotoru(vaka){
         // Giysinin lifi herkesin gözü önündedir; dedikoducu herkesin malını bilir. Öbür eşyayı yalnızca sahibini
         // tanıyan bilir (ev halkı, yakını, komşusu, iş arkadaşı); bildiği adaylar eksik olabilir.
         if((iz.ortu&&!iz.esya)||K[k].mizac==='dedikoducu') return {adaylar:[...L]};
-        const bilir=L.filter(x=>tanir(k,x));
+        // Ayak izini, lekeyi, kırıntıyı ancak aynı evde yaşayan tanır; eşyanın kendisini (nesne) yakını da tanır.
+        const bilir=L.filter(x=>iz.iztur==='nesne'||iz.alt==='silah'?tanir(k,x):k===x||K[k].ev===K[x].ev);
         return bilir.length?{adaylar:bilir}:null;
       }
       case 'sir':{
@@ -222,7 +222,10 @@ export function ifadeMotoru(vaka){
     }
     if(o.tur==='fark'){
       const sorgu=secenek.gun!=null?(secenek.gun-1)*D+Math.max(0,dilimler.indexOf('sabah')):Infinity;
-      return farkIfadesi(k,o,sorgu,cevap);
+      const f=farkIfadesi(k,o,sorgu,cevap);
+      if(o.kisi==null) return f;
+      const sadece=x=>x&&{...x,deger:x.deger.filter(e=>e.kisi===o.kisi)};
+      return {...f,bilgi:sadece(f.bilgi),soylenen:sadece(f.soylenen)};
     }
     const b=bilgi(k,o);
     if(o.tur==='gorulen') return gorulenIfadesi(k,o,b,cevap);
@@ -290,7 +293,10 @@ export function ifadeMotoru(vaka){
     for(const e of g){
       const {tavir,kural:kr}=e.kisi===k?{tavir:'dogru',kural:null}:tavirBul(k,o,e.kisi,true);
       if(SIDDET[tavir]>SIDDET[en]){en=tavir; kural=kr;}
-      if(tavir==='dogru') soylenen.push(e);
+      // İsim vermez: üstünde kan ya da yüzünde tırnak izi gördüğünün adını genel soruda vermez, giysisini söyler;
+      // o kişi tek tek sorulursa doğrular (isimsiz kaydın kisi alanı yine gerçektir; çözücü kişi kişi sorabilir).
+      if(tavir==='dogru'&&e.kisi!==k&&(e.alt==='kanli-giysi'||e.alt==='tirmik')&&o.kisi!==e.kisi) soylenen.push({...e,isimsiz:true});
+      else if(tavir==='dogru') soylenen.push(e);
       else if(tavir==='abarti') soylenen.push({...e,abarti:{tur:'ek-ayrinti'}});
     }
     if(en==='susar'&&!soylenen.length) return cevap('susar',kural,b,null,g);
@@ -299,7 +305,10 @@ export function ifadeMotoru(vaka){
 
   function gerginlik(k,o,tavir,kural){
     let g=.1;
-    if(katilMi(k)) g+=.35;
+    // Katil gerilir ama masumun da kaygısı vardır (saklı bir işi, yası): gerginlik tek başına kanıt olmasın.
+    if(katilMi(k)) g+=.2;
+    if(vaka.sirlar.some(s=>s.sahip===k)) g+=.1;
+    if(vaka.cinayetler.some(c=>rel(k,c.kurban).length)) g+=.1;
     if(tavir==='yalan') g+=.25; else if(tavir==='susar') g+=.15; else if(tavir==='abarti') g+=.05;
     if(kural==='sir-saklama'||kural==='olay-yerinde'||kural==='masum-esya') g+=.15;
     if(K[k].mizac==='korkak') g+=.1;

@@ -28,7 +28,10 @@ const katilMi=(vaka,k)=>vaka.cinayetler.some(c=>c.katil===k||c.yardimci===k);
 // Motorun gerginlik hesabına benzer; motorun soramadığımız olgular için (dolaylı izler, ilişkiler, selam).
 function gerginlikHesap(vaka,k,tavir,ek=0){
   let g=.1+ek;
-  if(katilMi(vaka,k)) g+=.35;
+  // Katil gerilir ama masumun da kaygısı vardır (saklı bir işi, yası): gerginlik tek başına kanıt olmasın.
+  if(katilMi(vaka,k)) g+=.2;
+  if(vaka.sirlar.some(s=>s.sahip===k)) g+=.1;
+  if(vaka.cinayetler.some(c=>iliskiTurleri(vaka,k,c.kurban).length)) g+=.1;
   if(tavir==='yalan') g+=.25; else if(tavir==='susar') g+=.15; else if(tavir==='abarti') g+=.05;
   const mz=vaka.kisiler[k].mizac;
   if(mz==='korkak') g+=.1;
@@ -190,6 +193,14 @@ function izCevabi(c){
     if(s) return sonuc(c,{olgu,...f,iddialar:[{tur:'sahip',iz:iz.id,kisi:s}],metin:c.kur('esya-tanima',{sahip:c.kd(s),esya:esyaDeger(iz,s,c.dil)})});
     return sonuc(c,{olgu,...f,iddialar:[{tur:'bilmez'}],metin:c.kur('esya-bilmem',{esya:ad})});
   }
+  // Dedikoducu (ya da sahibine hasım olan) kesin konuşur; birkaç adaydan hasmını seçer, tek sahipli eşyada bile
+  // yarı yarıya yanlış kişiyi (kendi hasmını ya da sahibine benzeyen birini) söyler: duyduğunu aktarır.
+  if(f.tavir==='abarti'&&L.length===1&&karistir(c.vaka.tohum,c.kisi,iz.id)%2===0){
+    const v=c.vaka, sahip=L[0], yas=x=>x!==c.kisi&&x!==sahip&&(v.kisiler[x].olum==null||v.kisiler[x].olum>=c.S);
+    const x=Object.keys(v.kisiler).sort().find(k=>yas(k)&&iliskiTurleri(v,c.kisi,k).includes('hasim'))
+      ??Object.keys(v.kisiler).sort().find(k=>yas(k)&&v.kisiler[k].ortu===v.kisiler[sahip].ortu);
+    if(x) return sonuc(c,{olgu,...f,iddialar:[{tur:'sahip',iz:iz.id,kisi:x}],metin:c.kur('esya-tanima-kesin',{sahip:c.kd(x),esya:esyaDeger(iz,x,c.dil)})});
+  }
   if(f.tavir==='abarti'&&L.length>1){
     const x=L.find(k=>iliskiTurleri(c.vaka,c.kisi,k).includes('hasim'))??L.find(k=>k!==c.kisi)??L[0];
     return sonuc(c,{olgu,...f,iddialar:[{tur:'sahip',iz:iz.id,kisi:x}],metin:c.kur('esya-tanima-kesin',{sahip:c.kd(x),esya:esyaDeger(iz,x,c.dil)})});
@@ -215,21 +226,24 @@ function failCevabi(c){
 // Dolaylı izler (yırtık giysi, kanlı yen, gece boş yatak...): motorun "fark" olgusu. Konuşan, o cinayetten
 // sonra fark ettiklerini söyler; koruduğu kişiyi listeden çıkarır (yalan da susma da "bir şey görmedim" olur).
 function farkCevabi(c){
-  const v=c.vaka, cin=cinBul(v,c.soru.cinayet), olgu={tur:'fark',cinayet:cin.id};
+  const v=c.vaka, cin=cinBul(v,c.soru.cinayet), olgu={tur:'fark',cinayet:cin.id,...(c.soru.kisi?{kisi:c.soru.kisi}:{})};
   const f=ifade(v,c.kisi,olgu,{gun:c.gun});
   const liste=f.soylenen?.deger||[];
+  if(!liste.length&&c.soru.kisi) return sonuc(c,{olgu,...f,iddialar:[{tur:'bilmez'}],metin:c.kur('tuhaf-o-degil',{kim:c.kd(c.soru.kisi)})});
   if(!liste.length) return sonuc(c,{olgu,...f,iddialar:[{tur:'bilmez'}],metin:c.kur('tuhaf-yok',{kim:c.kd(cin.kurban)})});
   const parcalar=[], iddialar=[];
-  for(const e of liste){
+  for(const e0 of liste){
+    const e=c.soru.kisi?{...e0,isimsiz:false}:e0; // tek tek sorulunca adını söyler
     const kim=c.kd(e.kisi), zaman=c.zs(e.zaman);
     const ortu=ortuYazi(e.ortu??v.kisiler[e.kisi].ortu,c.dil);
     const esya=e.esya?esyaYazi(e.kisi,e.esya,c.dil):null;
-    iddialar.push({tur:'dolayli',alt:e.alt,kisi:e.kisi,zaman:e.zaman,iz:e.iz,...(e.esya?{esya:e.esya}:{}),...(e.ortu?{ortu:e.ortu}:{})});
+    iddialar.push(e.isimsiz?{tur:'dolayli',alt:e.alt,kisi:null,isimsiz:true,ortu:v.kisiler[e.kisi].ortu,zaman:e.zaman,iz:e.iz}
+      :{tur:'dolayli',alt:e.alt,kisi:e.kisi,zaman:e.zaman,iz:e.iz,...(e.esya?{esya:e.esya}:{}),...(e.ortu?{ortu:e.ortu}:{})});
     let m;
     switch(e.alt){
       case 'gece-yoklugu': m=c.kur('tuhaf-yokluk',{kim,zaman}); iddialar.push({tur:'degil',kisi:e.kisi,zaman:e.zaman,mekan:e.mekan}); break;
-      case 'kanli-giysi': m=c.kur('tuhaf-kanli',{kim,ortu,zaman}); break;
-      case 'tirmik': m=c.kur('tuhaf-tirmik',{kim,zaman}); break;
+      case 'kanli-giysi': m=e.isimsiz?c.kur('tuhaf-kanli-isimsiz',{ortu,zaman}):c.kur('tuhaf-kanli',{kim,ortu,zaman}); break;
+      case 'tirmik': m=e.isimsiz?c.kur('tuhaf-tirmik-isimsiz',{ortu,zaman}):c.kur('tuhaf-tirmik',{kim,zaman}); break;
       case 'yirtik-giysi': m=c.kur('tuhaf-yirtik',{kim,ortu,zaman}); break;
       case 'eksik-alet': m=e.kisi===c.kisi?c.kur('tuhaf-eksik-alet',{esya:esya??ortu,zaman}):c.kur('tuhaf-eksik-esya',{kim,esya:esya??ortu,zaman}); break;
       case 'eksik-esya': m=c.kur('tuhaf-eksik-esya',{kim,esya:esya??ortu,zaman}); break;
@@ -369,7 +383,7 @@ export function selamUret({vaka,kisi,gun,dil=DIL_TR}){
   const c=baglam({vaka,kisi,soru:{id:'selam@'+gun,tur:'selam'},gun,dil});
   const mt=ifadeMotoru(vaka);
   const gizli=vaka.cinayetler.some(x=>x.zaman<c.S&&mt.konumSucu(kisi,x.zaman));
-  const g=gerginlikHesap(vaka,kisi,'dogru',gizli?.15:0)-(katilMi(vaka,kisi)?.15:0);
+  const g=gerginlikHesap(vaka,kisi,'dogru',gizli?.15:0)-(katilMi(vaka,kisi)?.1:0);
   return sonuc(c,{tavir:'dogru',gerginlik:Math.max(0,g),metin:c.kur('selam')});
 }
 
@@ -383,6 +397,7 @@ export function selamUret({vaka,kisi,gun,dil=DIL_TR}){
 //   - gördüğü: bilinen bir cinayet anında (ya da öncesinde) evinin dışında yüzünü seçtiği biri.
 // Yalan kuralları burada da işler: koruduğu kişinin aleyhine bir şeyi yan bilgi olarak da söylemez (uydurmaz, susar).
 const OLUMSUZ_YAN={hasim:'yan-kavga',borclu:'yan-borc',korkar:'yan-korku'};
+const YAKIN_YAN=['dost','sevgili','sever','ortak','sozlu','korunan'];
 
 function yakinMi(v,a,b){
   const ka=v.kisiler[a], kb=v.kisiler[b];
@@ -415,10 +430,19 @@ export function yanBilgiAdaylari(c){
     const Y=aday.find(Y=>yakinMi(v,k,Y)&&soyler(Y))??aday.find(Y=>v.kisiler[Y].mizac==='dedikoducu'&&soyler(Y));
     if(Y&&!iddiaVar(i=>i.tur==='yonlendir'&&i.kisi===Y&&i.konu?.iz===iz.id)) l.push({tur:'yonlendir-iz',oncelik:6,Y,iz:iz.id});
   }
-  // İlişki: kurbanla arası bozuk olan (sebep).
+  // İlişki: kurbanla (ya da defterde adı geçenle) arası bozuk olan (sebep); kurbanın sırdaşı (kime sorulmalı).
   const dedikoducu=c.mizac==='dedikoducu';
-  for(const cin of cinayetler){
-    const Y=cin.kurban;
+  const anilan=df?anilanlar(df):new Set();
+  const hedefler=[...new Set([...cinayetler.map(x=>x.kurban),...[...anilan].sort()])].filter(Y=>v.kisiler[Y]);
+  const kurbanSet=new Set(cinayetler.map(x=>x.kurban));
+  for(const Y of hedefler){
+    if(kurbanSet.has(Y)) for(const X of ids){
+      if(X===k||X===Y||!canli(X)) continue;
+      const r=iliskiTurleri(v,Y,X);
+      if(!r.some(t=>YAKIN_YAN.includes(t))||!(yakinMi(v,k,Y)||dedikoducu)) continue;
+      if(iddiaVar(i=>i.tur==='yonlendir'&&i.kisi===X&&i.konu?.kurban===Y)||(df&&soruldu(df,X,'fark:'+cinayetler.find(z=>z.kurban===Y).id))) continue;
+      l.push({tur:'yakin',oncelik:2,X,Y,cinayet:cinayetler.find(z=>z.kurban===Y).id});
+    }
     for(const X of ids){
       if(X===k||X===Y||!canli(X)) continue;
       for(const tur of iliskiTurleri(v,X,Y)){
@@ -434,9 +458,19 @@ export function yanBilgiAdaylari(c){
           if(B){kisi=B; yanlis=true;}
         }
         if(iddiaVar(i=>i.tur==='iliski'&&i.kisi===kisi&&i.hedef===Y)) continue;
-        l.push({tur:'iliski',oncelik:c.soru.tur==='iliski'||c.soru.tur==='sir'?4:2,X:kisi,Y,iliski:tur,duyum:!yakin||dedikoducu,yanlis});
+        l.push({tur:'iliski',oncelik:(c.soru.tur==='iliski'||c.soru.tur==='sir'?4:2)+(kurbanSet.has(Y)?.5:0),X:kisi,Y,iliski:tur,duyum:!yakin||dedikoducu,yanlis});
       }
     }
+  }
+  // Sır: k'nin bildiği bir sır (içeriğini söylemez), aynı sırrı bilen başka birini gösterir.
+  for(const sr of v.sirlar){
+    const X=sr.sahip;
+    if(X===k||!canli(X)||!sr.kimler.includes(k)||!(kurbanSet.has(X)||anilan.has(X))) continue;
+    const Y=sr.kimler.find(y=>y!==k&&y!==X&&canli(y)&&!(df&&soruldu(df,y,'sir:'+X)));
+    if(!Y||iddiaVar(i=>i.tur==='yonlendir'&&i.kisi===Y&&i.konu?.sahip===X)) continue;
+    const t=mt.tavir(k,X);
+    if(t.tavir!=='dogru'&&t.tavir!=='abarti') continue;
+    l.push({tur:'sir-var',oncelik:c.soru.tur==='sir'?5:1.5,X,Y});
   }
   // Gördüğü: bilinen bir anda evinin dışında yüzünü seçtiği biri.
   for(const cin of cinayetler.slice(0,3)) for(const t of [cin.zaman,cin.zaman-1]){
@@ -461,6 +495,8 @@ function yanBilgi(c){
     case 'yonlendir-iz': return {tur:y.tur,metin:c.kur('yan-yonlendir-iz',{kim:kd(y.Y),esya:izAdi(izBul(c.vaka,y.iz),c.dil)}),iddialar:[{tur:'yonlendir',kisi:y.Y,konu:{tur:'iz',iz:y.iz}}]};
     case 'iliski': return {tur:y.tur,metin:c.kur(y.duyum?'yan-duyum':'yan-giris')+' '+c.kur(OLUMSUZ_YAN[y.iliski],{kim:kd(y.X),diger:kd(y.Y)}),
       iddialar:[{tur:'iliski',kisi:y.X,hedef:y.Y,iliskiler:[y.iliski],kaynak:c.kisi,...(y.duyum?{dedikodu:true}:{})}]};
+    case 'yakin': return {tur:y.tur,metin:c.kur('yan-yakin',{kim:kd(y.X),diger:kd(y.Y)}),iddialar:[{tur:'yonlendir',kisi:y.X,konu:{tur:'fark',cinayet:y.cinayet,kurban:y.Y}}]};
+    case 'sir-var': return {tur:y.tur,metin:c.kur('yan-sir-var',{kim:kd(y.X),diger:kd(y.Y)}),iddialar:[{tur:'yonlendir',kisi:y.Y,konu:{tur:'sir',sahip:y.X}}]};
     case 'gordum': return {tur:y.tur,metin:[c.kur('yan-giris'),...y.kisiler.map(e=>c.kur('gordum',{zaman:c.zs(y.t),kim:kd(e.kisi),yer:c.yer(e.mekan,e.kisi)}))].join(' '),
       iddialar:y.kisiler.map(e=>({tur:'konum',kisi:e.kisi,zaman:y.t,mekan:e.mekan}))};
   }
@@ -475,7 +511,7 @@ export function bosCevapMi(vaka,kisi,iddialar,soru){
   return false;
 }
 
-const ISLEYICI={yer:yerCevabi,gordu:gorduCevabi,baskasi:baskasiCevabi,iz:izCevabi,fail:failCevabi,fark:farkCevabi,
+const ISLEYICI={yer:yerCevabi,gordu:gorduCevabi,baskasi:baskasiCevabi,iz:izCevabi,fail:failCevabi,fark:farkCevabi,'fark-kisi':farkCevabi,
   sir:sirCevabi,'sir-kendi':sirKendiCevabi,iliski:iliskiCevabi,yuzlesme:yuzlesmeCevabi};
 
 export const CEVAP_TURLERI=Object.keys(ISLEYICI);

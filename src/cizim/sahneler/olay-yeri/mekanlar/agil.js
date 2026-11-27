@@ -8,7 +8,7 @@ import {rng} from '../../../../cekirdek/rastgele.js';
 import {cokgen3,hat3,yol3,golgele} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
 import {duzlemde,tasOrgu,karanlik,atmosfer,leke,tara,titrek,MUREKKEP} from '../mekan-yardim.js';
-import {gokIsigi,gokCiz,sirt,agac,kaya,kuruDuvar,kirZemin,ot,cali,prizma} from './harman-yeri.js';
+import {gokIsigi,gokCiz,sirt,agac,kaya,kuruDuvar,kirZemin,ot,cali,prizma} from '../dis-yardim.js';
 
 const isik=gokIsigi();
 const TAS=[180,172,150], CAMUR=[128,116,94], KURU=[166,154,128];

@@ -71,6 +71,7 @@ export function vakaDenetle(v){
       if(ESYA_NEDENLERI.includes(n)&&cz[i.sahip][i.zaman]!==i.mekan) e(`${i.id}: ${i.sahip} izi bıraktığı anda orada değil`);
       if(n==='onceden-gecti'&&(o.tur!=='gecis'||cz[i.sahip][o.zaman]!==i.mekan||o.zaman>=c.zaman)) e(`${i.id}: önceki geçiş tutarsız`);
       if(n==='calinti-silah'&&(o.tur!=='hirsizlik'||o.sahip!==i.sahip||o.esya!==i.esya||o.zaman>=c.zaman)) e(`${i.id}: çalıntı silahın hırsızlığı tutarsız`);
+      if(n==='tuzak'&&(o.tur!=='hirsizlik'||o.sahip!==i.sahip||o.esya!==i.esya||o.zaman>=c.zaman||cz[i.sahip][c.zaman]===c.mekan)) e(`${i.id}: bırakılan eşyanın hırsızlığı tutarsız`);
       if(n==='katil-silahi'&&i.sahip!==c.katil) e(`${i.id}: katilin silahı katilin değil`);
       if(n==='kurbanin'&&i.sahip!==c.kurban) e(`${i.id}: kurbanın eşyası kurbanın değil`);
       if(n==='zehir-kaynagi'&&(o.tur!=='ot-alma'||o.sahip!==i.sahip)) e(`${i.id}: zehir kaynağı tutarsız`);
@@ -130,7 +131,7 @@ export function vakaDenetle(v){
   for(const o of v.olaylar) if(o.tur==='hirsizlik') kayipYaz(o.sahip+'|'+o.esya,o.zaman);
   for(const i of v.izler) if(i.tur==='fiziksel'&&i.esya){
     const a=sahibi(i), t=kayip.get(a);
-    const ayni=i.alt==='silah'||i.gercek.neden==='calinti-silah'||i.alt==='yara';
+    const ayni=i.alt==='silah'||i.gercek.neden==='calinti-silah'||i.gercek.neden==='tuzak'||i.alt==='yara';
     if(t!=null&&i.zaman>t&&!ayni) e(`${i.id}: ${a} ${t} anında kaybolmuştu, ${i.zaman} anında yine iz bırakıyor`);
   }
   for(const c of v.cinayetler) if(c.silah&&!c.silah.calinti){

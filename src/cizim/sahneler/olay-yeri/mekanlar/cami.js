@@ -6,8 +6,8 @@ import {TAU,rgba} from '../../../../cekirdek/matematik.js';
 import {rng} from '../../../../cekirdek/rastgele.js';
 import {silindir,cokgen3,hat3,yol3,golgele,tabana,aydinlik} from '../kalem.js';
 import {DUZLEM} from '../perspektif.js';
-import {duzlemde,duzlemYol,tasOrgu,karanlik,atmosfer,leke,titrek,MUREKKEP} from '../mekan-yardim.js';
-import {kutuDoku,tahtaYuzey,tasDoseme,daire3,kenarIsigi,duzlemCizgi,tasYuzey} from './koy-odasi.js';
+import {duzlemde,duzlemYol,tasOrgu,karanlik,atmosfer,leke,titrek,MUREKKEP,daire3,kenarIsigi,duzlemCizgi} from '../mekan-yardim.js';
+import {kutuDoku,tahtaYuzey,tasDoseme,tasYuzey} from '../ic-yardim.js';
 
 const TAS=[186,176,150], TAS2=[166,156,134], DOSEME=[160,152,132], AHSAP=[96,76,54], PIRINC=[176,150,96];
 const ON=700, SOLD=-262;                                       // cephe yüzü, abdest duvarı
