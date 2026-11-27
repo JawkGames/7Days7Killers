@@ -45,6 +45,8 @@ Bu dosya projenin hafızasıdır. Yeni bir oturum önce `README.md`, `PLAN.md` v
 - **Hedef: Steam, PC.** İnternet ve anahtar gerektirmeyen, kendi içinde çalışan oyun. Asgari ekran kartı RTX 2060-2070 sınıfı (6-8 GB VRAM).
 - **Konuşmayı oyunun içindeki yerel yapay zekâ yapacak.** Bu, "oyunun içinde canlı yapay zekâ yok" kararının yerine geçer. Karma yapı: gerçek ve karar motorda kalır (kim katil, ne söylenecek, doğru mu yalan mı, nerede ağzından kaçıracak); model yalnızca o kararı karakterin ağzıyla söyler. Kalıp sistemi düşük donanım ve yedek kipi olarak kalır.
 - **Görseller:** Gemini üretir, Claude oyuna bağlar. Gemini'nin görev tanımı `GEMINI.md`, iş listesi `gorsel-istekleri/durum.md`. Tarz kilidi: `main2` dalındaki resimlerin tarzı (kalın titrek mürekkep hat, tarama, soluk palet); örnekler `varliklar/gorsel/tarz/`. Gemini `gemini-gorsel` dalına teslim eder, Claude birleştirir. `main2` dalındaki ayrı oyun kodu kullanılmaz; işe yarayan 17 resim alındı. Kodla çizilen sahneler yedek ve hareket katmanı olarak kalır.
+- **Konuşma dili:** normal günümüz Türkçesi; dönem ağzı ya da eski Türkçe yok. Sonra İngilizce eklenecek.
+- **Seslendirme:** köylüler yerel, ücretsiz bir metinden sese (TTS) sistemiyle sesli konuşacak; mümkünse her karaktere ayrı ses, değilse temel seslerin perde/tını çeşitlemesi. Bu, ilk karar listesindeki "konuşmada ses yok" maddesinin yerine geçer. Hazırlık araştırması: `arastirma/yerel-yapay-zeka-ve-ses.md`.
 - **Ajan kullanımı:** çok ajan kotayı hızlı bitiriyor; kullanıcı istemedikçe paralel ajan açılmaz.
 
 ## Denenip vazgeçilenler
