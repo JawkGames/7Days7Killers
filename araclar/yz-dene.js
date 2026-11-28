@@ -22,14 +22,14 @@
 // Not: bu araç geliştirici içindir; kimin katil olduğunu "(suçlu)" diye gösterir.
 
 import fs from 'node:fs';
-import {pathToFileURL} from 'node:url';
+import {pathToFileURL,fileURLToPath} from 'node:url';
 import {koyKur} from '../src/icerik/kur.js';
 import {baglamKur,oyunBaslat,acilis,secenekler,uygula,sorular} from '../src/oyun/oyun.js';
 import {yzKur,yerelSunucu} from '../src/yz/index.js';
 import {onerilenSorular} from '../src/arayuz/soru-oneri.js';
 import {kisiYazi} from '../src/diyalog/adlar.js';
 
-const kok=new URL('..',import.meta.url).pathname;
+const kok=fileURLToPath(new URL('..',import.meta.url)).replace(/\\/g,'/').replace(/\/?$/,'/'); // Windows'ta /C:/ sorunu olmasın
 const oku=async d=>Promise.all(fs.readdirSync(kok+d).filter(f=>f.endsWith('.js')&&f!=='index.js').sort().map(async f=>(await import(pathToFileURL(`${kok}${d}/${f}`))).default));
 const kisiler=await oku('src/icerik/kisiler'), mekanlar=await oku('src/icerik/mekanlar');
 const cekirdekler=fs.existsSync(kok+'src/icerik/olay-cekirdekleri')?(await oku('src/icerik/olay-cekirdekleri')).filter(x=>x&&x.id):[];
@@ -64,7 +64,7 @@ async function sozBas(p,soru,oyuncuSorusu=null){
   satir('Yapay zekâ',r.ham??r.metin);
   const t=`tavır ${p.anlam?.tavir??'?'}${p.anlam?.yalan?' +yalan bilgisi':''}, ${sn(r.sure)}`;
   if(r.kaynak==='yz'||r.kaynak==='onbellek'){ sayac.yz++; satir('Denetim',`${C.y}geçti${C.x} (${t})`); }
-  else if(/zaman/.test(r.neden||'')){ sayac.zaman++; satir('Denetim',`${C.k}zaman aşımı → kalıp${C.x} (${t})`); }
+  else if(/zaman aşım/i.test(r.neden||'')){ sayac.zaman++; satir('Denetim',`${C.k}zaman aşımı → kalıp${C.x} (${t})`); }
   else{ sayac.red++; satir('Denetim',`${C.k}reddedildi: ${r.neden} → kalıp${C.x} (${t})`); }
   console.log();
 }

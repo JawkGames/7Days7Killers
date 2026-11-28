@@ -43,7 +43,7 @@ export function yerelSunucu({adres='http://localhost:1234',model='',sicaklik=.7,
       const m=await modelBul(sinyal);
       const govde=d=>({model:m,messages:mesajlar,temperature:s,max_tokens:n,stream:false,
         ...(d<2?{response_format:{type:'json_schema',json_schema:{name:semaAdi,strict:true,schema:sema}}}:{}),
-        ...(d<1?{chat_template_kwargs:{enable_thinking:false}}:{})});
+        ...(d<1?{chat_template_kwargs:{enable_thinking:false},reasoning_effort:'none'}:{})}); // LM Studio thinking'i ancak reasoning_effort ile kapatıyor
       const gonder=d=>fx(kok+'/v1/chat/completions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(govde(d)),signal:sinyal});
       let y=await gonder(duzey);
       while((y.status===400||y.status===422)&&duzey<2){ duzey++; y=await gonder(duzey); }
@@ -82,7 +82,7 @@ export function cevapAyikla(ham,alan='cevap'){
   s=s.replace(/^```(?:json)?\s*|\s*```$/g,'').trim();
   const bas=s.indexOf('{'), son=s.lastIndexOf('}');
   if(bas>=0&&son>bas){
-    try{ const j=JSON.parse(s.slice(bas,son+1)); if(typeof j[alan]==='string') return j[alan].trim()||null; return null; }catch{ /* düz metne düş */ }
+    try{ const j=JSON.parse(s.slice(bas,son+1)); if(typeof j[alan]==='string') return j[alan].trim().replace(/^["«“]+|["»”]+$/g,'').trim()||null; return null; }catch{ /* düz metne düş */ }
   }
   s=s.replace(/^["«“]|["»”]$/g,'').trim();
   return s||null;
