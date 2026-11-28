@@ -75,3 +75,16 @@ Köylü tarzına karar verildi. Kullanıcı sana Çerçi'nin parça sayfasını 
 - Kişi başına 2 resim: A (1376x768: iki baş, iki iris, üç ağız) ve B (1024x1024: boyunlu gövde). Teslim: `varliklar/gorsel/kukla/<kimlik>-a.png`, `-b.png`.
 - Önemli kurallar: baş **boyunsuz**, göz beyazları **boş**, ağız parçalarında bıyık ve sakal **eksiksiz**, parçaların çevresinde açık renk kenar çizgisi **yok**.
 - Eski köylü baskıları (istem 01) iptal. Mekânlar ve izler bundan sonra sürer.
+
+## 28.11.2026: bütün iş listesi (sırayla)
+
+Kullanıcıya tek tek sormadan bu sırayla ilerle; kota biterse kaldığın yeri yaz.
+
+1. **`07-kukla.md`**: 24 köylü kuklası (Çerçi referansı kullanıcıdan). En önemli iş.
+2. **`08-yerel-yz-ve-ses.md`**: resim değil. Kullanıcının bilgisayarında LM Studio ile dil modellerini, Türkçe ses modellerini dene; ses kayıtlarını `denemeler/` altına koy; oyunu oynayıp hataları yaz. Resim kotan bittiğinde bunu yap (kota gerektirmiyor).
+3. **`02-olay-yerleri.md`**: kalan mekânlar, tek tek 1376x768: muhtar-evi, bakkal, cesme, mezarlik, harman-yeri, fistiklik, bag-evi, magara, sinir-patikasi, agil, halil-evi, gulsum-evi, sultan-evi, ebe-evi, irgat-evi.
+4. **`03-izler.md`**: izler, 4x3.
+5. **`05-sonlar.md`**: kayıp sahneleri ve pencere sahnesi katmanları.
+6. **`04-sorgu-odasi.md`** ve **`06-arayuz.md`**.
+
+Not: teslim ettiğin mekânlar ve 3 köylü artık oyunda kullanılıyor (`src/platform/gorseller.js`).

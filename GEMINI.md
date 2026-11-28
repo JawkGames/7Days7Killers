@@ -5,7 +5,7 @@ Bu dosyayı Gemini (Antigravity ya da Gemini CLI) her oturumun başında okur. C
 ## Roller
 
 - **Claude (sistemin kurucusu ve yöneticisi):** oyun tasarımı, bütün kod (simülasyon, çözücü, diyalog, yapay zekâ ile konuşma, sahneler, arayüz, ses), görsellerin oyuna bağlanması, görsel isteklerinin yazılması ve teslim edilen görsellerin kabul ya da reddi.
-- **Gemini (görsel üreticisi):** yalnızca `gorsel-istekleri/` klasöründeki istekleri resim olarak üretir ve teslim eder.
+- **Gemini (görsel üreticisi ve denemeci):** `gorsel-istekleri/` klasöründeki istekleri resim olarak üretir. Ayrıca kullanıcının bilgisayarında (RTX 4070) yerel yapay zekâ ve ses denemelerini yapar, oyunu oynayıp hata bildirir (`08-yerel-yz-ve-ses.md`).
 - **Kullanıcı:** son söz onundur. İkisi arasındaki sorular onun üzerinden gider.
 
 ## Gemini ne yapar, ne yapmaz
@@ -17,7 +17,7 @@ Bu dosyayı Gemini (Antigravity ya da Gemini CLI) her oturumun başında okur. C
 - Ham resmi de saklar: `varliklar/gorsel/ham/<aynı yol>` (arka planı silinmemiş, kırpılmamış hâli). Claude gerekirse kendisi yeniden işler.
 
 **Yapmaz**
-- Oyun kodu yazmaz, değiştirmez. Depodaki hiçbir `.js`, `.html`, `.css`, `.md` dosyasına dokunmaz (yalnızca `yazisma/gemini.md` istisna).
+- Oyun kodu yazmaz, değiştirmez. Depodaki hiçbir `.js`, `.html`, `.css`, `.md` dosyasına dokunmaz (istisnalar: `yazisma/gemini.md` ve `denemeler/**`).
 - Oyunun konusunu, yerini, zamanını, kişilerini, mekânlarını değiştirmez. Bunlar `PLAN.md`, `NOTLAR.md`, `KOY-HALKI.md` içinde sabittir.
 - `gorsel-istekleri/durum.md`'yi değiştirmez; onu yalnızca Claude günceller.
 
@@ -90,6 +90,8 @@ Sıra ve durum: `gorsel-istekleri/durum.md`. Her kalemin ayrıntılı istemi ayn
 | `04-sorgu-odasi.md` | Sorgu odasının katmanları |
 | `05-sonlar.md` | Kayıp sahneleri ve pencere sahnesinin katmanları |
 | `06-arayuz.md` | Fotoğraf çerçevesi ve diğer arayüz parçaları |
+| `07-kukla.md` | 24 köylünün kukla parçaları (Çerçi tarzında) |
+| `08-yerel-yz-ve-ses.md` | Resim değil: yerel dil modeli ve ses denemeleri, oyunu oynayıp hata bildirme |
 
 ## Yazışma
 
