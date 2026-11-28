@@ -6,8 +6,22 @@ import {PAL} from '../../teknik/palet.js';
 import {hex} from '../../../cekirdek/matematik.js';
 import {rng} from '../../../cekirdek/rastgele.js';
 import {OLCU,GIRIS} from './ayar.js';
+import {resim} from '../../../platform/gorseller.js';
+
+// Üretilmiş oda resmi (aynalanmış: kapı sağda, karakterin girdiği yerde). Kapı boşluğu GIRIS.kapi ile çakışacak biçimde yerleşir.
+const ODA={yukseklik:1216, ust:67, kaydir:-40};
+export const odaResmiVar=()=>!!resim('oda/arka-plan');
 
 export function arkaPlan(){
+  const oda=resim('oda/arka-plan');
+  if(oda){
+    const H=OLCU.yukseklik, G=gor.yarimG+OLCU.pay, h=ODA.yukseklik, w=oda.width*h/oda.height;
+    c.fillStyle='#060707'; c.fillRect(-G,gor.ustY,G*2,H-gor.ustY);
+    c.save(); c.translate(ODA.kaydir,ODA.ust); c.scale(-1,1); c.drawImage(oda,-w/2,0,w,h); c.restore();
+    c.fillStyle='rgba(6,8,7,.35)'; c.fillRect(-G,gor.ustY,G*2,H-gor.ustY); // loşlaştır: oyunun ışığı üstüne biner
+    leke(-G,H*.5,G*.9,H*.9,PAL.siyah,.6); leke(G,H*.45,G*.95,H*.9,PAL.siyah,.6);
+    return;
+  }
   const H=OLCU.yukseklik, G=gor.yarimG+OLCU.pay, r=rng(101);
   let g=c.createLinearGradient(0,gor.ustY,0,H); g.addColorStop(0,'#0c100e'); g.addColorStop(.45,'#161b17'); g.addColorStop(1,'#060707');
   c.fillStyle=g; c.fillRect(-G,gor.ustY,G*2,H-gor.ustY);

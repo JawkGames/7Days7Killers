@@ -3,7 +3,7 @@
 // Bütün resimler oyun açılırken arka planda yüklenir (gorselleriYukle).
 
 // vite (ve vitest) yolları derleme sırasında çözer
-const YOLLAR=import.meta.glob('../../varliklar/gorsel/{mekanlar,kisiler}/**/*.{png,webp}',{eager:true,query:'?url',import:'default'});
+const YOLLAR=import.meta.glob('../../varliklar/gorsel/{mekanlar,kisiler,oda,sonlar}/**/*.{png,webp}',{eager:true,query:'?url',import:'default'});
 
 const resimler={}; // 'mekanlar/cami' → HTMLImageElement (yüklenince)
 

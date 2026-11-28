@@ -19,15 +19,17 @@ import {kisiResmi} from '../../../platform/gorseller.js';
 // Sorgudaki kişinin kimliği: üretilmiş portresi varsa rig yerine o çizilir
 let sorguKisisi=null;
 export const sorguKisiSec=id=>{sorguKisisi=id;};
-import {arkaPlan} from './arka-plan.js';
+import {arkaPlan,odaResmiVar} from './arka-plan.js';
 import {ampul} from './ampul.js';
 import {masa,duman} from './masa.js';
 import {sandalye} from './sandalye.js';
 import {giris,girisBaslat,girisGuncelle,kapiIsigi} from './giris.js';
 
-let arkaTuval=null, masaTuval=null, figTuval=null;
+let arkaTuval=null, masaTuval=null, figTuval=null, odaliKuruldu=false;
 function boyutla(){
   if(!gorunumOlc(OLCU)) return;
+  odaliKuruldu=odaResmiVar();
+  if(odaliKuruldu) Object.assign(GIRIS,{kapi:[[306,292],[630,292],[630,1040],[306,1040]],kapiX:468});
   arkaTuval=onBellek(arkaPlan); masaTuval=onBellek(masa);
   figTuval=document.createElement('canvas'); figTuval.width=cv.width; figTuval.height=cv.height;
 }
@@ -129,7 +131,7 @@ let once=0, kareNo=0, calisiyor=false, dinleniyor=false;
 function kare(ms){
   if(!calisiyor) return;
   const t=ms/1000, dt=Math.min(.05,t-once||.016); once=t;
-  if(cv.clientWidth!==gor.vw||cv.clientHeight!==gor.vh) boyutla(); // boyut olayı gelmese de yakala
+  if(cv.clientWidth!==gor.vw||cv.clientHeight!==gor.vh||(!odaliKuruldu&&odaResmiVar())) boyutla(); // oda resmi sonradan yüklenirse arka planı yeniden kur // boyut olayı gelmese de yakala
   if(gor.hazir){guncelle(t,dt); ciz(t);}
   kareNo=requestAnimationFrame(kare);
 }
