@@ -95,3 +95,7 @@ Kamera kayınca kenar açılmasın diye ön bellekler iki yandan `OLCU.pay` kada
 ## Sıradaki iş
 
 `PLAN.md` yol haritasının 1. aşaması: test altyapısını kurmak ve prototipi `src/cizim` altına modüllere bölmek. Ondan önce `PLAN.md` sonundaki karar sorularının ilk ikisi (ekran yönü, ilk sürümün dili) cevaplanmalı.
+
+## Deneme: `prototip/three-sorgu/index.html` (Three.js)
+
+Sorgu odasındaki kadının 3B denemesi. Sahne gerçek 3B (oda, sallanan ampul tek ışık kaynağı, aralık kapı, masa, defter, ters fotoğraflar, kül tablası ve duman); mürekkep görünümü son işlem gölgelendiricisinden gelir: derinlik kenarından titrek hat, yalnızca karanlıkta kalan kırık tarama, küflü yeşil-mor-kirli sarı renk eşlemesi, çamurlu leke, kum, film çiziği. Hatlar saniyede 7 kez kayar. Yüz, küre üzerinde tümsek/çukur (göz çukuru, burun, elmacık, çökük yanak) ve köşe rengiyle (göz altı morluğu) kurulur. Eller ve bacaklar çizilmez. Three.js importmap ile jsDelivr'den (0.160.0) yüklenir.
