@@ -15,6 +15,7 @@ import {govde,altGovde} from '../../rig/govde.js';
 import {kafa} from '../../rig/yuz.js';
 import {OLCU,DERINLIK,GIRIS} from './ayar.js';
 import {kisiResmi} from '../../../platform/gorseller.js';
+import {kuklaVar,kuklaCiz} from './kukla.js';
 
 // Sorgudaki kişinin kimliği: üretilmiş portresi varsa rig yerine o çizilir
 let sorguKisisi=null;
@@ -98,8 +99,9 @@ function ciz(t){
   const derin=lerp(DERINLIK.karakter,DERINLIK.golge,G.d);
   const figur=()=>{
     c.save(); c.translate(-poz.kam*derin+fx,fy); c.scale(s,s); c.rotate(G.sal*.012); c.translate(0,-OLCU.kafaY);
-    const foto=sorguKisisi&&kisiResmi(sorguKisisi);
-    if(foto){ // üretilmiş portre: göz kırpınca göz kapalı, konuşurken ağız açık kare
+    const foto=sorguKisisi&&!kuklaVar(sorguKisisi)&&kisiResmi(sorguKisisi);
+    if(kuklaVar(sorguKisisi)) kuklaCiz(sorguKisisi,{kafaY:OLCU.kafaY,hx,hy,egim,nefes:poz.nefes});
+    else if(foto){ // üretilmiş portre: göz kırpınca göz kapalı, konuşurken ağız açık kare
       const im=poz.goz<.35?foto.gozKapali:poz.agizAc>.3?foto.agizAcik:foto.temel, b=760, y0=OLCU.kafaY-300+hy;
       c.save(); c.translate(hx,0); c.rotate(egim*.5); c.drawImage(im,-b/2,y0,b,b*im.height/im.width); c.restore();
     } else {
