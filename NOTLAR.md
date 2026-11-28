@@ -98,4 +98,14 @@ Kamera kayınca kenar açılmasın diye ön bellekler iki yandan `OLCU.pay` kada
 
 ## Deneme: `prototip/three-sorgu/index.html` (Three.js)
 
-Sorgu odasındaki kadının 3B denemesi. Sahne gerçek 3B (oda, sallanan ampul tek ışık kaynağı, aralık kapı, masa, defter, ters fotoğraflar, kül tablası ve duman); mürekkep görünümü son işlem gölgelendiricisinden gelir: derinlik kenarından titrek hat, yalnızca karanlıkta kalan kırık tarama, küflü yeşil-mor-kirli sarı renk eşlemesi, çamurlu leke, kum, film çiziği. Hatlar saniyede 7 kez kayar. Yüz, küre üzerinde tümsek/çukur (göz çukuru, burun, elmacık, çökük yanak) ve köşe rengiyle (göz altı morluğu) kurulur. Eller ve bacaklar çizilmez. Three.js importmap ile jsDelivr'den (0.160.0) yüklenir.
+Sorgu odasındaki kadının 3B denemesi. Three.js importmap ile jsDelivr'den (0.160.0) yüklenir; bütün dokular kodla, tuvale çizilir.
+
+- **Oda:** sıvası dökük duvar, borular ve vana, boş çerçeve, 22:40'ta durmuş saat, elektrik düğmesi, tablalı aralık kapı. Tek ışık kaynağı sallanan ampul; ışıkta toz uçuşur.
+- **Masa:** spiralli defter, kalem, dosya, ters ve açık olay yeri fotoğrafları, kırmızı kazak ipi, ince belli çay bardağı, makaraları dönen ses kayıt cihazı, kül tablası ve duman.
+- **Yüz:** küre üstünde tümsek/çukur heykeli (`yuzGeometrisi`) ve aynı yön eşlemesiyle boyanan doku (`yp`, `yuzDoku`, `yuzKabartma`): tek tek kaş kılları, morluk, gözenek, kırışık. Dudak ölçüleri `DUDAK` nesnesinde; heykel ve boya aynı ölçüyü kullanır.
+- **Ağız:** biçim hedefi (morph). Köşeler sabit, alt dudak ve çene iner; ağız çizgisinin boyası esneyerek ağız içi olur.
+- **Göz:** çukura gömülü küre, lifli iris kubbesi, yalnızca parlama ekleyen kornea, yarım küre kapaklar ve kirpikler.
+- **Saç:** tek akış fonksiyonu (`sacEgri`) hem alttaki kabuğu hem ~1100 teli üretir; teller omuzda öne ya da arkaya yatar (`omuzaYatir`).
+- **Son işlem:** derinlik kenarından titrek hat, yalnızca karanlıkta tarama, palet eşlemesi, leke, kum, film çiziği, ışıma. Hatlar saniyede 7 kez kayar.
+
+Tuzaklar: ışık nesneye çok yakınsa siyah saç bile haki görünür (ters kare); ampul başa ~0,8 m uzakta tutulur. Saydam ve beyaz bir kornea irisi tamamen beyazlatır; kornea siyah ve eklemeli olmalı. Ampul çevresine eklemeli hale koymak siyahları soldurur.
