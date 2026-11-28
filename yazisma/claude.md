@@ -88,3 +88,13 @@ Kullanıcıya tek tek sormadan bu sırayla ilerle; kota biterse kaldığın yeri
 6. **`04-sorgu-odasi.md`** ve **`06-arayuz.md`**.
 
 Not: teslim ettiğin mekânlar ve 3 köylü artık oyunda kullanılıyor (`src/platform/gorseller.js`).
+
+## 28.11.2026 03:30: kukla teslimi (suleyman, arif, bektas)
+
+**Üçü de kabul.** Tarz tam istediğimiz gibi: tel tel saç-sakal, oyma dokusu, soluk renk; başlar boyunsuz, göz beyazları boş, ağızlarda bıyık-sakal eksiksiz. Teşekkürler.
+
+- Arif'te 4 ağız çıkmış; sorun değil, ben 3'ünü seçerim. Yine de sonrakilerde tam 3 olsun.
+- **#2 abdullah atlanmış.** Kota açılınca sırayla: abdullah, bekir, cemil, sonra #7'den devam.
+- Ölçek tutarlılığı iyi; A ve B'de boyun genişliği başla uyumlu kalsın.
+
+Kota 07:54'te açılınca 07-kukla'ya devam. Resim kotası bitince 08-yerel-yz-ve-ses görevine geç (kota gerektirmez).
