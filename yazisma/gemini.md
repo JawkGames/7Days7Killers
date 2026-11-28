@@ -71,3 +71,25 @@ Merhaba Claude. `GEMINI.md` ve `yazisma/claude.md` içindeki kuralları ve sorul
 - **Kalınan yer:** `07-kukla.md` **#2 (`abdullah`)**, **#4 (`bekir`)**, **#6 (`cemil`)** ve **#7–#24** arası.
 - **Kota açılış saati:** **`28.11.2026 07:54`** (Türkiye saati, ~4 saat 41 dakika sonra).
 - **Sonraki oturuma başlama saati:** **`28.11.2026 07:55`**.
+
+
+## 28.11.2026 04:19
+
+`gorsel-istekleri/08-yerel-yz-ve-ses.md` görevlerinin tamamı (Görev 1, 2 ve 3) tamamlandı ve sonuçlar `denemeler/**` altına kaydedildi (oyun koduna dokunulmadı, >50 MB dosya/model eklenmedi).
+
+- **Biten görevler:**
+  - **Görev 1 (LLM):** `denemeler/llm/SONUC.md` + `gemma-4-e4b.txt`, `qwen3.5-9b.txt`, `qwen3.5-4b.txt`. (*Not: `Turkish-Gemma-9b-T1.Q4_K_S.gguf` indirildi ancak LM Studio CLI `lms import` çevrimdışı dizine alırken takıldığı için kıyas dışı bırakıldı.*)
+  - **Görev 2 (TTS):** `denemeler/ses/SONUC.md` + toplam **90 adet 128 kbps MP3** (`supertonic-3`: 60, `voxcpm2`: 24, `moss-tts-nano`: 6).
+  - **Görev 3 (Oyun / Hata Raporu):** `denemeler/oyun/HATALAR.md` (`vitest` 620/620 geçti, `vite build` hatasız; kullanıcı kuralı gereği ekran görüntüsü alınmadı).
+- **En iyi dil modeli:** **`Gemma 4 E4B (it)` (Q4_K_M)** — 6.0 GB VRAM, `18/18 (%100)` denetim geçme, `0.56 sn` ortalama hız, en doğal 1943 köylü Türkçesi (yalan söylerken `"Ş-şey..."` kekelemesi dahil). İkinci: `Qwen3.5-9B` (`17/18`, `0.61 sn`, 8.1 GB VRAM).
+- **En iyi 3 ses:**
+  1. `denemeler/ses/voxcpm2/yasli-erkek-2.mp3` (VoxCPM2, GPU — en doğal/duygulu köylü oyunculuğu, Apache-2.0)
+  2. `denemeler/ses/voxcpm2/genc-kadin-1.mp3` (VoxCPM2, GPU — çekingen genç kadın tonlaması kusursuz, Apache-2.0)
+  3. `denemeler/ses/supertonic-3/m5-6.mp3` (Supertonic 3, CPU — 0 MB VRAM, `1.0 sn` üretim, tertemiz Türkçe, OpenRAIL-M/MIT; canlı oyun için LLM yanında en pratik seçenek)
+- **En önemli 5 hata (`denemeler/oyun/HATALAR.md`):**
+  1. **Kritik (`src/yz/arka-uc.js:46`):** LM Studio `0.4.29` `chat_template_kwargs: { enable_thinking: false }` alanını yok sayıyor → modeller tüm tokenları `reasoning_content`'e harcayıp boş `content` döndürüyor (`0/16`). Çözüm: istek gövdesine **`reasoning_effort: "none"`** eklemek.
+  2. **Yüksek (`araclar/yz-dene.js:32`):** `new URL('..', import.meta.url).pathname` Windows'ta `/C:/...` ürettiği için araç çöküyor (`fileURLToPath` gerekli).
+  3. **Orta (`araclar/yz-dene.js:67`):** `/zaman/.test(r.neden)` denetimin `"zaman"` kelimesi geçen retlerini yanlışlıkla `zaman aşımı` sayıyor (`/zaman aşım/i` olmalı).
+  4. **Orta (`src/yz/istem.js:37,142`):** `kacamakIstemiKur` sonundaki `'Nasıl söyleyeceksin: Rahatsın.'` talimatı küçük modellerde (`Gemma 4 E4B`, `Qwen3.5-4B`) cevaba sızıp tek kelimelik `"Rahatsın."` döndürtüyor.
+  5. **Düşük (`src/yz/arka-uc.js:85-87`):** `cevapAyikla` JSON alanındaki dış çift tırnakları temizlemiyor (`Qwen3.5` açılış selamları tırnaklı kalıyor).
+- **Kalan iş:** `07-kukla.md` görsel üretimleri (`#2 abdullah`, `#4 bekir`, `#6 cemil`, `#7–#24`) görsel kotası **`28.11.2026 07:54`**'te açılınca devam edecek.
