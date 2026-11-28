@@ -16,7 +16,7 @@ import {sorguZamani} from '../diyalog/cevap.js';
 import {konus,sus,konusmaOlay} from '../diyalog/konusma.js';
 import {poz,karakterSec} from '../cizim/rig/index.js';
 import {girisOlay} from '../cizim/sahneler/sorgu-odasi/giris.js';
-import {sorguEtki} from '../cizim/sahneler/sorgu-odasi/sahne.js';
+import {sorguEtki,sorguKisiSec} from '../cizim/sahneler/sorgu-odasi/sahne.js';
 import {cv} from '../cizim/teknik/tuval.js';
 import {sahneYoneticisi} from './sahne-yoneticisi.js';
 import {sahneKur,sonSahneleriHazirla} from './sahneler.js';
@@ -346,7 +346,7 @@ export function oyunArayuzuKur(){
   function sorguEkrani(parcalar,{devam=false}={}){
     const no=yeniEkran();
     const kisi=d.zaman.sorgudaki;
-    karakterSec(gorunusBul(kisi)||null); tepkiSifirla(); sus();
+    karakterSec(gorunusBul(kisi)||null); sorguKisiSec(kisi); tepkiSifirla(); sus();
     const girisOyna=!devam&&!azHareket;
     const anlatim=el('p',{sinif:'anlatim'});
     const konusan=el('p',{sinif:'konusan'});
