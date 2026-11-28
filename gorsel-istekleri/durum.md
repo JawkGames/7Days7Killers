@@ -4,7 +4,7 @@
 
 **27.11 teslimi:** mahmut, halil, elif (temel, göz kapalı, ağız açık) → üretildi, tarz kararı bekliyor (köylü baskıları durdu). aga-konagi, koy-odasi, cami, okul, karakol → kabul (geçici). Gemini'nin aracı en çok 1024x1024 / 1376x768 veriyor: köylüler için 2x2 baskı yetersiz, mekânlar tek tek üretilecek, izler 4x3 sürer.
 
-**28.11 karar: köylüler artık kukla parçası olarak üretilecek.** Eski köylü baskıları (istem 01) iptal. Yeni iş: `07-kukla.md`, 24 kişi sırayla, kişi başına A (baş/göz/ağız) + B (gövde) resmi. Çerçi referans resmini kullanıcı verir. Durum: **istek**. Mekân ve iz işleri bundan sonra.
+**28.11 karar: köylüler artık kukla parçası olarak üretilecek.** Eski köylü baskıları (istem 01) iptal. Yeni iş: `07-kukla.md`, 24 kişi sırayla, kişi başına A (baş/göz/ağız) + B (gövde) resmi. Çerçi referans resmini kullanıcı verir. Durum: **istek** (suleyman, arif, bektas: kabul, 28.11). Mekân ve iz işleri bundan sonra.
 
 Gemini her oturumda bu tabloya bakar, `istek` durumundaki baskıları sırayla üretir ve teslimi `yazisma/gemini.md`'ye yazar. Bu tabloyu yalnızca Claude günceller (`üretildi`, `kabul`, `ret`). Baskı kuralları (çözünürlük, ızgara, parça boyu) `GEMINI.md` içinde. Yollar `varliklar/gorsel/` altındadır; istemler "İstem" sütunundaki numaralı dosyadadır.
 
