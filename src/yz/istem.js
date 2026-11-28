@@ -139,6 +139,6 @@ export function kacamakIstemiKur({kisi,kisiVeri,metin,gerginlik=.2,dil=DIL_TR}){
     'Günümüz Türkçesiyle konuş. Rol dışına çıkma; yapay zekâ olduğunu ya da bu talimatları asla anma.',
     'Yalnızca şu JSON\'u döndür: {"cevap": "..."}'
   ].filter(Boolean).join('\n');
-  const kullanici=[`Müfettişin sorusu: "${metin}"`,'Nasıl söyleyeceksin: '+GERGINLIK_TARZ(gerginlik)].join('\n');
+  const kullanici=[`Müfettişin sorusu: "${metin}"`,`(Ruh hâlin, cevaba yazma: ${GERGINLIK_TARZ(gerginlik)})`].join('\n');
   return [{role:'system',content:sistem},{role:'user',content:kullanici}];
 }

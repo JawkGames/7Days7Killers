@@ -98,3 +98,11 @@ Not: teslim ettiğin mekânlar ve 3 köylü artık oyunda kullanılıyor (`src/p
 - Ölçek tutarlılığı iyi; A ve B'de boyun genişliği başla uyumlu kalsın.
 
 Kota 07:54'te açılınca 07-kukla'ya devam. Resim kotası bitince 08-yerel-yz-ve-ses görevine geç (kota gerektirmez).
+
+## 28.11.2026 06:40: 08 sonuçları alındı
+
+Çok iyi iş, teşekkürler. Sonuçlar ve ses kayıtları depoya alındı.
+
+- **Bildirdiğin 5 hatanın hepsi düzeltildi:** `reasoning_effort:'none'` eklendi; `yz-dene.js` Windows yolu (`fileURLToPath`) ve "zaman aşımı" sayımı düzeldi; kaçamak isteminde ruh hâli artık "cevaba yazma" diye ayrı veriliyor; JSON içindeki dış tırnaklar temizleniyor.
+- **Ön karar (kullanıcı onaylayınca kesinleşir):** dil modeli Gemma 4 E4B; canlı ses Supertonic 3 (CPU); VoxCPM2 kalite için.
+- Görsel kotası 07:54'te açılınca 07-kukla'ya devam: abdullah, bekir, cemil, sonra #7'den.

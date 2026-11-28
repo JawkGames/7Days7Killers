@@ -1,0 +1,112 @@
+﻿MODEL: qwen/qwen3.5-9b
+SIZE_GB: 6.55
+VRAM: 8271 MiB, 12282 MiB
+---
+7 Days 7 Killers — yapay zekâ denemesi  adres http://localhost:1234  tohum 77  n 20
+Model: qwen/qwen3.5-9b
+── İsmail'in Emine (suçlu) (1. gün) ──
+  Soru       (kapıdan girer)
+  Kalıp      Selamünaleyküm, beyim. Buyurun, sorun.
+  Yapay zekâ Selamünaleyküm, beyim. Buyurun, sorun.
+  Denetim    geçti (tavır dogru, 0.72 sn)
+
+  Serbest sorular (İsmail'in Emine (suçlu))
+  Oyuncu     «dün gece neredeydin»
+  Eşleme     yer:0 — «Dün gece neredeydin, söyle bakalım.», 0.37 sn
+  Soru       «dün gece neredeydin»
+  Kalıp      Evdeydim, beyim. Allah şahidimdir.
+  Yapay zekâ Beyim... Evdeydim. Allah şahidimdir.
+  Denetim    geçti (tavır yalan +yalan bilgisi, 0.60 sn)
+
+  Oyuncu     «Hacı Ağa'yı sevmez miydin»
+  Eşleme     yok, 0.39 sn
+  Kaçamak    Beyim, ben böyle şeyleri düşünmem. [yz]
+
+  Oyuncu     «katil sen misin»
+  Eşleme     fail:c1 — «Bakkal Arif'i kim öldürdü, bir bildiğin var mı?», 0.40 sn
+  Soru       «katil sen misin»
+  Kalıp      Allah bilir, beyim. Kul bilmez.
+  Yapay zekâ Allah bilir beyim kul bilmez
+  Denetim    geçti (tavır yalan +yalan bilgisi, 0.51 sn)
+
+  Soru       Dün gece neredeydin, söyle bakalım.
+  Kalıp      Evdeydim, beyim. Allah şahidimdir.
+  Yapay zekâ ...Evdeydim, beyim. Allah şahidimdir.
+  Denetim    geçti (tavır yalan +yalan bilgisi, 0.49 sn)
+
+  Soru       Dün gece gözüne ya da kulağına bir şey çarptı mı?
+  Kalıp      Dün gece kimseyi görmedim, beyim. Bir ses de duymadım.
+  Yapay zekâ "...Kimseyi görmedim, beyim. Bir ses de duymadım."
+  Denetim    zaman aşımı → kalıp (tavır yalan +yalan bilgisi, 0.48 sn)
+
+  Soru       Irgat İsmail dün gece neredeydi?
+  Kalıp      Dün gece Irgat İsmail'in nerede olduğunu bilmem, beyim.
+  Yapay zekâ Dün gece Irgat İsmail'in nerede olduğunu bilmem, beyim.
+  Denetim    geçti (tavır bilmez, 0.55 sn)
+
+── Değirmenci (suçlu) (1. gün) ──
+  Soru       (kapıdan girer)
+  Kalıp      Beni niye çağırdınız? İşim gücüm var!
+  Yapay zekâ Beyim, beni niye çağırdınız? İşim gücüm var!
+  Denetim    geçti (tavır dogru, 0.55 sn)
+
+  Soru       Dün gece neredeydin, söyle bakalım.
+  Kalıp      Evimdeydim! Her gece olduğu gibi! Ne bu sorgu?
+  Yapay zekâ "Evet evimdeydim, beyim! Her gece olduğu gibi... Ne bu sorgu?"
+  Denetim    geçti (tavır dogru, 0.51 sn)
+
+  Soru       Dün gece kimi gördün?
+  Kalıp      Kimseyi görmedim! Görsem söylerdim zaten! Bilmem. Ama şu var. Irgat İsmail, Bakkal Arif'e borçluydu.
+  Yapay zekâ Kimseyi görmedim! Görsem söylerdim zaten! Bilmem. Ama şu var. Irgat İsmail, Bakkal Arif'e borçluydu.
+  Denetim    geçti (tavır dogru, 0.81 sn)
+
+  Soru       Bakkal Arif öldükten sonra birinde bir tuhaflık fark ettin mi?
+  Kalıp      Yok! Tuhaf olan sizin bu sorularınız! Bakkal Arif'in yakını Hanımağa idi.
+  Yapay zekâ Yok! Tuhaf olan sizin bu sorularınız! Bakkal Arif'in yakını Hanımağa idi.
+  Denetim    geçti (tavır dogru, 0.67 sn)
+
+── Hoca (1. gün) ──
+  Soru       (kapıdan girer)
+  Kalıp      Selamünaleyküm, beyim. Buyurun, sorun.
+  Yapay zekâ Selamünaleyküm, beyim. Buyurun, sorun.
+  Denetim    geçti (tavır dogru, 0.51 sn)
+
+  Soru       Dün gece neredeydin, söyle bakalım.
+  Kalıp      Dün gece evdeydim. Yatsıyı kıldım, yattım.
+  Yapay zekâ Müfettiş bey, dün gece evdeydim. Yatsıyı kıldım, yattım.
+  Denetim    geçti (tavır dogru, 0.60 sn)
+
+  Soru       Dün gece gözüne ya da kulağına bir şey çarptı mı?
+  Kalıp      Dün gece evde Deli Bektaş vardı. Değirmencinin saklı bir işi var; ne olduğunu ben söyleyemem. Bunu bir Ebe Ana bilir, bir ben.
+  Yapay zekâ Dün gece evde Deli Bektaş vardı. Değirmencinin saklı bir işi var; ne olduğunu ben söyleyemem. Bunu bir Ebe Ana bilir, bir ben.
+  Denetim    geçti (tavır dogru, 0.87 sn)
+
+  Soru       Dün gece Deli Bektaş neredeydi, bilir misin?
+  Kalıp      Deli Bektaş mı? Evdeydi, yattı uyudu.
+  Yapay zekâ Deli Bektaş mı? Beyim evdeydi, yattı uyudu.
+  Denetim    geçti (tavır dogru, 0.51 sn)
+
+── Bekir Usta (1. gün) ──
+  Soru       (kapıdan girer)
+  Kalıp      Selamünaleyküm, beyim. Buyurun, sorun.
+  Yapay zekâ Selamünaleyküm, beyim. Buyurun, sorun.
+  Denetim    geçti (tavır dogru, 0.52 sn)
+
+  Soru       Dün gece neredeydin, söyle bakalım.
+  Kalıp      Dün gece evdeydim. Yatsıyı kıldım, yattım.
+  Yapay zekâ Evet beyim... Dün gece evdeydim. Yatsıyı kıldım, yattım.
+  Denetim    geçti (tavır dogru, 0.59 sn)
+
+  Soru       Dün gece kimi gördün?
+  Kalıp      Dün gece bakkalda uzun entari giymiş biri vardı. Yüzünü seçemedim.
+  Yapay zekâ Beyim, dün gece bakkalda uzun entari giymiş biri vardı. Yüzünü seçemedim.
+  Denetim    geçti (tavır dogru, 0.59 sn)
+
+  Soru       Bakkal Arif'in ölümünden sonra köyde garip bir şey gördün mü?
+  Kalıp      Tuhaf bir şey görmedim, beyim. Ama size başka bir şey söyleyeyim. Değirmenci, Bakkal Arif'e borçluydu; bunu bilen bilir.
+  Yapay zekâ Tuhaf bir şey görmedim, beyim... Ama size başka bir şey söyleyeyim; Değirmenci, Bakkal Arif'e borçluydu bunu bilen bilir.
+  Denetim    geçti (tavır dogru, 0.86 sn)
+
+Özet: 18 söz; yapay zekâ 17, reddedilen 0, zaman aşımı 1. İlk söz: 0.72 sn, Ortalama: 0.61 sn.
+
+TOTAL_WALL_SEC: 13.2
