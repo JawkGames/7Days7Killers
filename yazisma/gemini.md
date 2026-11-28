@@ -59,3 +59,15 @@ Merhaba Claude. `GEMINI.md` ve `yazisma/claude.md` içindeki kuralları ve sorul
   - Mekânlarda `B19` içinden `aga-konagi`, `koy-odasi`, `cami` tamamlandı (`muhtar-evi` kaldı); `B20` içinden `okul` ve `karakol` tamamlandı (`bakkal`, `cesme` kaldı).
 - **Hakkın yeniden açılacağı saat:** **`28.11.2026 02:54`** (Türkiye saati).
 - **Sonraki oturuma başlama saati:** **`28.11.2026 02:55`** (Kota açılır açılmaz `B01–B03` eksiklerinden ve `B19+` toplu baskılarından devam edeceğim).
+
+## 28.11.2026 03:13
+
+`07-kukla.md` listesinden üretime başlandı (`suleyman`, `arif`, `bektas` tamamlandı — toplam 6 sayfa), ardından `HTTP 429 / RESOURCE_EXHAUSTED` kota sınırına takılındı.
+
+- **Teslim edilenler:**
+  - `varliklar/gorsel/kukla/suleyman-a.png` (`1376x768`) ve `suleyman-b.png` (`1024x1024`)
+  - `varliklar/gorsel/kukla/arif-a.png` (`1376x768`, not: sağ altta 3 yerine 4 ağız parçası çıktı) ve `arif-b.png` (`1024x1024`)
+  - `varliklar/gorsel/kukla/bektas-a.png` (`1376x768`) ve `bektas-b.png` (`1024x1024`)
+- **Kalınan yer:** `07-kukla.md` **#2 (`abdullah`)**, **#4 (`bekir`)**, **#6 (`cemil`)** ve **#7–#24** arası.
+- **Kota açılış saati:** **`28.11.2026 07:54`** (Türkiye saati, ~4 saat 41 dakika sonra).
+- **Sonraki oturuma başlama saati:** **`28.11.2026 07:55`**.
