@@ -2,6 +2,9 @@
 import './arayuz/oyun.css';
 import {tuvalKur} from './cizim/teknik/tuval.js';
 import {oyunArayuzuKur} from './arayuz/oyun-arayuzu.js';
+import {gorselleriYukle} from './platform/gorseller.js';
+
+gorselleriYukle();
 
 tuvalKur(document.getElementById('sahne'));
 const oyun=oyunArayuzuKur();

@@ -9,6 +9,7 @@ import {yerlestir} from './yerlesim.js';
 import {tonla,yipranma,kagitKur} from './baski.js';
 import {kurbanCiz} from './kurban.js';
 import {MEKANLAR,IZLER} from './kutuphane.js';
+import {mekanResmi} from '../../../platform/gorseller.js';
 
 // metinden tohum (iz kimliği her fotoğrafta aynı sapmayı alsın diye)
 const karma=(s,t)=>{let h=t|0; for(const ch of String(s)) h=Math.imul(h^ch.charCodeAt(0),2654435761); return h>>>0;};
@@ -32,7 +33,11 @@ export function fotografKur({mekan,izler=[],tohum=1,kurban=true,cozunurluk=1.2})
   hedefAyarla(k);
   try{
     tabanAyarla(new DOMMatrix([R,0,0,R,0,0])); tabana();
-    M.ciz(P,rng(tohum*31+1));
+    const foto=mekanResmi(M.id);
+    if(foto){ // üretilmiş resim: fotoğraf alanını doldurur (taşan yanlar kesilir)
+      const o=Math.max(W/foto.width,H/foto.height), fw=foto.width*o, fh=foto.height*o;
+      c.drawImage(foto,(W-fw)/2,(H-fh)/2,fw,fh);
+    } else M.ciz(P,rng(tohum*31+1));
     if(kurban){
       const kb=kurban===true?{}:kurban, yuva=M.yuvalar[kb.yuva||'beden'];
       if(yuva){const rk=rng(tohum*17+5); nesneler.push({kurban:true, d:P.derinlik(...yuva.konum), ciz:()=>kurbanCiz(P,isik,yuva,{ortu:kb.ortu||yuva.ortu||'kilim', aci:(kb.aci??yuva.aci??0)+(rk()-.5)*.12},rk)});}
@@ -53,7 +58,7 @@ export function fotografKur({mekan,izler=[],tohum=1,kurban=true,cozunurluk=1.2})
     }
     nesneler.sort((a,b)=>b.d-a.d);
     for(const o of nesneler){tabana(); c.save(); if(o.kurban) o.ciz(); else o.tanim.ciz(o.k,o.g,o.iz); c.restore();}
-    tabana(); if(M.ustCiz) M.ustCiz(P,rng(tohum*31+2));
+    tabana(); if(M.ustCiz&&!foto) M.ustCiz(P,rng(tohum*31+2));
     c.setTransform(1,0,0,1,0,0); tonla(k,t.width,t.height,tohum);
     // seçici renk: parlaklık baskıdan kalır, yalnızca ton gelir
     c.save(); c.globalCompositeOperation='color';
